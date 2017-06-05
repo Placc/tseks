@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.model.entities;
+package com.phicaro.tseks.entities;
 
 import com.phicaro.tseks.util.Resources;
 import java.util.*;
@@ -17,6 +17,7 @@ public class Event {
     private static final int DESCRIPTION_LINES = 3;
     
     private Date date;
+    private Location location;
     private List<Table> tables;
     private String[] description;
     private String name;
@@ -24,17 +25,35 @@ public class Event {
     public Event() {
         
     }
-    
-    public Event(Date date, String name) {
-        this.description = new String[DESCRIPTION_LINES];
-        this.tables = new ArrayList(); 
-        setDate(date);
-        setName(name);
+
+    public Date getDate() {
+        return date;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public List<Table> getTables() {
+        return tables;
+    }
+
+    public String[] getDescription() {
+        return description;
+    }
+
+    public String getName() {
+        return name;
     }
     
-    public Event(Date date, String name, String[] description) {
-        this(date, name);
-        setDescription(description);
+    
+    
+    public Event(Date date, String name, Location location) {
+        this.description = new String[DESCRIPTION_LINES];
+        this.tables = new ArrayList(); 
+        setLocation(location);
+        setDate(date);
+        setName(name);
     }
     
     public void setName(String name) {
@@ -42,10 +61,17 @@ public class Event {
     }
     
     public void setDescription(String[] description) throws ArrayIndexOutOfBoundsException {
+        if(description.length == 0) {
+            return;
+        }
         if(description.length > this.description.length) {
             throw new ArrayIndexOutOfBoundsException(Resources.getString("MSG_OnlyThreeDescriptionLinesAllowed"));
         }
         System.arraycopy(description, 0, this.description, 0, description.length);
+    }
+    
+    public void setLocation(Location location) {
+        this.location = location;
     }
   
     public void setDate(Date date) {
@@ -68,6 +94,6 @@ public class Event {
     
     @Override
     public boolean equals(Object o) {
-        return o != null && o instanceof Event && ((Event) o).date.equals(date) && ((Event) o).name.equals(name);
+        return o != null && o instanceof Event && ((Event) o).date.equals(date) && ((Event) o).name.equals(name) && ((Event) o).location.equals(location);
     }
 }

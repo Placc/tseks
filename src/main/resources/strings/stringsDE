@@ -1,1 +1,15 @@
 LAB_EventOverview=Veranstaltungsübersicht
+LAB_ApplicationName=TSEKS - TanzSchulenEintrittsKartenSystem
+LAB_Events=Veranstaltungen
+LAB_Options=Optionen
+LAB_NewEvent=Neue Veranstaltung
+LAB_Event=Veranstaltung
+LAB_Date=Datum
+LAB_Location=Ort
+LAB_Number=Anzahl
+LAB_Price=Preis
+LAB_Seats=Plätze
+LAB_PrintTickets=Eintrittskarten drucken
+LAB_ConnectionError=Verbindung konnte nicht hergestellt werden
+LAB_ErrorOccured=Fehler aufgetreten
+DESC_ConnectionErrorRetry=Verbindung zur Datenbank konnte nicht hergestellt werden. Möchten Sie es erneut versuchen?

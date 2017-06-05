@@ -6,33 +6,35 @@
 package com.phicaro.tseks.util;
 
 import com.phicaro.tseks.ui.MainApp;
+import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.util.exceptions.ResourceNotFoundException;
 import java.io.*;
 import java.util.Optional;
-
+import javafx.scene.image.Image;
 
 /**
  *
  * @author Placc
  */
 public class Resources {
-    
-    private MainApp appInstance;
-    private static Resources resourceInstance;
-    
-    public static void initialize(MainApp appInstance) {
-        resourceInstance = new Resources(appInstance);
+
+    public static enum ImageSize {
+        NORMAL, LARGE
     }
-    
-    private Resources(MainApp appInstance) {
-        this.appInstance = appInstance;
+
+    public static String getStylesheet() {
+        return MainApp.class.getResource("/styles/Styles.css").toExternalForm();
     }
-    
+
     public static String getString(final String label) throws ResourceNotFoundException {
-        InputStream stream = resourceInstance.appInstance.getClass().getResourceAsStream("/strings/stringsDE");
-        
+        return findString(label, "/strings/stringsDE");
+    }
+    
+    private static String findString(final String label, final String file) throws ResourceNotFoundException {
+        InputStream stream = MainApp.class.getResourceAsStream(file);
+
         BufferedReader reader;
-        
+
         try {
             reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
         } catch (UnsupportedEncodingException ex) {
@@ -40,13 +42,41 @@ public class Resources {
             throw new ResourceNotFoundException(label);
         }
 
-        Optional<String> match = reader.lines().filter((String t) -> t.startsWith(label)).findFirst();
+        Optional<String> match = reader.lines().filter((String t) -> t.trim().substring(0, t.trim().indexOf("=")).equals(label)).findFirst();
 
-        if(!match.isPresent()) {
+        if (!match.isPresent()) {
             throw new ResourceNotFoundException(label);
         }
 
         return match.get().substring(match.get().indexOf('=') + 1);
     }
+
+    public static String getConfig(String id) {
+        return findString(id, "/config/configDE");
+    }
     
+    public static Image getImage(String name, ImageSize size) throws ResourceNotFoundException {
+        if (!name.endsWith(".png")) {
+            name = name + ".png";
+        }
+
+        String path = "/images/1x/" + name;
+        if (size == ImageSize.LARGE) {
+            path = "/images/2x/" + name;
+        }
+
+        try {
+            InputStream stream = MainApp.class.getResourceAsStream(path);
+
+            Image image = new Image(stream);
+
+            if (stream == null || image == null) {
+                throw new ResourceNotFoundException(name);
+            }
+
+            return image;
+        } catch (Exception e) {
+            throw new ResourceNotFoundException(name);
+        }
+    }
 }

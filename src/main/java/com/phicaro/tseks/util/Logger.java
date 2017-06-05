@@ -10,8 +10,13 @@ package com.phicaro.tseks.util;
  * @author Placc
  */
 public class Logger {
-    
+
     public static void error(String message, Throwable e) {
-        //TODO 
+        System.out.println(message);
+        e.printStackTrace();
+    }
+
+    public static void error(String message) {
+        error(message, null);
     }
 }
