@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.ui.viewmodels;
+package com.phicaro.tseks.ui.models;
 
 import com.phicaro.tseks.entities.Event;
 import com.phicaro.tseks.util.Resources;
@@ -17,6 +17,7 @@ import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  *
@@ -26,6 +27,8 @@ public class EventViewModel {
     
     private final SimpleDateFormat formatter = new SimpleDateFormat(Resources.getConfig("CFG_DateFormat"));
     
+    private Event event;
+    
     //Overview
     private final SimpleStringProperty name;
     private final SimpleStringProperty location;
@@ -34,7 +37,9 @@ public class EventViewModel {
     //Edit
     private final SimpleListProperty<String> description;
     
-    public EventViewModel(Event event) {        
+    public EventViewModel(Event event) {       
+        this.event = event;
+        
         this.name = new SimpleStringProperty(event.getName());
         this.location = new SimpleStringProperty(event.getLocation().toString());
         this.date = new SimpleStringProperty(formatter.format(event.getDate()));
@@ -76,6 +81,10 @@ public class EventViewModel {
         this.description.set(FXCollections.observableArrayList(description));
     }
     
+    public Event getEvent() {
+        return event;
+    }
+    
     //Properties
     
     public SimpleStringProperty getNameProperty() {
@@ -97,6 +106,7 @@ public class EventViewModel {
     @Override
     public boolean equals(Object o) {
         return o instanceof EventViewModel &&
+                ((EventViewModel) o).event.equals(event) &&
                 ((EventViewModel) o).date.get().equals(date.get()) &&
                 ((EventViewModel) o).name.get().equals(name.get()) &&
                 ((EventViewModel) o).location.get().equals(location.get());

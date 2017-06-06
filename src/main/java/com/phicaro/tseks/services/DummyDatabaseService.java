@@ -18,6 +18,7 @@ import io.reactivex.subjects.PublishSubject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -53,7 +54,7 @@ public class DummyDatabaseService implements IDatabaseService {
             connection.onNext(ConnectionState.CONNECTING);
             connection.onNext(ConnectionState.CONNECTED);
             s.onComplete();
-        });
+        }).delay(5000, TimeUnit.MILLISECONDS);
     }
 
     @Override

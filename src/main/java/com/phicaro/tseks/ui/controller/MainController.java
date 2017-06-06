@@ -8,6 +8,7 @@ package com.phicaro.tseks.ui.controller;
 import com.phicaro.tseks.TseksApp;
 import com.phicaro.tseks.services.IDatabaseService;
 import com.phicaro.tseks.util.Logger;
+import com.phicaro.tseks.util.Resources;
 import com.phicaro.tseks.util.UiHelper;
 import io.reactivex.functions.Consumer;
 import io.reactivex.plugins.RxJavaPlugins;
@@ -20,7 +21,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 
 /**
  * FXML Controller class
@@ -29,6 +33,12 @@ import javafx.scene.layout.BorderPane;
  */
 public class MainController implements Initializable {
 
+    @FXML
+    private HBox toolbar;
+    @FXML
+    private Label pageTitle;
+    @FXML
+    private MenuButton optionButton;
     @FXML
     private BorderPane content;
 
@@ -39,11 +49,15 @@ public class MainController implements Initializable {
     public static MainController instance() {
         return instance;
     }
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         instance = this;
-        
+
+        optionButton.setText(Resources.getString("LAB_Options"));
+
+        switchToStartup();
+
         RxJavaPlugins.setErrorHandler(e -> {
             Logger.error("rx-java-plugins on-error", e);
             System.exit(e.hashCode());
@@ -83,14 +97,29 @@ public class MainController implements Initializable {
                 .subscribe(onComplete, onError);
     }
 
-    public void switchToStartup() throws IOException {
-        BorderPane root = FXMLLoader.load(getClass().getResource("/fxml/Startup.fxml"));
-        content.setCenter(root);
+    private void setToolbar(String label, boolean visible) {
+        pageTitle.setText(label);
+        toolbar.setVisible(visible);
+    }
+
+    public void switchToStartup() {
+        try {
+            BorderPane root = FXMLLoader.load(getClass().getResource("/fxml/Startup.fxml"));
+            setToolbar("", false);
+            content.setCenter(root);
+        } catch (IOException e) {
+            Logger.error("main-controller switch-to-startup", e);
+        }
     }
 
     public void switchToOverview() throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/Overview.fxml"));
-        content.setCenter(root);
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/Overview.fxml"));
+            setToolbar(Resources.getString("LAB_Events"), true);
+            content.setCenter(root);
+        } catch (IOException e) {
+            Logger.error("main-controller switch-to-overview", e);
+        }
     }
 
     public TseksApp getTseksApp() {

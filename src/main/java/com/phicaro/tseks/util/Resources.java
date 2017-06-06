@@ -26,6 +26,10 @@ public class Resources {
         return MainApp.class.getResource("/styles/Styles.css").toExternalForm();
     }
 
+    public static String getString(final String label, Object... args) {
+        return String.format(getString(label), args);
+    }
+    
     public static String getString(final String label) throws ResourceNotFoundException {
         return findString(label, "/strings/stringsDE");
     }
