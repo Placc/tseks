@@ -8,7 +8,7 @@ package com.phicaro.tseks.ui.controller;
 import com.phicaro.tseks.entities.Event;
 import com.phicaro.tseks.services.EventService;
 import com.phicaro.tseks.ui.models.EventViewModel;
-import com.phicaro.tseks.ui.models.TableGroup;
+import com.phicaro.tseks.ui.models.TableGroupViewModel;
 import com.phicaro.tseks.util.Resources;
 import com.phicaro.tseks.util.UiHelper;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
@@ -21,25 +21,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 /**
  *
@@ -58,7 +51,7 @@ public class OverviewController implements Initializable {
     @FXML
     private Label infoEventDesc;
     @FXML
-    private TableView<TableGroup> infoEventTable;
+    private TableView<TableGroupViewModel> infoEventTable;
     @FXML
     private Button printButton;
 
@@ -73,11 +66,11 @@ public class OverviewController implements Initializable {
     @FXML
     private TableColumn<EventViewModel, HBox> eventTableOptionsColumn;
     @FXML
-    private TableColumn<TableGroup, Integer> infoTableCountColumn;
+    private TableColumn<TableGroupViewModel, Integer> infoTableCountColumn;
     @FXML
-    private TableColumn<TableGroup, Integer> infoTableSeatsColumn;
+    private TableColumn<TableGroupViewModel, Integer> infoTableSeatsColumn;
     @FXML
-    private TableColumn<TableGroup, Double> infoTablePriceColumn;
+    private TableColumn<TableGroupViewModel, Double> infoTablePriceColumn;
 
     //Model
     private EventService eventService;
@@ -88,10 +81,12 @@ public class OverviewController implements Initializable {
         addEventButton.setText(Resources.getString("LAB_NewEvent"));
         addEventButton.setContentDisplay(ContentDisplay.LEFT);
         addEventButton.setGraphic(new ImageView(Resources.getImage("add.png", Resources.ImageSize.NORMAL)));
+        addEventButton.setOnAction(e -> onAddEventClicked());
 
         printButton.setText(Resources.getString("LAB_PrintTickets"));
         printButton.setContentDisplay(ContentDisplay.LEFT);
         printButton.setGraphic(new ImageView(Resources.getImage("print.png", Resources.ImageSize.NORMAL)));
+        printButton.setOnAction(e -> onPrintClicked());
 
         //Table columns
         eventTableNameColumn.setText(Resources.getString("LAB_Event"));
@@ -128,14 +123,16 @@ public class OverviewController implements Initializable {
 
         onSelected(null);
 
+        MainController.instance().toggleSpinner(true);
         eventService.getEvents()
                 .doOnComplete(() -> {
+                    MainController.instance().toggleSpinner(false);
                     eventService.eventAdded().subscribe(this::addEvent);
                     eventService.eventRemoved().subscribe(this::removeEvent);
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
-                .subscribe(this::addEvent, e -> UiHelper.showException(e));
+                .subscribe(this::addEvent, e -> UiHelper.showException(Resources.getString("LAB_ErrorOccured"), e));
     }
 
     private void addEvent(Event event) {
@@ -170,9 +167,9 @@ public class OverviewController implements Initializable {
         Button edit = new Button("", editView);
         Button delete = new Button("", deleteView);
 
-        copy.getStyleClass().add("tool-bar");
-        edit.getStyleClass().add("tool-bar");
-        delete.getStyleClass().add("tool-bar");
+        copy.getStyleClass().add("back-btn");
+        edit.getStyleClass().add("back-btn");
+        delete.getStyleClass().add("back-btn");
         
         copy.setOnAction(e -> copyEventClicked(eventViewModel.getEvent()));
         edit.setOnAction(e -> editEventClicked(eventViewModel.getEvent()));
@@ -181,13 +178,40 @@ public class OverviewController implements Initializable {
         return new SimpleObjectProperty<>(new HBox(20., copy, edit, delete));
     }
 
+    private void onAddEventClicked() {
+        MainController.instance().switchToEdit(null);
+    }
+    
     private void copyEventClicked(Event e) {
+        MainController.instance().toggleSpinner(true);
+        int sameNames = events.filtered(event -> event.getName().startsWith(e.getName())).size();
+        eventService.createNewEvent(e.getName() + "(" + sameNames + ")", e.getDate(), e.getLocation(), e.getDescription())
+                .flatMapCompletable(event -> {
+                    e.getTableGroups().forEach(group -> event.addTableGroup(group));
+                    return eventService.updateEvent(event);
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(JavaFxScheduler.platform())
+                .subscribe(() -> MainController.instance().toggleSpinner(false));
     }
 
     private void editEventClicked(Event e) {
+        MainController.instance().switchToEdit(e);
     }
 
     private void deleteEventClicked(Event e) {
+        if(UiHelper.showDeleteDialog().blockingFirst()) {
+            MainController.instance().toggleSpinner(true);
+            eventService.deleteEvent(e)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(JavaFxScheduler.platform())
+                    .subscribe(() -> MainController.instance().toggleSpinner(false));
+        }
+    }
+    
+    
+    private void onPrintClicked() {
+        //TODO
     }
 
     private void onSelected(EventViewModel selection) {
@@ -195,11 +219,11 @@ public class OverviewController implements Initializable {
 
         if (selection != null) {
             infoEventTitle.setText(selection.getName());
-            infoEventDesc.setText(Resources.getString("LAB_XTablesOverall", selection.getEvent().getTables().size()));
-            infoEventTable.getItems().addAll(TableGroup.fromEvent(selection.getEvent()));
+            infoEventDesc.setText(Resources.getString("LAB_XTablesOverall", selection.getEvent().getTableGroups().size()));
+            infoEventTable.getItems().addAll(TableGroupViewModel.fromEvent(selection.getEvent()));
 
             infoEventTable.setDisable(false);
-            printButton.setDisable(selection.getEvent().getTables().size() > 0);
+            printButton.setDisable(selection.getEvent().getTableGroups().size() > 0);
         } else {
             infoEventTitle.setText(Resources.getString("LAB_NoEventSelected"));
             infoEventDesc.setText("");

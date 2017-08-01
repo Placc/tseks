@@ -5,18 +5,34 @@
  */
 package com.phicaro.tseks.util;
 
+import com.phicaro.tseks.util.exceptions.EventAlreadyExistsException;
+import com.phicaro.tseks.util.exceptions.PersistenceException;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Optional;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.effect.ColorAdjust;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Modality;
+import javafx.scene.paint.Paint;
 
 /**
  *
@@ -24,6 +40,29 @@ import javafx.stage.Modality;
  */
 public class UiHelper {
 
+    private static final SimpleDateFormat formatter = new SimpleDateFormat(Resources.getConfig("CFG_DateFormat"));
+   
+   public static Date asDate(LocalDate localDate) {
+    return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+  }
+
+  public static LocalDate asLocalDate(Date date) {
+    return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+  }
+    
+    public static String format(Date date) {
+        return formatter.format(date);
+    }
+    
+    public static Date parse(String date) {
+        try {
+            return formatter.parse(date);
+        }catch(Exception e) {
+            Logger.error("ui-helper parse", e);
+        }
+        return null;
+    }
+    
     private static Single<Alert> createAlert(AlertType type, String title, String message, ButtonType... buttonTypes) {
         return Single.create(s -> {
             Alert alert = new Alert(type, message, buttonTypes);
@@ -35,15 +74,31 @@ public class UiHelper {
         });
     }
 
-    public static void showException(Throwable e) {
-        showError(Resources.getString("LAB_ErrorOccured"), e.getMessage());
+    public static void showException(String title, Throwable e) {
+        String message = e.getMessage();
+        
+        if(e instanceof EventAlreadyExistsException) {
+            message = Resources.getString("DESC_EventAlreadyExists");
+        } 
+        else if (e instanceof PersistenceException) {
+            message = Resources.getString("DESC_PersistenceException");
+        }
+        
+        showError(title, e.getMessage());
     }
 
-    public static void showError(String title, String message) {
+    private static void showError(String title, String message) {
         createAlert(AlertType.ERROR, title, message, ButtonType.OK)
                 .subscribeOn(JavaFxScheduler.platform())
                 .observeOn(JavaFxScheduler.platform())
                 .subscribe(alert -> alert.show());
+    }
+    
+    public static Observable<Boolean> showDeleteDialog() {
+        return createAlert(AlertType.WARNING, Resources.getString("LAB_DeleteEvent"), Resources.getString("DESC_DeleteEvent"), ButtonType.YES, ButtonType.NO)
+                .subscribeOn(JavaFxScheduler.platform())
+                .flatMapObservable(alert -> JavaFxObservable.fromDialog((Alert) alert))
+                .map(result -> result.equals(ButtonType.YES));
     }
 
     public static Observable<Boolean> showReconnectDialog() {
@@ -52,7 +107,47 @@ public class UiHelper {
                 .flatMapObservable(alert -> JavaFxObservable.fromDialog((Alert) alert))
                 .map(result -> result.equals(ButtonType.YES));
     }
-
+    
+    public static Observable<Boolean> showDiscardChangesDialog() {
+        return createAlert(AlertType.WARNING, Resources.getString("LAB_UnsavedChanges"), Resources.getString("DESC_SaveChanges"), ButtonType.NO, ButtonType.YES)
+                .subscribeOn(JavaFxScheduler.platform())
+                .flatMapObservable(alert -> JavaFxObservable.fromDialog((Alert) alert))
+                .map(result -> result.equals(ButtonType.YES));
+    }
+    
+    public static Observable<Boolean> showEventExistsDialog() {
+        return createAlert(AlertType.CONFIRMATION, Resources.getString("LAB_EventAlreadyExists"), Resources.getString("DESC_RenameEvent"), ButtonType.NO, ButtonType.YES)
+                .subscribeOn(JavaFxScheduler.platform())
+                .flatMapObservable(alert -> JavaFxObservable.fromDialog((Alert) alert))
+                .map(result -> result.equals(ButtonType.YES));
+    }
+    
+    public static void toggleSpinner(StackPane content, boolean visible) {
+        Platform.runLater(() -> {
+            if(!visible) {
+                content.getChildren().forEach(c -> c.setDisable(false));
+                Optional<Node> indicator = content.getChildren().stream().filter(c -> c instanceof VBox).findAny();
+                if(indicator.isPresent()) {
+                    content.getChildren().remove(indicator.get());
+                }
+            } else {
+                ProgressIndicator pi = new ProgressIndicator();
+                VBox box = new VBox(pi);
+                box.setAlignment(Pos.CENTER);
+                Paint paint = new Color(0.5, 0.5, 0.5, 0.25);
+                BackgroundFill fill = new BackgroundFill(paint, CornerRadii.EMPTY, Insets.EMPTY);
+                Background background = new Background(fill);
+                box.backgroundProperty().set(background);
+                content.getChildren().stream().forEach(c -> c.setDisable(true));
+                content.getChildren().add(box);
+            }
+        });
+    }
+    
+    public static void showMessage(StackPane header, String message, boolean error) {
+        
+    }
+    
     public static ColorAdjust getColorAdjust(Color targetColor) {
         ColorAdjust colorAdjust = new ColorAdjust();
 

@@ -6,26 +6,16 @@
 package com.phicaro.tseks.ui.models;
 
 import com.phicaro.tseks.entities.Event;
-import com.phicaro.tseks.util.Resources;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import com.phicaro.tseks.util.UiHelper;
 import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import javafx.beans.property.ReadOnlyListProperty;
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
 /**
  *
  * @author Placc
  */
-public class EventViewModel {
-    
-    private final SimpleDateFormat formatter = new SimpleDateFormat(Resources.getConfig("CFG_DateFormat"));
+public class EventViewModel implements IViewModel<Event> {
     
     private Event event;
     
@@ -35,16 +25,24 @@ public class EventViewModel {
     private final SimpleStringProperty date;
     
     //Edit
-    private final SimpleListProperty<String> description;
+    private final SimpleStringProperty description;
+    
+    public EventViewModel() {
+        this.name = new SimpleStringProperty("");
+        this.location = new SimpleStringProperty("");
+        this.date = new SimpleStringProperty(UiHelper.format(new Date()));
+        
+        this.description = new SimpleStringProperty("");
+    }
     
     public EventViewModel(Event event) {       
         this.event = event;
         
         this.name = new SimpleStringProperty(event.getName());
         this.location = new SimpleStringProperty(event.getLocation().toString());
-        this.date = new SimpleStringProperty(formatter.format(event.getDate()));
+        this.date = new SimpleStringProperty(UiHelper.format(event.getDate()));
         
-        this.description = new SimpleListProperty<>(FXCollections.observableArrayList(event.getDescription()));
+        this.description = new SimpleStringProperty(event.getDescription());
     }
 
         //Values
@@ -70,15 +68,15 @@ public class EventViewModel {
     }
 
     public void setDate(Date date) {
-        this.date.set(formatter.format(date));
+        this.date.set(UiHelper.format(date));
     }
     
-    public List<String> getDescription() {
+    public String getDescription() {
         return description.get();
     }
 
-    public void setDescription(String[] description) {
-        this.description.set(FXCollections.observableArrayList(description));
+    public void setDescription(String description) {
+        this.description.set(description);
     }
     
     public Event getEvent() {
@@ -99,16 +97,25 @@ public class EventViewModel {
         return date;
     }
 
-    public SimpleListProperty<String> getDescriptionProperty() {
+    public SimpleStringProperty getDescriptionProperty() {
         return description;
+    }
+    
+    @Override
+    public boolean matches(Event e) {       
+        return name.get().equals(e.getName()) &&
+                location.get().equals(e.getLocation().toString()) &&
+                date.get().equals(UiHelper.format(e.getDate())) &&
+                description.get().equals(e.getDescription());
     }
     
     @Override
     public boolean equals(Object o) {
         return o instanceof EventViewModel &&
-                ((EventViewModel) o).event.equals(event) &&
                 ((EventViewModel) o).date.get().equals(date.get()) &&
                 ((EventViewModel) o).name.get().equals(name.get()) &&
-                ((EventViewModel) o).location.get().equals(location.get());
+                ((EventViewModel) o).location.get().equals(location.get()) &&
+                ((EventViewModel) o).description.get().equals(description.get())
+                &&((event == null && ((EventViewModel) o).event == null) || ((EventViewModel) o).event.equals(event));
     }
 }

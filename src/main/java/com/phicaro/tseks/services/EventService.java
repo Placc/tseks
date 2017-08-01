@@ -8,20 +8,13 @@ package com.phicaro.tseks.services;
 import com.phicaro.tseks.entities.Event;
 import com.phicaro.tseks.entities.Location;
 import com.phicaro.tseks.util.exceptions.EventAlreadyExistsException;
-import com.phicaro.tseks.util.exceptions.PersistenceException;
-import com.phicaro.tseks.services.IDatabaseService.ConnectionState;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import javafx.beans.property.SimpleListProperty;
-import javafx.collections.ObservableList;
 
 /**
  *
@@ -59,7 +52,7 @@ public class EventService {
         return database.eventRemoved();
     }
 
-    public Single<Event> createNewEvent(String name, Date date, Location location, String... description) {
+    public Single<Event> createNewEvent(String name, Date date, Location location, String description) {
         Event event = new Event(date, name, location);
 
         if (description != null) {
@@ -74,6 +67,10 @@ public class EventService {
                 .toSingleDefault(event);
     }
 
+    public Completable updateEvent(Event event) {
+        return database.updateEvent(event);
+    }
+    
     public Completable deleteEvent(Event event) {
         return database.deleteEvent(event);
     }

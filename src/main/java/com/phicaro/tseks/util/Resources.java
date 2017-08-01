@@ -9,6 +9,8 @@ import com.phicaro.tseks.ui.MainApp;
 import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.util.exceptions.ResourceNotFoundException;
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Optional;
 import javafx.scene.image.Image;
 
@@ -17,11 +19,11 @@ import javafx.scene.image.Image;
  * @author Placc
  */
 public class Resources {
-
+    
     public static enum ImageSize {
         NORMAL, LARGE
     }
-
+    
     public static String getStylesheet() {
         return MainApp.class.getResource("/styles/Styles.css").toExternalForm();
     }

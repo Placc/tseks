@@ -1,1 +1,2 @@
-CFG_DateFormat=dd.MM.yyyy, hh:mm
+CFG_DateFormat=dd.MM.yyyy, HH:mm:ss
+CFG_TimeFormat=HH:mm:ss

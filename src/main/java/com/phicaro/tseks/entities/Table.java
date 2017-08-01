@@ -5,6 +5,8 @@
  */
 package com.phicaro.tseks.entities;
 
+import java.util.UUID;
+
 /**
  *
  * @author Placc
@@ -12,22 +14,20 @@ package com.phicaro.tseks.entities;
 public class Table {
     
     private int seats;
-    private PriceCategory category;
+    private String id;
     
     public Table(int seats) {
+        this.id = UUID.randomUUID().toString();
         this.seats = seats;
-    }
-    
-    public Table(int seats, PriceCategory category) {
-        this(seats);
-        this.category = category;
     }
     
     public int getSeats() {
         return seats;
+    }  
+
+    public String getId() {
+        return id;
     }
     
-    public PriceCategory getCategory() {
-        return category;
-    }    
+    
 }

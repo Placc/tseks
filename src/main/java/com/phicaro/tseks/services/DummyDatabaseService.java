@@ -7,7 +7,7 @@ package com.phicaro.tseks.services;
 
 import com.phicaro.tseks.entities.Event;
 import com.phicaro.tseks.entities.Location;
-import com.phicaro.tseks.util.exceptions.DatabaseConnectionException;
+import com.phicaro.tseks.util.exceptions.BadArgumentException;
 import com.phicaro.tseks.util.exceptions.EventAlreadyExistsException;
 import com.phicaro.tseks.util.exceptions.PersistenceException;
 import io.reactivex.Completable;
@@ -18,6 +18,7 @@ import io.reactivex.subjects.PublishSubject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -75,6 +76,24 @@ public class DummyDatabaseService implements IDatabaseService {
             } else {
                 s.onError(new PersistenceException());
             }
+        });
+    }
+    
+    @Override
+    public Completable updateEvent(Event event) {
+        return Completable.create(s -> {            
+            Optional<Event> toRemove = dummyEvents.stream().filter(e -> e.getId().equals(event.getId())).findAny();
+            
+            if(!toRemove.isPresent()) {
+                s.onError(new PersistenceException(new BadArgumentException()));
+            }
+            
+            dummyEvents.set(dummyEvents.indexOf(toRemove.get()), event);
+            
+            eventRemoved.onNext(toRemove.get());
+            eventAdded.onNext(event);
+            
+            s.onComplete();
         });
     }
 

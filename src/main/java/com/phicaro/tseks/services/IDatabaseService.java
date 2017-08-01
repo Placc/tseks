@@ -31,6 +31,8 @@ public interface IDatabaseService {
     //Manipulation
     Completable saveEvent(Event event);
 
+    Completable updateEvent(Event event);
+    
     Completable deleteEvent(Event event);
 
     //TODO

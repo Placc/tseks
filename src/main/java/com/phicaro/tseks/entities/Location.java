@@ -5,15 +5,19 @@
  */
 package com.phicaro.tseks.entities;
 
+import java.util.UUID;
+
 /**
  *
  * @author Placc
  */
 public class Location {
     
+    String id;
     String locationDescription;
     
     public Location(String locationDescription) {
+        this.id = UUID.randomUUID().toString();
         this.locationDescription = locationDescription;
     }
     
@@ -29,5 +33,9 @@ public class Location {
     @Override
     public String toString() {
         return getLocationDescription();
+    }
+
+    public String getId() {
+        return id;
     }
 }

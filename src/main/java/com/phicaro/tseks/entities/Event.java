@@ -14,16 +14,17 @@ import java.util.*;
  */
 public class Event {
     
-    private static final int DESCRIPTION_LINES = 3;
+    private static final int DESCRIPTION_LINES = 2;
     
+    private String id;
     private Date date;
     private Location location;
-    private List<Table> tables;
-    private String[] description;
+    private List<TableGroup> tableGroups;
+    private String description;
     private String name;
     
     public Event() {
-        
+        id = UUID.randomUUID().toString();
     }
 
     public Date getDate() {
@@ -34,11 +35,11 @@ public class Event {
         return location;
     }
 
-    public List<Table> getTables() {
-        return tables;
+    public List<TableGroup> getTableGroups() {
+        return tableGroups;
     }
 
-    public String[] getDescription() {
+    public String getDescription() {
         return description;
     }
 
@@ -46,11 +47,10 @@ public class Event {
         return name;
     }
     
-    
-    
     public Event(Date date, String name, Location location) {
-        this.description = new String[DESCRIPTION_LINES];
-        this.tables = new ArrayList(); 
+        this();
+        this.description = "";
+        this.tableGroups = new ArrayList(); 
         setLocation(location);
         setDate(date);
         setName(name);
@@ -60,14 +60,8 @@ public class Event {
         this.name = name;
     }
     
-    public void setDescription(String[] description) throws ArrayIndexOutOfBoundsException {
-        if(description.length == 0) {
-            return;
-        }
-        if(description.length > this.description.length) {
-            throw new ArrayIndexOutOfBoundsException(Resources.getString("MSG_OnlyThreeDescriptionLinesAllowed"));
-        }
-        System.arraycopy(description, 0, this.description, 0, description.length);
+    public void setDescription(String description) {
+        this.description = description;
     }
     
     public void setLocation(Location location) {
@@ -78,22 +72,22 @@ public class Event {
         this.date = date;
     }
     
-    public void addTable(Table table) {
-        if(!this.tables.contains(table)) {
-            this.tables.add(table);
+    public void addTableGroup(TableGroup table) {
+        if(!this.tableGroups.contains(table)) {
+            this.tableGroups.add(table);
         }
     }
     
-    public void removeTable(Table table) {
-        this.tables.remove(table);
-    }
-    
-    public Optional<Table> findTable(int seats, PriceCategory category) {
-        return this.tables.stream().filter(table -> table.getSeats() == seats && table.getCategory().equals(category)).findAny();
+    public void removeTableGroup(TableGroup table) {
+        this.tableGroups.remove(table);
     }
     
     @Override
     public boolean equals(Object o) {
         return o != null && o instanceof Event && ((Event) o).date.equals(date) && ((Event) o).name.equals(name) && ((Event) o).location.equals(location);
+    }
+
+    public String getId() {
+        return id;
     }
 }

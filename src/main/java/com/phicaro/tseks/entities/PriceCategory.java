@@ -5,6 +5,8 @@
  */
 package com.phicaro.tseks.entities;
 
+import java.util.UUID;
+
 /**
  *
  * @author Placc
@@ -12,8 +14,10 @@ package com.phicaro.tseks.entities;
 public class PriceCategory {
     
     private double price;
+    private String id;
     
     public PriceCategory(double price) {
+        this.id = UUID.randomUUID().toString();
         this.price = price;
     }
     
@@ -24,5 +28,9 @@ public class PriceCategory {
     
     public double getPrice() {
         return price;
+    }
+
+    public String getId() {
+        return id;
     }
 }
