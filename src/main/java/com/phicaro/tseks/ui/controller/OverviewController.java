@@ -173,7 +173,7 @@ public class OverviewController implements Initializable {
         
         copy.setOnAction(e -> copyEventClicked(eventViewModel.getEvent()));
         edit.setOnAction(e -> editEventClicked(eventViewModel.getEvent()));
-        delete.setOnAction(e -> deleteEventClicked(eventViewModel.getEvent()));
+        delete.setOnAction(e -> deleteEventClicked(eventViewModel));
 
         return new SimpleObjectProperty<>(new HBox(20., copy, edit, delete));
     }
@@ -194,10 +194,10 @@ public class OverviewController implements Initializable {
         MainController.instance().switchToEdit(e);
     }
 
-    private void deleteEventClicked(Event e) {
-        if(UiHelper.showDeleteDialog().blockingFirst()) {
+    private void deleteEventClicked(EventViewModel e) {
+        if(UiHelper.showDeleteEventDialog().blockingFirst()) {
             MainController.instance().toggleSpinner(true);
-            eventService.deleteEvent(e)
+            eventService.deleteEvent(e.getEvent())
                     .subscribeOn(Schedulers.io())
                     .observeOn(JavaFxScheduler.platform())
                     .subscribe(() -> MainController.instance().toggleSpinner(false));

@@ -14,10 +14,10 @@ import java.util.UUID;
 public class Table {
     
     private int seats;
-    private String id;
+    private int tableNumber;
     
-    public Table(int seats) {
-        this.id = UUID.randomUUID().toString();
+    public Table(int tableNumber, int seats) {
+        this.tableNumber = tableNumber;
         this.seats = seats;
     }
     
@@ -25,9 +25,7 @@ public class Table {
         return seats;
     }  
 
-    public String getId() {
-        return id;
+    public int getTableNumber() {
+        return tableNumber;
     }
-    
-    
 }

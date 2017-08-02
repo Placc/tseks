@@ -55,7 +55,7 @@ public class DummyDatabaseService implements IDatabaseService {
             connection.onNext(ConnectionState.CONNECTING);
             connection.onNext(ConnectionState.CONNECTED);
             s.onComplete();
-        }).delay(5000, TimeUnit.MILLISECONDS);
+        }).delay(1000, TimeUnit.MILLISECONDS);
     }
 
     @Override

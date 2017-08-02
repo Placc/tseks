@@ -19,10 +19,8 @@ public class TableGroup implements Cloneable {
     private PriceCategory priceCategory;
     private int seatsNumber;
     private List<Table> tables;
-    private String id;
     
     public TableGroup(int seats, PriceCategory priceCategory) {
-        this.id = UUID.randomUUID().toString();
         this.tables = new ArrayList<>();
         
         this.priceCategory = priceCategory;
@@ -43,22 +41,22 @@ public class TableGroup implements Cloneable {
         tables.remove(table);
     }
     
+    public void clearTables() {
+        tables.clear();
+    }
+    
     public PriceCategory getCategory() {
         return priceCategory;
     }
     
     public List<Table> getTables() {
-        return tables;
+        return new ArrayList<>(tables);
     }
     
     public int getSeatsNumber() {
         return seatsNumber;
     }
 
-    public String getId() {
-        return id;
-    }
-    
     @Deprecated
     @Override
     public TableGroup clone() throws CloneNotSupportedException {

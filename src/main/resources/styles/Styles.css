@@ -958,3 +958,21 @@ VBox > .split-menu-button.last > .arrow-button {
     -fx-opacity: 0;
     -fx-padding: 0 0.05em 0 0.05em;  
 } 
+
+.add-table-group-btn, .add-table-group-btn:focused, .add-table-group-btn:selected {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-effect: none;
+    -fx-border-radius: 0;
+    -fx-background-image: none;
+    -fx-background-color: steelblue;
+    -fx-background-radius: 0;
+    -fx-pref-width: -1;
+    -fx-pref-height: -1;
+    -fx-text-fill: #ffffff;
+    -fx-min-width: invalid;
+}
+
+.add-table-group-btn:hover {
+    -fx-background-color: #2e6da4;
+}

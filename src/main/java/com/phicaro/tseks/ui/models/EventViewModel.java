@@ -9,8 +9,10 @@ import com.phicaro.tseks.entities.Event;
 import com.phicaro.tseks.entities.Location;
 import com.phicaro.tseks.util.UiHelper;
 import java.util.Date;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  *
@@ -24,6 +26,7 @@ public class EventViewModel implements IViewModel<Event> {
     private final SimpleStringProperty name;
     private final SimpleStringProperty location;
     private final SimpleStringProperty date;
+    private final SimpleListProperty<TableGroupViewModel> tableGroups;
     
     //Edit
     private final SimpleStringProperty description;
@@ -32,7 +35,7 @@ public class EventViewModel implements IViewModel<Event> {
         this.name = new SimpleStringProperty("");
         this.location = new SimpleStringProperty("");
         this.date = new SimpleStringProperty(UiHelper.format(new Date()));
-        
+        this.tableGroups = new SimpleListProperty<>(FXCollections.observableArrayList());
         this.description = new SimpleStringProperty("");
     }
     
@@ -42,11 +45,13 @@ public class EventViewModel implements IViewModel<Event> {
         this.name = new SimpleStringProperty(event.getName());
         this.location = new SimpleStringProperty(event.getLocation().toString());
         this.date = new SimpleStringProperty(UiHelper.format(event.getDate()));
-        
+        this.tableGroups = new SimpleListProperty<>(FXCollections.observableArrayList(TableGroupViewModel.fromEvent(event)));   
         this.description = new SimpleStringProperty(event.getDescription());
     }
-
-        //Values
+    
+    public ObservableList<TableGroupViewModel> getTableGroups() {
+        return tableGroups.get();
+    }
     
     public String getName() {
         return name.get();
@@ -102,6 +107,10 @@ public class EventViewModel implements IViewModel<Event> {
         return description;
     }
     
+    public SimpleListProperty<TableGroupViewModel> getTableGroupsProperty() {
+        return tableGroups;
+    }
+    
     public void updateEvent() {
         event.setName(getName());
         event.setLocation(new Location(getLocation()));
@@ -110,11 +119,12 @@ public class EventViewModel implements IViewModel<Event> {
     }
     
     @Override
-    public boolean matches(Event e) {       
+    public boolean matches(Event e) {      
         return name.get().equals(e.getName()) &&
                 location.get().equals(e.getLocation().toString()) &&
                 date.get().equals(UiHelper.format(e.getDate())) &&
                 description.get().equals(e.getDescription());
+        //TODO TableGroups
     }
     
     @Override
@@ -123,7 +133,8 @@ public class EventViewModel implements IViewModel<Event> {
                 ((EventViewModel) o).date.get().equals(date.get()) &&
                 ((EventViewModel) o).name.get().equals(name.get()) &&
                 ((EventViewModel) o).location.get().equals(location.get()) &&
-                ((EventViewModel) o).description.get().equals(description.get())
+                ((EventViewModel) o).description.get().equals(description.get()) &&
+                ((EventViewModel) o).tableGroups.get().equals(tableGroups.get())
                 &&((event == null && ((EventViewModel) o).event == null) || ((EventViewModel) o).event.equals(event));
     }
 }

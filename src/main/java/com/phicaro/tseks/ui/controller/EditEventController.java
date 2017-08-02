@@ -7,8 +7,10 @@ package com.phicaro.tseks.ui.controller;
 
 import com.phicaro.tseks.entities.Event;
 import com.phicaro.tseks.entities.Location;
+import com.phicaro.tseks.entities.TableGroup;
 import com.phicaro.tseks.services.EventService;
 import com.phicaro.tseks.ui.models.EventViewModel;
+import com.phicaro.tseks.ui.models.TableGroupViewModel;
 import com.phicaro.tseks.util.Resources;
 import com.phicaro.tseks.util.TimeTextField;
 import com.phicaro.tseks.util.UiHelper;
@@ -25,17 +27,25 @@ import java.util.Date;
 import java.util.Calendar;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import org.reactivestreams.Subscription;
+import javafx.scene.paint.Color;
+import javafx.util.converter.NumberStringConverter;
 
 /**
  * FXML Controller class
@@ -63,15 +73,15 @@ public class EditEventController implements Initializable, INavigationController
     @FXML
     private HBox eventDateHBox;     
     @FXML
-    private TableView<?> eventTableView;
+    private TableView<TableGroupViewModel> eventTableView;
     @FXML
-    private TableColumn<?, ?> tableNumberColumn;
+    private TableColumn<TableGroupViewModel, HBox> tableNumberColumn;
     @FXML
-    private TableColumn<?, ?> seatsColumn;
+    private TableColumn<TableGroupViewModel, Integer> seatsColumn;
     @FXML
-    private TableColumn<?, ?> categoryColumn;
+    private TableColumn<TableGroupViewModel, HBox> categoryColumn;
     @FXML
-    private TableColumn<?, ?> optionsColumn;
+    private TableColumn<TableGroupViewModel, HBox> optionsColumn;
     @FXML
     private Label previewLabel;
     @FXML
@@ -80,6 +90,10 @@ public class EditEventController implements Initializable, INavigationController
     private Button saveButton;
     @FXML
     private Button discardButton;
+    @FXML
+    private Label tableGroupLabel;
+    @FXML
+    private Button addTableGroupButton;
     
     private TimeTextField timeTextField;
 
@@ -99,6 +113,7 @@ public class EditEventController implements Initializable, INavigationController
     public void initialize(URL url, ResourceBundle rb) {        
         timeTextField = new TimeTextField();        
         eventDateHBox.getChildren().add(timeTextField);
+        eventDateHBox.setMargin(timeTextField, new Insets(0, 10, 0, 10));
         
         eventNameLabel.setText(Resources.getString("LAB_EventName"));
         eventDescLabel.setText(Resources.getString("LAB_Description"));
@@ -113,6 +128,12 @@ public class EditEventController implements Initializable, INavigationController
         discardButton.setText(Resources.getString("LAB_Discard"));
         discardButton.setGraphic(new ImageView(Resources.getImage("clear.png", Resources.ImageSize.NORMAL)));
         discardButton.setOnAction(e -> onDiscardClicked());
+        
+        tableGroupLabel.setText(Resources.getString("LAB_TableGroups"));
+        
+        addTableGroupButton.setText(Resources.getString("LAB_NewTableGroup"));
+        addTableGroupButton.setGraphic(new ImageView(Resources.getImage("add_outline.png", Resources.ImageSize.NORMAL)));
+        addTableGroupButton.setOnAction(e -> onAddTableGroupClicked());
         
         eventTableView.setPlaceholder(new Label(Resources.getString("LAB_NoTablesAvailable")));
         
@@ -136,20 +157,18 @@ public class EditEventController implements Initializable, INavigationController
     
     private void initializeWithEvent(EventViewModel event) {        
         eventNameEditText.textProperty().bindBidirectional(event.getNameProperty());
-        eventNameEditText.textProperty().addListener((observable, oldValue, newValue) -> enableButtons(true));
+        eventNameEditText.textProperty().addListener((observable, oldValue, newValue) -> enableButtons(hasChanges()));
         
         eventDescEditText.textProperty().bindBidirectional(event.getDescriptionProperty());
-        eventDescEditText.textProperty().addListener((observable, oldValue, newValue) -> enableButtons(true));
+        eventDescEditText.textProperty().addListener((observable, oldValue, newValue) -> enableButtons(hasChanges()));
         
         eventLocationEditText.textProperty().bindBidirectional(event.getLocationProperty());
-        eventLocationEditText.textProperty().addListener((observable, oldValue, newValue) -> enableButtons(true));
+        eventLocationEditText.textProperty().addListener((observable, oldValue, newValue) -> enableButtons(hasChanges()));
         
         Date eventDate = UiHelper.parse(event.getDate());
         
         eventDatePicker.setValue(UiHelper.asLocalDate(eventDate));
         eventDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-            enableButtons(true);
-            
             Date oldDate = UiHelper.parse(eventViewModel.getDate());
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(oldDate);
@@ -157,12 +176,11 @@ public class EditEventController implements Initializable, INavigationController
             calendar.set(newValue.getYear(), newValue.getMonthValue() - 1, newValue.getDayOfMonth());
             
             eventViewModel.setDate(calendar.getTime());
+            enableButtons(hasChanges());
         });
         
         timeTextField.setText(new SimpleDateFormat(Resources.getConfig("CFG_TimeFormat")).format(eventDate));
         timeTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            enableButtons(true);
-            
             Date oldDate = UiHelper.parse(eventViewModel.getDate());
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(oldDate);
@@ -172,7 +190,15 @@ public class EditEventController implements Initializable, INavigationController
             calendar.set(Calendar.SECOND, timeTextField.getSeconds());
             
             eventViewModel.setDate(calendar.getTime());
+            enableButtons(hasChanges());
         });
+        
+        eventTableView.itemsProperty().bindBidirectional(this.eventViewModel.getTableGroupsProperty());
+        
+        tableNumberColumn.setCellValueFactory(group -> createTableNumbersHbox(group.getValue()));
+        seatsColumn.setCellValueFactory(group -> group.getValue().getSeatsProperty().asObject());
+        categoryColumn.setCellValueFactory(group -> createCategoryHBox(group.getValue()));
+        optionsColumn.setCellValueFactory(group -> createOptionsHbox(group.getValue()));
         
         enableButtons(false);
     }
@@ -182,7 +208,8 @@ public class EditEventController implements Initializable, INavigationController
             return !eventViewModel.getName().trim().isEmpty() ||
                     !eventViewModel.getLocation().trim().isEmpty() ||
                     !eventViewModel.getDate().trim().isEmpty() || 
-                    !eventViewModel.getDescription().isEmpty();
+                    !eventViewModel.getDescription().trim().isEmpty() ||
+                    !eventViewModel.getTableGroups().isEmpty();
         } else {
             return !eventViewModel.matches(eventViewModel.getEvent());
         }
@@ -255,12 +282,98 @@ public class EditEventController implements Initializable, INavigationController
                 });
     }
 
+    private void onAddTableGroupClicked() {
+        eventViewModel.getTableGroups().add(new TableGroupViewModel());
+        enableButtons(hasChanges());
+    }
+    
     private void onDiscardClicked() {
-        setExistingEvent(eventViewModel.getEvent());
+        if(UiHelper.showDiscardChangesDialog().blockingFirst()) {
+            setExistingEvent(eventViewModel.getEvent());
+        }
     }
 
     private void enableButtons(boolean enabled) {
         saveButton.setDisable(!enabled);
         discardButton.setDisable(!enabled);
     }
+
+    private ObservableValue<HBox> createTableNumbersHbox(TableGroupViewModel group) {
+        Label minus = new Label(" - ");
+        
+        TextField from = new TextField();
+        
+        from.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                from.setText(newValue.replaceAll("[^\\d]", ""));
+            } 
+            if(from.getText().trim().isEmpty()) {
+                from.setText(String.valueOf(group.getStartNumber()));
+            }
+        });
+        
+        from.textProperty().bindBidirectional(group.getStartNumberProperty(), new NumberStringConverter());
+        
+        TextField to = new TextField();
+        
+        to.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                to.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            if(to.getText().trim().isEmpty()) {
+                to.setText(String.valueOf(group.getEndNumber()));
+            }
+        });
+                
+        to.textProperty().bindBidirectional(group.getEndNumberProperty(), new NumberStringConverter());
+        
+        HBox result = new HBox(from, minus, to);
+        result.alignmentProperty().setValue(Pos.CENTER);
+        
+        return new SimpleObjectProperty<>(result);
+    }
+
+    private ObservableValue<HBox> createCategoryHBox(TableGroupViewModel group) {
+        Label currency = new Label(Resources.getString("LAB_Currency"));
+        
+        TextField amount = new TextField();
+        
+        amount.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                amount.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            if(amount.getText().trim().isEmpty()) {
+                amount.setText(String.valueOf(group.getEndNumber()));
+            }
+        });
+        
+        amount.textProperty().bindBidirectional(group.getPriceProperty(), new NumberStringConverter());
+        
+        HBox result = new HBox(amount, currency);
+        result.alignmentProperty().setValue(Pos.CENTER);
+        
+        return new SimpleObjectProperty<>(result);
+    }
+
+    private ObservableValue<HBox> createOptionsHbox(TableGroupViewModel group) {
+         Image deleteImage = Resources.getImage("delete.png", Resources.ImageSize.NORMAL);
+         
+         ColorAdjust colorAdjust = UiHelper.getColorAdjust(Color.STEELBLUE);
+
+         ImageView deleteView = new ImageView(deleteImage);
+         deleteView.setEffect(colorAdjust);
+
+         Button delete = new Button("", deleteView);
+         delete.getStyleClass().add("back-btn");
+        
+         delete.setOnAction(e -> deleteTableGroupClicked(group));
+         
+         return new SimpleObjectProperty<>(new HBox(delete));
+    }
+
+    private void deleteTableGroupClicked(TableGroupViewModel tableGroup) {
+        eventViewModel.getTableGroups().remove(tableGroup);
+        enableButtons(hasChanges());
+    }
+    
 }

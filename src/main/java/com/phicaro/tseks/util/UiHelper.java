@@ -105,12 +105,13 @@ public class UiHelper {
                 .subscribe(alert -> alert.show());
     }
     
-    public static Observable<Boolean> showDeleteDialog() {
+    public static Observable<Boolean> showDeleteEventDialog() {
         return createAlert(AlertType.WARNING, Resources.getString("LAB_DeleteEvent"), Resources.getString("DESC_DeleteEvent"), ButtonType.YES, ButtonType.NO)
                 .subscribeOn(JavaFxScheduler.platform())
                 .flatMapObservable(alert -> JavaFxObservable.fromDialog((Alert) alert))
                 .map(result -> result.equals(ButtonType.YES));
-    }
+    
+    } 
 
     public static Observable<Boolean> showReconnectDialog() {
         return createAlert(AlertType.ERROR, Resources.getString("LAB_ConnectionError"), Resources.getString("DESC_ConnectionErrorRetry"), ButtonType.NO, ButtonType.YES)
