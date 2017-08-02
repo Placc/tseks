@@ -6,6 +6,7 @@
 package com.phicaro.tseks.ui.models;
 
 import com.phicaro.tseks.entities.Event;
+import com.phicaro.tseks.entities.Location;
 import com.phicaro.tseks.util.UiHelper;
 import java.util.Date;
 import javafx.beans.property.SimpleStringProperty;
@@ -99,6 +100,13 @@ public class EventViewModel implements IViewModel<Event> {
 
     public SimpleStringProperty getDescriptionProperty() {
         return description;
+    }
+    
+    public void updateEvent() {
+        event.setName(getName());
+        event.setLocation(new Location(getLocation()));
+        event.setDescription(getDescription());
+        event.setDate(UiHelper.parse(getDate()));
     }
     
     @Override

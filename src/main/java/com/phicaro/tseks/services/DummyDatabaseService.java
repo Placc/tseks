@@ -60,7 +60,8 @@ public class DummyDatabaseService implements IDatabaseService {
 
     @Override
     public Observable<Event> getSnapshot() {
-        return Observable.fromIterable(dummyEvents);
+        return Observable.fromIterable(dummyEvents)
+                .map(event -> event.clone());
     }
 
     @Override
@@ -70,8 +71,10 @@ public class DummyDatabaseService implements IDatabaseService {
                 s.onError(new PersistenceException(new EventAlreadyExistsException(event)));
             }
 
-            if (dummyEvents.add(event)) {
-                eventAdded.onNext(event);
+            Event clone = event.clone();
+            
+            if (dummyEvents.add(clone)) {
+                eventAdded.onNext(clone);
                 s.onComplete();
             } else {
                 s.onError(new PersistenceException());
@@ -81,16 +84,30 @@ public class DummyDatabaseService implements IDatabaseService {
     
     @Override
     public Completable updateEvent(Event event) {
-        return Completable.create(s -> {            
-            Optional<Event> toRemove = dummyEvents.stream().filter(e -> e.getId().equals(event.getId())).findAny();
-            
-            if(!toRemove.isPresent()) {
-                s.onError(new PersistenceException(new BadArgumentException()));
+        return Completable.create(s -> {
+            if(dummyEvents.stream().filter(e -> !e.getId().equals(event.getId()) && e.equals(event)).findAny().isPresent()) {
+                s.onError(new PersistenceException(new EventAlreadyExistsException(event)));
             }
             
-            dummyEvents.set(dummyEvents.indexOf(toRemove.get()), event);
+            Optional<Event> oldOpt = dummyEvents.stream().filter(e -> e.getId().equals(event.getId())).findAny();
             
-            eventRemoved.onNext(toRemove.get());
+            if(!oldOpt.isPresent()) {
+                s.onError(new PersistenceException(new BadArgumentException()));
+                return;
+            }
+            
+            Event old = oldOpt.get();
+            
+            eventRemoved.onNext(old);
+            
+            old.setName(event.getName());
+            old.setDate(event.getDate());
+            old.setDescription(event.getDescription());
+            old.setLocation(event.getLocation());
+            
+            old.getTableGroups().clear();
+            old.getTableGroups().addAll(event.getTableGroups());
+            
             eventAdded.onNext(event);
             
             s.onComplete();

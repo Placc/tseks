@@ -12,8 +12,10 @@ import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.util.Resources;
 import com.phicaro.tseks.util.TimeTextField;
 import com.phicaro.tseks.util.UiHelper;
+import com.phicaro.tseks.util.exceptions.LifecycleException;
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import io.reactivex.schedulers.Schedulers;
 import java.net.URL;
@@ -33,6 +35,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import org.reactivestreams.Subscription;
 
 /**
  * FXML Controller class
@@ -83,6 +86,10 @@ public class EditEventController implements Initializable, INavigationController
     //Model
     private EventViewModel eventViewModel = new EventViewModel();
     
+    //Subscription
+    private Disposable addedDisposable;
+    private Disposable removedDisposable;
+    
     public void setExistingEvent(Event event) {
         this.eventViewModel = new EventViewModel(event);
         initializeWithEvent(this.eventViewModel);
@@ -113,9 +120,20 @@ public class EditEventController implements Initializable, INavigationController
         seatsColumn.setText(Resources.getString("LAB_Seats"));
         categoryColumn.setText(Resources.getString("LAB_Price"));
         
+        EventService eventService = MainController.instance().getTseksApp().getEventService();
+        addedDisposable = eventService.eventAdded().subscribe(e -> handleEventChanges(e, true));
+        removedDisposable = eventService.eventRemoved().subscribe(e -> handleEventChanges(e, false));
+        
         initializeWithEvent(this.eventViewModel);        
     }    
 
+    private void handleEventChanges(Event event, boolean added) {
+        if((added ^ hasChanges()) && eventViewModel.getEvent() != null && event.getId().equals(eventViewModel.getEvent().getId()) && !eventViewModel.getEvent().equals(event)) {
+            MainController.instance().navigateBack(EditEventController.this);
+            UiHelper.showException(Resources.getString("LAB_LifecycleError"), new LifecycleException());
+        }
+    }
+    
     private void initializeWithEvent(EventViewModel event) {        
         eventNameEditText.textProperty().bindBidirectional(event.getNameProperty());
         eventNameEditText.textProperty().addListener((observable, oldValue, newValue) -> enableButtons(true));
@@ -193,16 +211,15 @@ public class EditEventController implements Initializable, INavigationController
             if(invalidChanges.isEmpty()) {
                 EventService eventService =  MainController.instance().getTseksApp().getEventService();
 
-                Completable createNew = eventService.createNewEvent(eventViewModel.getName(), UiHelper.parse(eventViewModel.getDate()), new Location(eventViewModel.getLocation()), eventViewModel.getDescription())         
+                if(eventViewModel.getEvent() != null) {
+                    eventViewModel.updateEvent();
+                    return eventService.updateEvent(eventViewModel.getEvent())
+                            .doOnComplete(() -> setExistingEvent(eventViewModel.getEvent()));
+                } else {
+                    return eventService.createNewEvent(eventViewModel.getName(), UiHelper.parse(eventViewModel.getDate()), new Location(eventViewModel.getLocation()), eventViewModel.getDescription())         
                         .doOnSuccess(event -> setExistingEvent(event))
                         .toCompletable();
-
-                if(eventViewModel.getEvent() != null) {
-                    Event original = eventViewModel.getEvent();
-                    return createNew.andThen(eventService.deleteEvent(original));
                 }
-                
-                return createNew;
             } else {
                 return Completable.error(new Exception(invalidChanges.stream().reduce("", (s1, s2) -> s1 + "\n" + s2)));
             }
@@ -215,6 +232,10 @@ public class EditEventController implements Initializable, INavigationController
         if(hasChanges() && !UiHelper.showDiscardChangesDialog().blockingFirst()) {
             return Single.just(false);
         }
+        
+        addedDisposable.dispose();
+        removedDisposable.dispose();
+        
         return Single.just(true);
     }
 

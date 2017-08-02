@@ -6,6 +6,7 @@
 package com.phicaro.tseks.util;
 
 import com.phicaro.tseks.util.exceptions.EventAlreadyExistsException;
+import com.phicaro.tseks.util.exceptions.LifecycleException;
 import com.phicaro.tseks.util.exceptions.PersistenceException;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -80,11 +81,21 @@ public class UiHelper {
         if(e instanceof EventAlreadyExistsException) {
             message = Resources.getString("DESC_EventAlreadyExists");
         } 
+        else if (e instanceof LifecycleException) {
+            message = Resources.getString("DESC_LifecycleError");
+        }
         else if (e instanceof PersistenceException) {
+            PersistenceException ex = ((PersistenceException) e);
+            
+            if(ex.getCause() != null) {
+                showException(title, ex.getCause());
+                return;
+            }
+            
             message = Resources.getString("DESC_PersistenceException");
         }
         
-        showError(title, e.getMessage());
+        showError(title, message);
     }
 
     private static void showError(String title, String message) {

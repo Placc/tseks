@@ -12,7 +12,7 @@ import java.util.*;
  *
  * @author Placc
  */
-public class Event {
+public class Event implements Cloneable {
     
     private static final int DESCRIPTION_LINES = 2;
     
@@ -84,10 +84,27 @@ public class Event {
     
     @Override
     public boolean equals(Object o) {
-        return o != null && o instanceof Event && ((Event) o).date.equals(date) && ((Event) o).name.equals(name) && ((Event) o).location.equals(location);
+        return o != null && o instanceof Event && ((Event) o).date.getTime() / 1000l == date.getTime() / 1000l && ((Event) o).name.equals(name) && ((Event) o).location.equals(location);
     }
 
     public String getId() {
         return id;
+    }
+    
+    @Deprecated
+    @Override
+    public Event clone() throws CloneNotSupportedException {
+        Event clone = (Event) super.clone();
+        clone.date = date;
+        clone.description = description;
+        clone.location = location;
+        clone.name = name;
+        clone.id = id;
+        
+        for(TableGroup g : tableGroups) {
+            clone.tableGroups.add(g.clone());
+        }
+        
+        return clone;
     }
 }

@@ -92,6 +92,7 @@ public class MainController implements Initializable {
         RxJavaPlugins.setErrorHandler(e -> {
             Logger.error("rx-java-plugins on-error", e);
             UiHelper.showException(Resources.getString("LAB_ErrorOccured"), e);
+            toggleSpinner(false);
         });
 
         Consumer<IDatabaseService.ConnectionState> onConnectionError = state -> {
@@ -164,6 +165,7 @@ public class MainController implements Initializable {
     
     public void navigateBack(INavigationController from) {
         from.onNavigateBack()
+            .observeOn(JavaFxScheduler.platform())
             .subscribe(result -> {
                 if(result) {
                     switchToOverview();

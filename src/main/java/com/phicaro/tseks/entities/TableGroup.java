@@ -14,7 +14,7 @@ import java.util.UUID;
  *
  * @author Placc
  */
-public class TableGroup {
+public class TableGroup implements Cloneable {
     
     private PriceCategory priceCategory;
     private int seatsNumber;
@@ -57,5 +57,15 @@ public class TableGroup {
 
     public String getId() {
         return id;
+    }
+    
+    @Deprecated
+    @Override
+    public TableGroup clone() throws CloneNotSupportedException {
+        TableGroup clone = (TableGroup) super.clone();
+        clone.seatsNumber = seatsNumber;
+        clone.priceCategory = priceCategory;
+        clone.tables.addAll(tables);
+        return clone;
     }
 }

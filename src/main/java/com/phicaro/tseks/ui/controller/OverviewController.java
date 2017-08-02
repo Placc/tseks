@@ -184,12 +184,7 @@ public class OverviewController implements Initializable {
     
     private void copyEventClicked(Event e) {
         MainController.instance().toggleSpinner(true);
-        int sameNames = events.filtered(event -> event.getName().startsWith(e.getName())).size();
-        eventService.createNewEvent(e.getName() + "(" + sameNames + ")", e.getDate(), e.getLocation(), e.getDescription())
-                .flatMapCompletable(event -> {
-                    e.getTableGroups().forEach(group -> event.addTableGroup(group));
-                    return eventService.updateEvent(event);
-                })
+        eventService.copyEvent(e)
                 .subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
                 .subscribe(() -> MainController.instance().toggleSpinner(false));
