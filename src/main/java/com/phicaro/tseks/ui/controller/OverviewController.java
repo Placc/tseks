@@ -171,8 +171,8 @@ public class OverviewController implements Initializable {
         edit.getStyleClass().add("back-btn");
         delete.getStyleClass().add("back-btn");
         
-        copy.setOnAction(e -> copyEventClicked(eventViewModel.getEvent()));
-        edit.setOnAction(e -> editEventClicked(eventViewModel.getEvent()));
+        copy.setOnAction(e -> copyEventClicked(eventViewModel.getModel()));
+        edit.setOnAction(e -> editEventClicked(eventViewModel.getModel()));
         delete.setOnAction(e -> deleteEventClicked(eventViewModel));
 
         return new SimpleObjectProperty<>(new HBox(20., copy, edit, delete));
@@ -197,7 +197,7 @@ public class OverviewController implements Initializable {
     private void deleteEventClicked(EventViewModel e) {
         if(UiHelper.showDeleteEventDialog().blockingFirst()) {
             MainController.instance().toggleSpinner(true);
-            eventService.deleteEvent(e.getEvent())
+            eventService.deleteEvent(e.getModel())
                     .subscribeOn(Schedulers.io())
                     .observeOn(JavaFxScheduler.platform())
                     .subscribe(() -> MainController.instance().toggleSpinner(false));
@@ -214,11 +214,11 @@ public class OverviewController implements Initializable {
 
         if (selection != null) {
             infoEventTitle.setText(selection.getName());
-            infoEventDesc.setText(Resources.getString("LAB_XTablesOverall", selection.getEvent().getTableGroups().size()));
-            infoEventTable.getItems().addAll(TableGroupViewModel.fromEvent(selection.getEvent()));
+            infoEventDesc.setText(Resources.getString("LAB_XTablesOverall", selection.getModel().getTableGroups().size()));
+            infoEventTable.getItems().addAll(TableGroupViewModel.fromEvent(selection.getModel()));
 
             infoEventTable.setDisable(false);
-            printButton.setDisable(selection.getEvent().getTableGroups().size() > 0);
+            printButton.setDisable(selection.getModel().getTableGroups().size() > 0);
         } else {
             infoEventTitle.setText(Resources.getString("LAB_NoEventSelected"));
             infoEventDesc.setText("");

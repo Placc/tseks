@@ -7,6 +7,7 @@ package com.phicaro.tseks.ui.models;
 
 import com.phicaro.tseks.entities.Event;
 import com.phicaro.tseks.entities.TableGroup;
+import com.phicaro.tseks.services.TableService;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -17,7 +18,7 @@ import javafx.beans.property.SimpleIntegerProperty;
  *
  * @author Placc
  */
-public class TableGroupViewModel {
+public class TableGroupViewModel implements IViewModel<TableGroup> {
     
     private SimpleIntegerProperty numberOfTables;
     private SimpleIntegerProperty startNumber;
@@ -35,12 +36,12 @@ public class TableGroupViewModel {
         return result;
     }
     
-    public TableGroupViewModel() {
-        this.numberOfTables = new SimpleIntegerProperty(0);
-        this.startNumber = new SimpleIntegerProperty(0); //TODO
-        this.endNumber = new SimpleIntegerProperty(getStartNumber());
-        this.category = new SimpleDoubleProperty(0);
-        this.seats = new SimpleIntegerProperty(1);
+    public TableGroupViewModel(int startNumber, int numberOfTables, int seats, double price) {
+        this.numberOfTables = new SimpleIntegerProperty(numberOfTables);
+        this.startNumber = new SimpleIntegerProperty(startNumber); 
+        this.endNumber = new SimpleIntegerProperty(startNumber + numberOfTables - 1);
+        this.category = new SimpleDoubleProperty(price);
+        this.seats = new SimpleIntegerProperty(seats);
     }
     
     public TableGroupViewModel(TableGroup tableGroup) {
@@ -58,7 +59,7 @@ public class TableGroupViewModel {
         this.seats = new SimpleIntegerProperty(tableGroup.getSeatsNumber());
     }
     
-    public TableGroup getTableGroup() {
+    public TableGroup getModel() {
         return tableGroup;
     }
     
@@ -120,5 +121,27 @@ public class TableGroupViewModel {
     
     public SimpleIntegerProperty getNumberOfTablesProperty() {
         return numberOfTables;
+    }
+    
+    @Override
+    public boolean matches(TableGroup g) {
+        int minNumber = g.getTables().stream().map(table -> table.getTableNumber()).min(Comparator.naturalOrder()).orElse(1);
+        int maxNumber = g.getTables().stream().map(table -> table.getTableNumber()).max(Comparator.naturalOrder()).orElse(1);
+        
+        return getStartNumber() == minNumber &&
+                getEndNumber() == maxNumber &&
+                getNumberOfTables() == g.getSeatsNumber() &&
+                getPrice() == g.getCategory().getPrice();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof TableGroupViewModel &&
+                ((TableGroupViewModel) o).startNumber.get() == (startNumber.get()) &&
+                ((TableGroupViewModel) o).seats.get() == (seats.get()) &&
+                ((TableGroupViewModel) o).endNumber.get() == (endNumber.get()) &&
+                ((TableGroupViewModel) o).numberOfTables.get() == (numberOfTables.get()) &&
+                ((TableGroupViewModel) o).category.get() == (category.get())
+                &&((tableGroup == null && ((TableGroupViewModel) o).tableGroup == null) || ((TableGroupViewModel) o).tableGroup.equals(tableGroup));
     }
 }

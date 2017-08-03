@@ -9,6 +9,7 @@ import com.phicaro.tseks.entities.Event;
 import com.phicaro.tseks.entities.Location;
 import com.phicaro.tseks.entities.TableGroup;
 import com.phicaro.tseks.services.EventService;
+import com.phicaro.tseks.services.TableService;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableGroupViewModel;
 import com.phicaro.tseks.util.Resources;
@@ -16,6 +17,7 @@ import com.phicaro.tseks.util.TimeTextField;
 import com.phicaro.tseks.util.UiHelper;
 import com.phicaro.tseks.util.exceptions.LifecycleException;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
@@ -25,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.beans.property.SimpleObjectProperty;
@@ -77,7 +80,7 @@ public class EditEventController implements Initializable, INavigationController
     @FXML
     private TableColumn<TableGroupViewModel, HBox> tableNumberColumn;
     @FXML
-    private TableColumn<TableGroupViewModel, Integer> seatsColumn;
+    private TableColumn<TableGroupViewModel, HBox> seatsColumn;
     @FXML
     private TableColumn<TableGroupViewModel, HBox> categoryColumn;
     @FXML
@@ -149,7 +152,7 @@ public class EditEventController implements Initializable, INavigationController
     }    
 
     private void handleEventChanges(Event event, boolean added) {
-        if((added ^ hasChanges()) && eventViewModel.getEvent() != null && event.getId().equals(eventViewModel.getEvent().getId()) && !eventViewModel.getEvent().equals(event)) {
+        if((added ^ hasChanges()) && eventViewModel.getModel() != null && event.getId().equals(eventViewModel.getModel().getId()) && !eventViewModel.getModel().equals(event)) {
             MainController.instance().navigateBack(EditEventController.this);
             UiHelper.showException(Resources.getString("LAB_LifecycleError"), new LifecycleException());
         }
@@ -196,7 +199,7 @@ public class EditEventController implements Initializable, INavigationController
         eventTableView.itemsProperty().bindBidirectional(this.eventViewModel.getTableGroupsProperty());
         
         tableNumberColumn.setCellValueFactory(group -> createTableNumbersHbox(group.getValue()));
-        seatsColumn.setCellValueFactory(group -> group.getValue().getSeatsProperty().asObject());
+        seatsColumn.setCellValueFactory(group -> createSeatsHbox(group.getValue()));
         categoryColumn.setCellValueFactory(group -> createCategoryHBox(group.getValue()));
         optionsColumn.setCellValueFactory(group -> createOptionsHbox(group.getValue()));
         
@@ -204,14 +207,14 @@ public class EditEventController implements Initializable, INavigationController
     }
 
     private boolean hasChanges() {
-        if(eventViewModel.getEvent() == null) {
+        if(eventViewModel.getModel() == null) {
             return !eventViewModel.getName().trim().isEmpty() ||
                     !eventViewModel.getLocation().trim().isEmpty() ||
                     !eventViewModel.getDate().trim().isEmpty() || 
                     !eventViewModel.getDescription().trim().isEmpty() ||
                     !eventViewModel.getTableGroups().isEmpty();
         } else {
-            return !eventViewModel.matches(eventViewModel.getEvent());
+            return !eventViewModel.matches(eventViewModel.getModel());
         }
     }
     
@@ -231,29 +234,6 @@ public class EditEventController implements Initializable, INavigationController
         return invalids;
     }
 
-    private Completable saveChanges() {
-        if(hasChanges()) {
-            List<String> invalidChanges = invalidChanges();
-            
-            if(invalidChanges.isEmpty()) {
-                EventService eventService =  MainController.instance().getTseksApp().getEventService();
-
-                if(eventViewModel.getEvent() != null) {
-                    eventViewModel.updateEvent();
-                    return eventService.updateEvent(eventViewModel.getEvent())
-                            .doOnComplete(() -> setExistingEvent(eventViewModel.getEvent()));
-                } else {
-                    return eventService.createNewEvent(eventViewModel.getName(), UiHelper.parse(eventViewModel.getDate()), new Location(eventViewModel.getLocation()), eventViewModel.getDescription())         
-                        .doOnSuccess(event -> setExistingEvent(event))
-                        .toCompletable();
-                }
-            } else {
-                return Completable.error(new Exception(invalidChanges.stream().reduce("", (s1, s2) -> s1 + "\n" + s2)));
-            }
-        }
-        return Completable.complete();
-    }
-    
     @Override
     public Single<Boolean> onNavigateBack() {
         if(hasChanges() && !UiHelper.showDiscardChangesDialog().blockingFirst()) {
@@ -268,7 +248,7 @@ public class EditEventController implements Initializable, INavigationController
 
     private void onSaveClicked() {
         MainController.instance().toggleSpinner(true);
-        saveChanges()
+        saveEvent()
                 .subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
                 .subscribe(() -> {
@@ -283,13 +263,29 @@ public class EditEventController implements Initializable, INavigationController
     }
 
     private void onAddTableGroupClicked() {
-        eventViewModel.getTableGroups().add(new TableGroupViewModel());
+        List<TableGroupViewModel> tableGroups = eventViewModel.getTableGroups();
+        
+        int seats = 1;
+        double price = 0.0; 
+        int numberOfTables = 1;
+        
+        if(!tableGroups.isEmpty()) {
+            TableGroupViewModel lastGroup = tableGroups.get(tableGroups.size() - 1);
+            seats = lastGroup.getSeats();
+            price = lastGroup.getPrice();
+            numberOfTables = lastGroup.getNumberOfTables();
+        }
+        
+        int startTableNumber = 1 + tableGroups.stream().map(group -> group.getEndNumber()).max(Comparator.naturalOrder()).orElse(0);
+        
+        eventViewModel.getTableGroups().add(new TableGroupViewModel(startTableNumber, numberOfTables, seats, price));
+        
         enableButtons(hasChanges());
     }
     
     private void onDiscardClicked() {
         if(UiHelper.showDiscardChangesDialog().blockingFirst()) {
-            setExistingEvent(eventViewModel.getEvent());
+            setExistingEvent(eventViewModel.getModel());
         }
     }
 
@@ -307,9 +303,8 @@ public class EditEventController implements Initializable, INavigationController
             if (!newValue.matches("\\d*")) {
                 from.setText(newValue.replaceAll("[^\\d]", ""));
             } 
-            if(from.getText().trim().isEmpty()) {
-                from.setText(String.valueOf(group.getStartNumber()));
-            }
+            
+            enableButtons(hasChanges());
         });
         
         from.textProperty().bindBidirectional(group.getStartNumberProperty(), new NumberStringConverter());
@@ -320,9 +315,8 @@ public class EditEventController implements Initializable, INavigationController
             if (!newValue.matches("\\d*")) {
                 to.setText(newValue.replaceAll("[^\\d]", ""));
             }
-            if(to.getText().trim().isEmpty()) {
-                to.setText(String.valueOf(group.getEndNumber()));
-            }
+            
+            enableButtons(hasChanges());
         });
                 
         to.textProperty().bindBidirectional(group.getEndNumberProperty(), new NumberStringConverter());
@@ -339,12 +333,24 @@ public class EditEventController implements Initializable, INavigationController
         TextField amount = new TextField();
         
         amount.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                amount.setText(newValue.replaceAll("[^\\d]", ""));
+            if (!newValue.matches("[0-9]+(\\,|\\.)?[0-9]{0,2}")) {
+                String newVal = newValue.replaceAll("[^\\d\\.\\,)]", "");
+                int pointIdx = Math.max(newVal.indexOf("."), newValue.indexOf(","));           
+                int endIdx = newVal.length();
+                
+                if(pointIdx == 0) {
+                    newVal = "0" + newVal;
+                    pointIdx++;
+                }
+                
+                if(pointIdx > -1) {
+                    endIdx =  Math.min(pointIdx + 3, newVal.length());
+                }
+                
+                amount.setText(newVal.substring(0, endIdx));
             }
-            if(amount.getText().trim().isEmpty()) {
-                amount.setText(String.valueOf(group.getEndNumber()));
-            }
+            
+            enableButtons(hasChanges());
         });
         
         amount.textProperty().bindBidirectional(group.getPriceProperty(), new NumberStringConverter());
@@ -371,9 +377,68 @@ public class EditEventController implements Initializable, INavigationController
          return new SimpleObjectProperty<>(new HBox(delete));
     }
 
+    private ObservableValue<HBox> createSeatsHbox(TableGroupViewModel group) {
+        TextField seats = new TextField();
+        
+        seats.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                seats.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            
+            enableButtons(hasChanges());
+        });
+        
+        seats.textProperty().bindBidirectional(group.getSeatsProperty(), new NumberStringConverter());
+        
+        HBox result = new HBox(seats);
+        result.alignmentProperty().setValue(Pos.CENTER);
+        
+        return new SimpleObjectProperty<>(result);
+    }
+    
     private void deleteTableGroupClicked(TableGroupViewModel tableGroup) {
         eventViewModel.getTableGroups().remove(tableGroup);
         enableButtons(hasChanges());
-    }
+    }    
     
+    private Completable saveEvent() {
+        if(!hasChanges()) {
+            return Completable.complete();
+        }
+        
+        List<String> invalidChanges = invalidChanges();
+            
+        if(!invalidChanges.isEmpty()) {
+            return Completable.error(new Exception(invalidChanges.stream().reduce("", (s1, s2) -> s1 + "\n" + s2)));
+        }
+        
+        EventService eventService = MainController.instance().getTseksApp().getEventService();
+        Single<Event> event;
+        
+        if(eventViewModel.getModel() != null) {
+            event = Single.just(eventViewModel.getModel())
+                        .doOnSuccess(e -> {
+                            e.setName(eventViewModel.getName());
+                            e.setLocation(new Location(eventViewModel.getLocation()));
+                            e.setDescription(eventViewModel.getDescription());
+                            e.setDate(UiHelper.parse(eventViewModel.getDate()));
+                            
+                            e.clearTableGroups();
+                        });
+        } else {
+            event = eventService.createNewEvent(eventViewModel.getName(), UiHelper.parse(eventViewModel.getDate()), new Location(eventViewModel.getLocation()), eventViewModel.getDescription());
+        }
+
+        return event
+                .doOnSuccess(e -> {
+                    eventViewModel.getTableGroups().stream()
+                    .forEach(model -> {
+                        TableGroup tableGroup = TableService.createTableGroup(model.getSeats(), model.getPrice());
+                        TableService.setTablesRange(tableGroup, model.getStartNumber(), model.getEndNumber());
+                        e.addTableGroup(tableGroup);
+                    });
+                    setExistingEvent(e);
+                })
+                .flatMapCompletable(e -> eventService.updateEvent(e));     
+    }
 }

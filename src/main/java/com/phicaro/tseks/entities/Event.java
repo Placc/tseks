@@ -78,6 +78,10 @@ public class Event implements Cloneable {
         }
     }
     
+    public void clearTableGroups() {
+        this.tableGroups.clear();
+    }
+    
     public void removeTableGroup(TableGroup table) {
         this.tableGroups.remove(table);
     }

@@ -85,7 +85,7 @@ public class EventViewModel implements IViewModel<Event> {
         this.description.set(description);
     }
     
-    public Event getEvent() {
+    public Event getModel() {
         return event;
     }
     
@@ -111,20 +111,15 @@ public class EventViewModel implements IViewModel<Event> {
         return tableGroups;
     }
     
-    public void updateEvent() {
-        event.setName(getName());
-        event.setLocation(new Location(getLocation()));
-        event.setDescription(getDescription());
-        event.setDate(UiHelper.parse(getDate()));
-    }
-    
     @Override
-    public boolean matches(Event e) {      
+    public boolean matches(Event e) {
+        boolean viewModelsInEvent = getTableGroups().stream().allMatch(model -> e.getTableGroups().stream().anyMatch(group -> model.matches(group)));
+        boolean groupsInViewModels = e.getTableGroups().stream().allMatch(group -> getTableGroups().stream().anyMatch(model -> model.matches(group)));
         return name.get().equals(e.getName()) &&
                 location.get().equals(e.getLocation().toString()) &&
                 date.get().equals(UiHelper.format(e.getDate())) &&
-                description.get().equals(e.getDescription());
-        //TODO TableGroups
+                description.get().equals(e.getDescription())
+                && viewModelsInEvent && groupsInViewModels;
     }
     
     @Override

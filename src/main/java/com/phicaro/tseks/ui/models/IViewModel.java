@@ -10,5 +10,6 @@ package com.phicaro.tseks.ui.models;
  * @author Placc
  */
 public interface IViewModel<T> {
+    T getModel();
     boolean matches(T o);
 }

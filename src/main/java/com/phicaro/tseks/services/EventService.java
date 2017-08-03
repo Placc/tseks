@@ -99,7 +99,7 @@ public class EventService {
                                 .orElse(0);
         
         return createNewEvent(event.getName() + " (" + highestIdx + ")", event.getDate(), event.getLocation(), event.getDescription())
-                .doOnSuccess(copy -> event.getTableGroups().forEach(group -> copy.addTableGroup(group)))
+                .doOnSuccess(copy -> event.getTableGroups().forEach(group -> copy.addTableGroup(group.clone())))
                 .flatMapCompletable(this::updateEvent);
     }
 

@@ -9,6 +9,6 @@ package com.phicaro.tseks.util.exceptions;
  *
  * @author Placc
  */
-public class BadArgumentException extends Exception {
+public class BadArgumentException extends RuntimeException {
     
 }

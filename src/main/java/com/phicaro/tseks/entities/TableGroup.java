@@ -5,6 +5,7 @@
  */
 package com.phicaro.tseks.entities;
 
+import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.exceptions.BadArgumentException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ public class TableGroup implements Cloneable {
         this.seatsNumber = seats;
     }
     
-    public void addTable(Table table) throws BadArgumentException {
+    public void addTable(Table table) {
         if(table.getSeats() != this.seatsNumber) {
             throw new BadArgumentException();
         }
@@ -57,13 +58,22 @@ public class TableGroup implements Cloneable {
         return seatsNumber;
     }
 
-    @Deprecated
     @Override
-    public TableGroup clone() throws CloneNotSupportedException {
-        TableGroup clone = (TableGroup) super.clone();
-        clone.seatsNumber = seatsNumber;
-        clone.priceCategory = priceCategory;
-        clone.tables.addAll(tables);
-        return clone;
+    public boolean equals(Object o) {
+        return o instanceof TableGroup && ((TableGroup) o).priceCategory.equals(priceCategory) && ((TableGroup) o).seatsNumber == seatsNumber && ((TableGroup) o).tables.equals(tables);
+    }
+    
+    @Override
+    public TableGroup clone() {
+        try {
+            TableGroup clone = (TableGroup) super.clone();
+            clone.seatsNumber = seatsNumber;
+            clone.priceCategory = priceCategory;
+            clone.tables.addAll(tables);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            Logger.error("table-group clone", e);
+        }
+        return null;
     }
 }
