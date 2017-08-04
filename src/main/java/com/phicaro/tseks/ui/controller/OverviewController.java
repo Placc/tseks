@@ -171,8 +171,8 @@ public class OverviewController implements Initializable {
         edit.getStyleClass().add("back-btn");
         delete.getStyleClass().add("back-btn");
         
-        copy.setOnAction(e -> copyEventClicked(eventViewModel.getModel()));
-        edit.setOnAction(e -> editEventClicked(eventViewModel.getModel()));
+        copy.setOnAction(e -> copyEventClicked(eventViewModel));
+        edit.setOnAction(e -> editEventClicked(eventViewModel));
         delete.setOnAction(e -> deleteEventClicked(eventViewModel));
 
         return new SimpleObjectProperty<>(new HBox(20., copy, edit, delete));
@@ -182,15 +182,15 @@ public class OverviewController implements Initializable {
         MainController.instance().switchToEdit(null);
     }
     
-    private void copyEventClicked(Event e) {
+    private void copyEventClicked(EventViewModel e) {
         MainController.instance().toggleSpinner(true);
-        eventService.copyEvent(e)
+        eventService.copyEvent(e.getModel())
                 .subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
                 .subscribe(() -> MainController.instance().toggleSpinner(false));
     }
 
-    private void editEventClicked(Event e) {
+    private void editEventClicked(EventViewModel e) {
         MainController.instance().switchToEdit(e);
     }
 

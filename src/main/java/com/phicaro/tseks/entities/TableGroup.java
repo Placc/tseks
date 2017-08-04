@@ -69,6 +69,8 @@ public class TableGroup implements Cloneable {
             TableGroup clone = (TableGroup) super.clone();
             clone.seatsNumber = seatsNumber;
             clone.priceCategory = priceCategory;
+            
+            clone.tables = new ArrayList<>();
             clone.tables.addAll(tables);
             return clone;
         } catch (CloneNotSupportedException e) {

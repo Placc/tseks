@@ -130,7 +130,8 @@ public class TableGroupViewModel implements IViewModel<TableGroup> {
         
         return getStartNumber() == minNumber &&
                 getEndNumber() == maxNumber &&
-                getNumberOfTables() == g.getSeatsNumber() &&
+                getNumberOfTables() == g.getTables().size() &&
+                getSeats() == g.getSeatsNumber() &&
                 getPrice() == g.getCategory().getPrice();
     }
     
@@ -142,6 +143,8 @@ public class TableGroupViewModel implements IViewModel<TableGroup> {
                 ((TableGroupViewModel) o).endNumber.get() == (endNumber.get()) &&
                 ((TableGroupViewModel) o).numberOfTables.get() == (numberOfTables.get()) &&
                 ((TableGroupViewModel) o).category.get() == (category.get())
-                &&((tableGroup == null && ((TableGroupViewModel) o).tableGroup == null) || ((TableGroupViewModel) o).tableGroup.equals(tableGroup));
+                &&((tableGroup == null && ((TableGroupViewModel) o).tableGroup == null) || 
+                (tableGroup != null && ((TableGroupViewModel) o).tableGroup != null &&
+                ((TableGroupViewModel) o).tableGroup.equals(tableGroup)));
     }
 }

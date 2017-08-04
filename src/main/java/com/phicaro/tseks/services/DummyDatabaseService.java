@@ -74,7 +74,7 @@ public class DummyDatabaseService implements IDatabaseService {
             Event clone = event.clone();
             
             if (dummyEvents.add(clone)) {
-                eventAdded.onNext(clone);
+                eventAdded.onNext(event);
                 s.onComplete();
             } else {
                 s.onError(new PersistenceException());
@@ -105,8 +105,8 @@ public class DummyDatabaseService implements IDatabaseService {
             old.setDescription(event.getDescription());
             old.setLocation(event.getLocation());
             
-            old.getTableGroups().clear();
-            old.getTableGroups().addAll(event.getTableGroups());
+            old.clearTableGroups();
+            event.getTableGroups().forEach(group -> old.addTableGroup(group.clone()));
             
             eventAdded.onNext(event);
             

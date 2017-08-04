@@ -104,6 +104,7 @@ public class Event implements Cloneable {
         clone.location = location;
         clone.name = name;
         clone.id = id;
+        clone.tableGroups = new ArrayList<>();
         
         for(TableGroup g : tableGroups) {
             clone.tableGroups.add(g.clone());

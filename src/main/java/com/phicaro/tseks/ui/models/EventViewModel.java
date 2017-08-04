@@ -130,6 +130,8 @@ public class EventViewModel implements IViewModel<Event> {
                 ((EventViewModel) o).location.get().equals(location.get()) &&
                 ((EventViewModel) o).description.get().equals(description.get()) &&
                 ((EventViewModel) o).tableGroups.get().equals(tableGroups.get())
-                &&((event == null && ((EventViewModel) o).event == null) || ((EventViewModel) o).event.equals(event));
+                &&((event == null && ((EventViewModel) o).event == null) || 
+                (event != null && ((EventViewModel) o).event != null &&
+                ((EventViewModel) o).event.equals(event)));
     }
 }

@@ -6,8 +6,8 @@
 package com.phicaro.tseks.ui.controller;
 
 import com.phicaro.tseks.TseksApp;
-import com.phicaro.tseks.entities.Event;
 import com.phicaro.tseks.services.IDatabaseService;
+import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.Resources;
 import com.phicaro.tseks.util.UiHelper;
@@ -17,30 +17,20 @@ import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import io.reactivex.schedulers.Schedulers;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Optional;
 import java.util.ResourceBundle;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 /**
@@ -145,7 +135,7 @@ public class MainController implements Initializable {
     
     public void switchToStartup() {
         try {
-            BorderPane root = FXMLLoader.load(getClass().getResource("/fxml/Startup.fxml"));
+            BorderPane root = FXMLLoader.load(getClass().getResource("/fxml/pages/Startup.fxml"));
             hideToolbar();
             content.getChildren().setAll(root);
         } catch (IOException e) {
@@ -155,7 +145,7 @@ public class MainController implements Initializable {
 
     public void switchToOverview() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/fxml/Overview.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/pages/Overview.fxml"));
             setToolbar(Resources.getString("LAB_Events"), false);
             content.getChildren().setAll(root);
         } catch (IOException e) {
@@ -174,9 +164,9 @@ public class MainController implements Initializable {
             });
     }
     
-    public void switchToEdit(Event existingEvent) {
+    public void switchToEdit(EventViewModel existingEvent) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/EditEvent.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/pages/EditEvent.fxml"));
             Parent root = loader.load();
 
             final EditEventController controller = loader.getController();
@@ -188,7 +178,7 @@ public class MainController implements Initializable {
             String title = "LAB_CreateNewEvent";
             
             if(existingEvent != null) {
-                controller.setExistingEvent(existingEvent);
+                controller.setEvent(existingEvent);
                 title = "LAB_EditEvent";
             }
             
