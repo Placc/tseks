@@ -11,6 +11,7 @@ import java.util.*;
  *
  * @author Placc
  */
+
 public class Event implements Cloneable {
     
     private static final int DESCRIPTION_LINES = 2;
@@ -18,14 +19,10 @@ public class Event implements Cloneable {
     private String id;
     private Date date;
     private Location location;
-    private List<TableGroup> tableGroups;
+    private List<ITableCategory> tableGroups;
     private String description;
     private String title;
     private String name;
-    
-    public Event() {
-        id = UUID.randomUUID().toString();
-    }
 
     public Date getDate() {
         return date;
@@ -35,7 +32,7 @@ public class Event implements Cloneable {
         return location;
     }
 
-    public List<TableGroup> getTableGroups() {
+    public List<ITableCategory> getTableGroups() {
         return tableGroups;
     }
 
@@ -51,8 +48,8 @@ public class Event implements Cloneable {
         return title;
     }
     
-    public Event(Date date, String name, String title, Location location) {
-        this();
+    public Event(String id, Date date, String name, String title, Location location) {
+        this.id = id;
         this.description = "";
         this.tableGroups = new ArrayList(); 
         setLocation(location);
@@ -81,7 +78,7 @@ public class Event implements Cloneable {
         this.date = date;
     }
     
-    public void addTableGroup(TableGroup table) {
+    public void addTableGroup(ITableCategory table) {
         if(!this.tableGroups.contains(table)) {
             this.tableGroups.add(table);
         }
@@ -91,7 +88,7 @@ public class Event implements Cloneable {
         this.tableGroups.clear();
     }
     
-    public void removeTableGroup(TableGroup table) {
+    public void removeTableGroup(ITableCategory table) {
         this.tableGroups.remove(table);
     }
     
@@ -116,7 +113,7 @@ public class Event implements Cloneable {
         clone.id = id;
         clone.tableGroups = new ArrayList<>();
         
-        for(TableGroup g : tableGroups) {
+        for(ITableCategory g : tableGroups) {
             clone.tableGroups.add(g.clone());
         }
         

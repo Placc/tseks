@@ -60,7 +60,7 @@ public class OverviewEventInfoController implements IEventController {
             infoEventTitle.setText(Resources.getString("LAB_EventTitle") + ": " + eventViewModel.getTitle());
             infoEventDescription.setText(Resources.getString("LAB_Description") + ": " + eventViewModel.getDescription());
             
-            int sumTables = eventViewModel.getModel().getTableGroups().stream().map(group -> group.getTables().size()).reduce(0, (a, b) -> a + b);
+            int sumTables = eventViewModel.getModel().getTableGroups().stream().map(group -> group.getNumberOfTables()).reduce(0, (a, b) -> a + b);
             infoEventTableDesc.setText(Resources.getString("LAB_XTablesOverall", sumTables));
             
             infoEventTable.getItems().addAll(TableGroupViewModel.fromEvent(eventViewModel.getModel()));

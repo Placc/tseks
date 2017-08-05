@@ -5,14 +5,13 @@
  */
 package com.phicaro.tseks.model;
 
-import com.phicaro.tseks.model.services.DummyDatabaseService;
+import com.phicaro.tseks.database.DummyDatabaseService;
 import com.phicaro.tseks.model.services.EventService;
-import com.phicaro.tseks.model.services.IDatabaseService;
-import com.phicaro.tseks.model.services.IDatabaseService.ConnectionState;
+import com.phicaro.tseks.database.IDatabaseService;
+import com.phicaro.tseks.database.IDatabaseService.ConnectionState;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
 import java.util.prefs.Preferences;
 
 /**
@@ -32,8 +31,12 @@ public class TseksApp {
     private TseksApp() {
         loadSettings();
 
-        database = new DummyDatabaseService(prefs.get(DB_CONNECTION, ""));
-
+        /*TseksDatabaseFactory.getLocalDatabaseService()
+                .subscribe(db -> database = db,
+                        e -> Logger.error("tseks-app c",e));*/
+        
+        this.database = new DummyDatabaseService(DB_CONNECTION);
+        
         eventService = new EventService(database);
     }
 

@@ -7,7 +7,7 @@ package com.phicaro.tseks.ui.controller;
 
 import com.phicaro.tseks.ui.controller.edit.EditEventController;
 import com.phicaro.tseks.model.TseksApp;
-import com.phicaro.tseks.model.services.IDatabaseService;
+import com.phicaro.tseks.database.IDatabaseService;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.Resources;

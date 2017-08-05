@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.model.services;
+package com.phicaro.tseks.database;
 
 import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.entities.Location;
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -44,9 +45,9 @@ public class DummyDatabaseService implements IDatabaseService {
 
         long date = new Date().getTime() + 100000;
 
-        dummyEvents.add(new Event(new Date(date), "Event1", "Event1", new Location("here and there")));
-        dummyEvents.add(new Event(new Date(date + 100000), "Event2", "Event2", new Location("far away")));
-        dummyEvents.add(new Event(new Date(date + 1000000), "Event3", "Event3", new Location("even further")));
+        dummyEvents.add(new Event(UUID.randomUUID().toString(), new Date(date), "Event1", "Event1", new Location("here and there")));
+        dummyEvents.add(new Event(UUID.randomUUID().toString(), new Date(date + 100000), "Event2", "Event2", new Location("far away")));
+        dummyEvents.add(new Event(UUID.randomUUID().toString(), new Date(date + 1000000), "Event3", "Event3", new Location("even further")));
     }
 
     @Override

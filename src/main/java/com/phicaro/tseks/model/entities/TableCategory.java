@@ -8,22 +8,24 @@ package com.phicaro.tseks.model.entities;
 import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.exceptions.BadArgumentException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 /**
  *
  * @author Placc
  */
-public class TableGroup implements Cloneable {
+public class TableCategory implements ITableCategory {
     
+    private String id;
     private PriceCategory priceCategory;
     private int seatsNumber;
     private List<Table> tables;
     
-    public TableGroup(int seats, PriceCategory priceCategory) {
+    public TableCategory(String id, int seats, PriceCategory priceCategory) {
         this.tables = new ArrayList<>();
         
+        this.id = id;
         this.priceCategory = priceCategory;
         this.seatsNumber = seats;
     }
@@ -42,33 +44,44 @@ public class TableGroup implements Cloneable {
         tables.remove(table);
     }
     
+    public List<Table> getTables() {
+        return new ArrayList<>(tables);
+    }
+    
     public void clearTables() {
         tables.clear();
     }
     
-    public PriceCategory getCategory() {
+    public PriceCategory getPrice() {
         return priceCategory;
-    }
-    
-    public List<Table> getTables() {
-        return new ArrayList<>(tables);
     }
     
     public int getSeatsNumber() {
         return seatsNumber;
     }
+    
+    public String getId() {
+        return id;
+    }
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof TableGroup && ((TableGroup) o).priceCategory.equals(priceCategory) && ((TableGroup) o).seatsNumber == seatsNumber && ((TableGroup) o).tables.equals(tables);
+        return o instanceof ITableCategory 
+                && ((ITableCategory) o).getPrice().equals(priceCategory) 
+                && ((ITableCategory) o).getSeatsNumber() == seatsNumber 
+                && ((ITableCategory) o).getNumberOfTables() == tables.size()
+                && ((ITableCategory) o).getMinTableNumber() == getMinTableNumber()
+                && ((ITableCategory) o).getMaxTableNumber() == getMaxTableNumber()
+                && (!(o instanceof TableCategory) || ((TableCategory) o).getTables().equals(tables));
     }
     
     @Override
-    public TableGroup clone() {
+    public ITableCategory clone() {
         try {
-            TableGroup clone = (TableGroup) super.clone();
+            TableCategory clone = (TableCategory) super.clone();
             clone.seatsNumber = seatsNumber;
             clone.priceCategory = priceCategory;
+            clone.id = id;
             
             clone.tables = new ArrayList<>();
             clone.tables.addAll(tables);
@@ -77,5 +90,20 @@ public class TableGroup implements Cloneable {
             Logger.error("table-group clone", e);
         }
         return null;
+    }
+
+    @Override
+    public int getNumberOfTables() {
+        return tables.size();
+    }
+
+    @Override
+    public int getMinTableNumber() {
+        return tables.stream().map(table -> table.getTableNumber()).min(Comparator.naturalOrder()).orElse(0);
+    }
+
+    @Override
+    public int getMaxTableNumber() {
+        return tables.stream().map(table -> table.getTableNumber()).max(Comparator.naturalOrder()).orElse(0);
     }
 }

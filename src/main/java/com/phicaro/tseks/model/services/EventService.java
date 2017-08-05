@@ -5,6 +5,7 @@
  */
 package com.phicaro.tseks.model.services;
 
+import com.phicaro.tseks.database.IDatabaseService;
 import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.entities.Location;
 import com.phicaro.tseks.util.exceptions.EventAlreadyExistsException;
@@ -17,6 +18,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  *
@@ -76,7 +78,7 @@ public class EventService {
     }
 
     public Single<Event> createNewEvent(String name, String title, Date date, Location location, String description) {
-        Event event = new Event(date, name, title, location);
+        Event event = new Event(UUID.randomUUID().toString(), date, name, title, location);
 
         if (description != null) {
             event.setDescription(description);

@@ -36,6 +36,10 @@ public class Resources {
         return findString(label, "/strings/stringsDE");
     }
     
+    public static InputStream getResourceAsStream(String resource) {
+        return MainApp.class.getResourceAsStream(resource);
+    }
+    
     private static String findString(final String label, final String file) throws ResourceNotFoundException {
         InputStream stream = MainApp.class.getResourceAsStream(file);
 

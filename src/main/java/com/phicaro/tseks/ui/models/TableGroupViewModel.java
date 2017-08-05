@@ -6,10 +6,8 @@
 package com.phicaro.tseks.ui.models;
 
 import com.phicaro.tseks.model.entities.Event;
-import com.phicaro.tseks.model.entities.TableGroup;
-import com.phicaro.tseks.model.services.TableService;
+import com.phicaro.tseks.model.entities.ITableCategory;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -18,7 +16,7 @@ import javafx.beans.property.SimpleIntegerProperty;
  *
  * @author Placc
  */
-public class TableGroupViewModel implements IViewModel<TableGroup> {
+public class TableGroupViewModel implements IViewModel<ITableCategory> {
     
     private SimpleIntegerProperty numberOfTables;
     private SimpleIntegerProperty startNumber;
@@ -26,7 +24,7 @@ public class TableGroupViewModel implements IViewModel<TableGroup> {
     private SimpleDoubleProperty category;
     private SimpleIntegerProperty seats;
     
-    private TableGroup tableGroup;
+    private ITableCategory tableGroup;
     
     public static List<TableGroupViewModel> fromEvent(Event event) {
         List<TableGroupViewModel> result = new ArrayList<>();
@@ -44,22 +42,17 @@ public class TableGroupViewModel implements IViewModel<TableGroup> {
         this.seats = new SimpleIntegerProperty(seats);
     }
     
-    public TableGroupViewModel(TableGroup tableGroup) {
+    public TableGroupViewModel(ITableCategory tableGroup) {
         this.tableGroup = tableGroup;
         
-        this.startNumber = new SimpleIntegerProperty(tableGroup.getTables()
-                                                        .stream()
-                                                        .map(table -> table.getTableNumber())
-                                                        .min(Comparator.naturalOrder())
-                                                        .orElse(1)
-                            );
-        this.numberOfTables = new SimpleIntegerProperty(tableGroup.getTables().size());
+        this.startNumber = new SimpleIntegerProperty(tableGroup.getMinTableNumber());
+        this.numberOfTables = new SimpleIntegerProperty(tableGroup.getNumberOfTables());
         this.endNumber = new SimpleIntegerProperty(Math.max(getStartNumber(), getStartNumber() + getNumberOfTables() - 1));
-        this.category = new SimpleDoubleProperty(tableGroup.getCategory().getPrice());
+        this.category = new SimpleDoubleProperty(tableGroup.getPrice().getPrice());
         this.seats = new SimpleIntegerProperty(tableGroup.getSeatsNumber());
     }
     
-    public TableGroup getModel() {
+    public ITableCategory getModel() {
         return tableGroup;
     }
     
@@ -124,15 +117,12 @@ public class TableGroupViewModel implements IViewModel<TableGroup> {
     }
     
     @Override
-    public boolean matches(TableGroup g) {
-        int minNumber = g.getTables().stream().map(table -> table.getTableNumber()).min(Comparator.naturalOrder()).orElse(1);
-        int maxNumber = g.getTables().stream().map(table -> table.getTableNumber()).max(Comparator.naturalOrder()).orElse(1);
-        
-        return getStartNumber() == minNumber &&
-                getEndNumber() == maxNumber &&
-                getNumberOfTables() == g.getTables().size() &&
+    public boolean matches(ITableCategory g) {
+        return getStartNumber() == g.getMinTableNumber() &&
+                getEndNumber() == g.getMaxTableNumber() &&
+                getNumberOfTables() == g.getNumberOfTables() &&
                 getSeats() == g.getSeatsNumber() &&
-                getPrice() == g.getCategory().getPrice();
+                getPrice() == g.getPrice().getPrice();
     }
     
     @Override

@@ -7,7 +7,7 @@ package com.phicaro.tseks.ui.controller.edit;
 
 import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.entities.Location;
-import com.phicaro.tseks.model.entities.TableGroup;
+import com.phicaro.tseks.model.entities.TableCategory;
 import com.phicaro.tseks.model.services.EventService;
 import com.phicaro.tseks.model.services.TableService;
 import com.phicaro.tseks.ui.controller.INavigationController;
@@ -238,7 +238,7 @@ public class EditEventController implements IEditEventController, INavigationCon
                 .doOnSuccess(e -> {
                     eventViewModel.getTableGroups().stream()
                     .forEach(model -> {
-                        TableGroup tableGroup = TableService.createTableGroup(model.getSeats(), model.getPrice());
+                        TableCategory tableGroup = TableService.createTableGroup(model.getSeats(), model.getPrice());
                         TableService.setTablesRange(tableGroup, model.getStartNumber(), model.getEndNumber());
                         e.addTableGroup(tableGroup);
                     });
