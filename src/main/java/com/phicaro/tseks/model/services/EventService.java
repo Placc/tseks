@@ -129,6 +129,7 @@ public class EventService {
                             event.getTableGroups().addAll(e.getTableGroups());
                             event.setName(e.getName());
                             event.setDate(e.getDate());
+                            event.setTitle(e.getTitle());
                             event.setLocation(e.getLocation());
                             event.setDescription(e.getDescription());
                         })

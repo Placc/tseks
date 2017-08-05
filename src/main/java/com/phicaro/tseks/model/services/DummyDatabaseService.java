@@ -101,6 +101,7 @@ public class DummyDatabaseService implements IDatabaseService {
             eventRemoved.onNext(old);
             
             old.setName(event.getName());
+            old.setTitle(event.getTitle());
             old.setDate(event.getDate());
             old.setDescription(event.getDescription());
             old.setLocation(event.getLocation());

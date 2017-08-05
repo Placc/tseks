@@ -119,7 +119,7 @@ public class EditEventTableGroupController implements IEditEventController {
 
     private List<String> getMissingTables() {
         List<String> missingTables = new ArrayList<>();
-        int max = eventViewModel.getTableGroups().stream().map(group -> group.getEndNumber()).max(Comparator.naturalOrder()).orElse(1);
+        int max = eventViewModel.getTableGroups().stream().map(group -> group.getEndNumber()).max(Comparator.naturalOrder()).orElse(0);
         int interval = 0;
         
         for(int number = 1; number <= max; number++) {

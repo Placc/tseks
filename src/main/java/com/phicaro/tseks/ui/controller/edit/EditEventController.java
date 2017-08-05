@@ -129,6 +129,7 @@ public class EditEventController implements IEditEventController, INavigationCon
                     !eventViewModel.getLocation().trim().isEmpty() ||
                     !eventViewModel.getDate().trim().isEmpty() || 
                     !eventViewModel.getDescription().trim().isEmpty() ||
+                    !eventViewModel.getTitle().trim().isEmpty() ||
                     !eventViewModel.getTableGroups().isEmpty();
         } else {
             return !eventViewModel.matches(eventViewModel.getModel());

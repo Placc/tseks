@@ -5,7 +5,6 @@
  */
 package com.phicaro.tseks.model.entities;
 
-import com.phicaro.tseks.util.Resources;
 import java.util.*;
 
 /**
@@ -98,7 +97,7 @@ public class Event implements Cloneable {
     
     @Override
     public boolean equals(Object o) {
-        return o != null && o instanceof Event && ((Event) o).date.getTime() / 1000l == date.getTime() / 1000l && ((Event) o).name.equals(name) && ((Event) o).location.equals(location) && ((Event) o).title.equals(title);
+        return o != null && o instanceof Event && ((Event) o).date.getTime() / 1000l == date.getTime() / 1000l && ((Event) o).name.equals(name) && ((Event) o).location.equals(location);
     }
 
     public String getId() {
