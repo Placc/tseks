@@ -16,11 +16,13 @@ import io.reactivex.schedulers.Schedulers;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
@@ -44,11 +46,11 @@ public class OverviewController implements Initializable {
     @FXML
     private Button addEventButton;
     @FXML
-    private TableColumn<EventViewModel, String> eventTableNameColumn;
+    private TableColumn<EventViewModel, HBox> eventTableNameColumn;
     @FXML
-    private TableColumn<EventViewModel, String> eventTableDateColumn;
+    private TableColumn<EventViewModel, HBox> eventTableDateColumn;
     @FXML
-    private TableColumn<EventViewModel, String> eventTableLocationColumn;
+    private TableColumn<EventViewModel, HBox> eventTableLocationColumn;
     @FXML
     private TableColumn<EventViewModel, HBox> eventTableOptionsColumn;
     
@@ -70,13 +72,13 @@ public class OverviewController implements Initializable {
 
         //Table columns
         eventTableNameColumn.setText(Resources.getString("LAB_Event"));
-        eventTableNameColumn.setCellValueFactory(event -> event.getValue().getNameProperty());
+        eventTableNameColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getName()));
 
         eventTableDateColumn.setText(Resources.getString("LAB_Date"));
-        eventTableDateColumn.setCellValueFactory(event -> event.getValue().getDateProperty());
+        eventTableDateColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getDate()));
 
         eventTableLocationColumn.setText(Resources.getString("LAB_Location"));
-        eventTableLocationColumn.setCellValueFactory(event -> event.getValue().getLocationProperty());
+        eventTableLocationColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getLocation()));
 
         eventTableOptionsColumn.setCellValueFactory(event -> createOptionsForEvent(event.getValue()));
 
@@ -115,6 +117,15 @@ public class OverviewController implements Initializable {
         events.remove(viewModel);
     }
 
+    private ObjectProperty<HBox> createLabelHBox(String value) {
+        Label label = new Label(value);
+        
+        HBox hbox = new HBox(label);
+        hbox.alignmentProperty().setValue(Pos.CENTER);
+        
+        return new SimpleObjectProperty<>(hbox);
+    }
+    
     private ObjectProperty<HBox> createOptionsForEvent(EventViewModel eventViewModel) {
         Image copyImage = Resources.getImage("copy.png", Resources.ImageSize.NORMAL);
         Image editImage = Resources.getImage("create.png", Resources.ImageSize.NORMAL);

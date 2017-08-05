@@ -5,14 +5,16 @@
  */
 package com.phicaro.tseks.ui.controller.overview;
 
+import com.phicaro.tseks.ui.controller.IEventController;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableGroupViewModel;
 import com.phicaro.tseks.util.Resources;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
@@ -24,7 +26,7 @@ import javafx.scene.image.ImageView;
  *
  * @author Placc
  */
-public class OverviewEventInfoController implements Initializable {
+public class OverviewEventInfoController implements IEventController {
     @FXML
     private Label infoEventTitle;
     @FXML
@@ -42,11 +44,12 @@ public class OverviewEventInfoController implements Initializable {
     @FXML
     private TableColumn<TableGroupViewModel, Integer> infoTableSeatsColumn;
     @FXML
-    private TableColumn<TableGroupViewModel, Double> infoTablePriceColumn;
+    private TableColumn<TableGroupViewModel, String> infoTablePriceColumn;
 
     //Model
     private EventViewModel eventViewModel;
 
+    @Override
     public void setEvent(EventViewModel eventViewModel) {
         this.eventViewModel = eventViewModel;
         
@@ -63,7 +66,7 @@ public class OverviewEventInfoController implements Initializable {
             infoEventTable.getItems().addAll(TableGroupViewModel.fromEvent(eventViewModel.getModel()));
 
             infoEventTable.setDisable(false);
-            printButton.setDisable(eventViewModel.getModel().getTableGroups().size() > 0);
+            printButton.setDisable(eventViewModel.getTableGroups().isEmpty());
         } else {
             infoEventName.setText(Resources.getString("LAB_NoEventSelected"));
             
@@ -87,7 +90,7 @@ public class OverviewEventInfoController implements Initializable {
         infoTableCountColumn.setCellValueFactory(group -> group.getValue().getNumberOfTablesProperty().asObject());
 
         infoTablePriceColumn.setText(Resources.getString("LAB_Price"));
-        infoTablePriceColumn.setCellValueFactory(group -> group.getValue().getPriceProperty().asObject());
+        infoTablePriceColumn.setCellValueFactory(group -> convertToCurrency(group.getValue().getPrice()));
 
         infoTableSeatsColumn.setText(Resources.getString("LAB_Seats"));
         infoTableSeatsColumn.setCellValueFactory(group -> group.getValue().getSeatsProperty().asObject());
@@ -95,6 +98,26 @@ public class OverviewEventInfoController implements Initializable {
         infoEventTable.setPlaceholder(new Label(Resources.getString("LAB_NoTablesAvailable")));
         infoEventTable.setItems(FXCollections.observableArrayList());
         infoEventTable.getSelectionModel().setCellSelectionEnabled(false);
+    }
+    
+    private ObservableValue<String> convertToCurrency(double price) {
+        String result = String.valueOf(price);
+        
+        int toAppend = 2;
+        if(result.contains(".") || result.contains(",")) {
+            int digitsAfter = result.substring(Math.max(result.indexOf("."), result.indexOf(","))).length() - 1;
+            toAppend -= digitsAfter;
+        } else {
+            result += ".";
+        }
+        
+        for(int cnt = 0; cnt < toAppend; cnt++) {
+            result += "0";
+        }
+        
+         result += Resources.getString("LAB_Currency");
+         
+         return new SimpleObjectProperty<>(result);
     }
     
     private void onPrintClicked() {

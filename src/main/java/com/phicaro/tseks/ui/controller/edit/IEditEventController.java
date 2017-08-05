@@ -5,16 +5,14 @@
  */
 package com.phicaro.tseks.ui.controller.edit;
 
-import com.phicaro.tseks.ui.models.EventViewModel;
+import com.phicaro.tseks.ui.controller.IEventController;
 import java.util.List;
-import javafx.fxml.Initializable;
 
 /**
  *
  * @author Placc
  */
-public interface IEditEventController extends Initializable {
-    public void setEvent(EventViewModel event);
+public interface IEditEventController extends IEventController {
     public List<String> errors();
     public List<String> warnings();
 }
