@@ -146,7 +146,7 @@ public class MainController implements Initializable {
 
     public void switchToOverview() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/fxml/pages/Overview.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/pages/overview/Overview.fxml"));
             setToolbar(Resources.getString("LAB_Events"), false);
             content.getChildren().setAll(root);
         } catch (IOException e) {

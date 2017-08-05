@@ -3,20 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.ui.controller;
+package com.phicaro.tseks.ui.controller.overview;
 
 import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.services.EventService;
+import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.models.EventViewModel;
-import com.phicaro.tseks.ui.models.TableGroupViewModel;
 import com.phicaro.tseks.util.Resources;
 import com.phicaro.tseks.util.UiHelper;
-import io.reactivex.Observable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import io.reactivex.schedulers.Schedulers;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.stream.IntStream;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -31,9 +29,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 /**
@@ -43,22 +40,9 @@ import javafx.scene.paint.Color;
 public class OverviewController implements Initializable {
 
     @FXML
-    private BorderPane overviewContentPane;
-    @FXML
     private TableView<EventViewModel> eventTable;
     @FXML
     private Button addEventButton;
-    @FXML
-    private Label infoEventTitle;
-    @FXML
-    private Label infoEventDesc;
-    @FXML
-    private TableView<TableGroupViewModel> infoEventTable;
-    @FXML
-    private Button printButton;
-
-    @FXML
-    private VBox infoPane;
     @FXML
     private TableColumn<EventViewModel, String> eventTableNameColumn;
     @FXML
@@ -67,12 +51,11 @@ public class OverviewController implements Initializable {
     private TableColumn<EventViewModel, String> eventTableLocationColumn;
     @FXML
     private TableColumn<EventViewModel, HBox> eventTableOptionsColumn;
+    
     @FXML
-    private TableColumn<TableGroupViewModel, Integer> infoTableCountColumn;
+    private AnchorPane eventInfo;
     @FXML
-    private TableColumn<TableGroupViewModel, Integer> infoTableSeatsColumn;
-    @FXML
-    private TableColumn<TableGroupViewModel, Double> infoTablePriceColumn;
+    private OverviewEventInfoController eventInfoController;
 
     //Model
     private EventService eventService;
@@ -84,11 +67,6 @@ public class OverviewController implements Initializable {
         addEventButton.setContentDisplay(ContentDisplay.LEFT);
         addEventButton.setGraphic(new ImageView(Resources.getImage("add.png", Resources.ImageSize.NORMAL)));
         addEventButton.setOnAction(e -> onAddEventClicked());
-
-        printButton.setText(Resources.getString("LAB_PrintTickets"));
-        printButton.setContentDisplay(ContentDisplay.LEFT);
-        printButton.setGraphic(new ImageView(Resources.getImage("print.png", Resources.ImageSize.NORMAL)));
-        printButton.setOnAction(e -> onPrintClicked());
 
         //Table columns
         eventTableNameColumn.setText(Resources.getString("LAB_Event"));
@@ -102,28 +80,15 @@ public class OverviewController implements Initializable {
 
         eventTableOptionsColumn.setCellValueFactory(event -> createOptionsForEvent(event.getValue()));
 
-        infoTableCountColumn.setText(Resources.getString("LAB_Number"));
-        infoTableCountColumn.setCellValueFactory(group -> group.getValue().getNumberOfTablesProperty().asObject());
-
-        infoTablePriceColumn.setText(Resources.getString("LAB_Price"));
-        infoTablePriceColumn.setCellValueFactory(group -> group.getValue().getPriceProperty().asObject());
-
-        infoTableSeatsColumn.setText(Resources.getString("LAB_Seats"));
-        infoTableSeatsColumn.setCellValueFactory(group -> group.getValue().getSeatsProperty().asObject());
-
         eventService = MainController.instance().getTseksApp().getEventService();
         events = FXCollections.observableArrayList();
 
         //Tables
         eventTable.setPlaceholder(new Label(Resources.getString("LAB_NoEventsAvailable")));
         eventTable.setItems(events);
-        eventTable.getSelectionModel().selectedItemProperty().addListener((obs, o, s) -> onSelected(s));
+        eventTable.getSelectionModel().selectedItemProperty().addListener((obs, o, s) -> eventInfoController.setEvent(s));
 
-        infoEventTable.setPlaceholder(new Label(Resources.getString("LAB_NoTablesAvailable")));
-        infoEventTable.setItems(FXCollections.observableArrayList());
-        infoEventTable.getSelectionModel().setCellSelectionEnabled(false);
-
-        onSelected(null);
+        eventInfoController.setEvent(null);
 
         MainController.instance().toggleSpinner(true);
         eventService.getEvents()
@@ -203,33 +168,6 @@ public class OverviewController implements Initializable {
                     .subscribeOn(Schedulers.io())
                     .observeOn(JavaFxScheduler.platform())
                     .subscribe(() -> MainController.instance().toggleSpinner(false));
-        }
-    }
-    
-    
-    private void onPrintClicked() {
-        //TODO
-    }
-
-    private void onSelected(EventViewModel selection) {
-        infoEventTable.getItems().clear();
-
-        if (selection != null) {
-            infoEventTitle.setText(selection.getName());
-            
-            int sumTables = selection.getModel().getTableGroups().stream().map(group -> group.getTables().size()).reduce(0, (a, b) -> a + b);
-            infoEventDesc.setText(Resources.getString("LAB_XTablesOverall", sumTables));
-            
-            infoEventTable.getItems().addAll(TableGroupViewModel.fromEvent(selection.getModel()));
-
-            infoEventTable.setDisable(false);
-            printButton.setDisable(selection.getModel().getTableGroups().size() > 0);
-        } else {
-            infoEventTitle.setText(Resources.getString("LAB_NoEventSelected"));
-            infoEventDesc.setText("");
-
-            infoEventTable.setDisable(true);
-            printButton.setDisable(true);
         }
     }
 }
