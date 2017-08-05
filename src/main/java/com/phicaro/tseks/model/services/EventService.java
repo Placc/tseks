@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.services;
+package com.phicaro.tseks.model.services;
 
-import com.phicaro.tseks.entities.Event;
-import com.phicaro.tseks.entities.Location;
+import com.phicaro.tseks.model.entities.Event;
+import com.phicaro.tseks.model.entities.Location;
 import com.phicaro.tseks.util.exceptions.EventAlreadyExistsException;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -75,8 +75,8 @@ public class EventService {
         return eventRemoved;
     }
 
-    public Single<Event> createNewEvent(String name, Date date, Location location, String description) {
-        Event event = new Event(date, name, location);
+    public Single<Event> createNewEvent(String name, String title, Date date, Location location, String description) {
+        Event event = new Event(date, name, title, location);
 
         if (description != null) {
             event.setDescription(description);
@@ -98,7 +98,7 @@ public class EventService {
                                 .max(Comparator.naturalOrder())
                                 .orElse(0);
         
-        return createNewEvent(event.getName() + " (" + highestIdx + ")", event.getDate(), event.getLocation(), event.getDescription())
+        return createNewEvent(event.getName() + " (" + highestIdx + ")", event.getTitle(), event.getDate(), event.getLocation(), event.getDescription())
                 .doOnSuccess(copy -> event.getTableGroups().forEach(group -> copy.addTableGroup(group.clone())))
                 .flatMapCompletable(this::updateEvent);
     }

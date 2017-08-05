@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.services;
+package com.phicaro.tseks.model.services;
 
-import com.phicaro.tseks.entities.PriceCategory;
-import com.phicaro.tseks.entities.Table;
-import com.phicaro.tseks.entities.TableGroup;
+import com.phicaro.tseks.model.entities.PriceCategory;
+import com.phicaro.tseks.model.entities.Table;
+import com.phicaro.tseks.model.entities.TableGroup;
 import java.util.List;
 
 /**

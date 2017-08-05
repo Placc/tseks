@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.services;
+package com.phicaro.tseks.model.services;
 
-import com.phicaro.tseks.entities.Event;
-import com.phicaro.tseks.entities.Location;
+import com.phicaro.tseks.model.entities.Event;
+import com.phicaro.tseks.model.entities.Location;
 import com.phicaro.tseks.util.exceptions.BadArgumentException;
 import com.phicaro.tseks.util.exceptions.EventAlreadyExistsException;
 import com.phicaro.tseks.util.exceptions.PersistenceException;
@@ -44,9 +44,9 @@ public class DummyDatabaseService implements IDatabaseService {
 
         long date = new Date().getTime() + 100000;
 
-        dummyEvents.add(new Event(new Date(date), "Event1", new Location("here and there")));
-        dummyEvents.add(new Event(new Date(date + 100000), "Event2", new Location("far away")));
-        dummyEvents.add(new Event(new Date(date + 1000000), "Event3", new Location("even further")));
+        dummyEvents.add(new Event(new Date(date), "Event1", "Event1", new Location("here and there")));
+        dummyEvents.add(new Event(new Date(date + 100000), "Event2", "Event2", new Location("far away")));
+        dummyEvents.add(new Event(new Date(date + 1000000), "Event3", "Event3", new Location("even further")));
     }
 
     @Override

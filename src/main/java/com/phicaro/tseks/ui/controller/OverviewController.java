@@ -5,16 +5,18 @@
  */
 package com.phicaro.tseks.ui.controller;
 
-import com.phicaro.tseks.entities.Event;
-import com.phicaro.tseks.services.EventService;
+import com.phicaro.tseks.model.entities.Event;
+import com.phicaro.tseks.model.services.EventService;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableGroupViewModel;
 import com.phicaro.tseks.util.Resources;
 import com.phicaro.tseks.util.UiHelper;
+import io.reactivex.Observable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import io.reactivex.schedulers.Schedulers;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -214,7 +216,10 @@ public class OverviewController implements Initializable {
 
         if (selection != null) {
             infoEventTitle.setText(selection.getName());
-            infoEventDesc.setText(Resources.getString("LAB_XTablesOverall", selection.getModel().getTableGroups().size()));
+            
+            int sumTables = selection.getModel().getTableGroups().stream().map(group -> group.getTables().size()).reduce(0, (a, b) -> a + b);
+            infoEventDesc.setText(Resources.getString("LAB_XTablesOverall", sumTables));
+            
             infoEventTable.getItems().addAll(TableGroupViewModel.fromEvent(selection.getModel()));
 
             infoEventTable.setDisable(false);

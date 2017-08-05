@@ -6,12 +6,12 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane id="editContentPane" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #ffffff;" stylesheets="@../../styles/Styles.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.phicaro.tseks.ui.controller.EditEventController">
+<BorderPane id="editContentPane" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #ffffff;" stylesheets="@../../styles/Styles.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.phicaro.tseks.ui.controller.edit.EditEventController">
    <center>
       <SplitPane dividerPositions="0.4" prefHeight="160.0" prefWidth="200.0" style="-fx-background-color: #ffffff;" BorderPane.alignment="CENTER">
          <items>
-            <fx:include fx:id="eventInfo" source="edit/EditEventInfo.fxml" />
-            <fx:include fx:id="tableGroups" source="edit/EditEventTableGroups.fxml" />
+            <fx:include fx:id="eventInfo" source="EditEventInfo.fxml" />
+            <fx:include fx:id="tableGroups" source="EditEventTableGroups.fxml" />
          </items>
       </SplitPane>
    </center>

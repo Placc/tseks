@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefWidth="320.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.phicaro.tseks.ui.controller.EditEventInfoController">
+<BorderPane prefWidth="320.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.phicaro.tseks.ui.controller.edit.EditEventInfoController">
     <center>
         <VBox>
             <children>
@@ -27,14 +27,22 @@
                                  <Font size="20.0" />
                               </font>
                            </Label>
-                           <Label fx:id="eventLocationLabel" text="Label">
+                           <Label fx:id="eventTitleLabel" text="Label">
                               <VBox.margin>
-                                 <Insets bottom="20.0" left="10.0" right="10.0" top="10.0" />
+                                 <Insets bottom="20.0" left="10.0" right="10.0" top="5.0" />
                               </VBox.margin>
                               <font>
                                  <Font size="16.0" />
                               </font>
                            </Label>
+                        <Label fx:id="eventLocationLabel" text="Label">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </VBox.margin>
+                        </Label>
                            <Label fx:id="eventDescLabel" text="Label">
                               <VBox.margin>
                                  <Insets left="10.0" top="20.0" />
@@ -60,11 +68,16 @@
                                  <Insets bottom="40.0" right="10.0" top="20.0" />
                               </VBox.margin>
                            </TextField>
-                           <TextField fx:id="eventLocationEditText" VBox.vgrow="ALWAYS">
+                           <TextField fx:id="eventTitleEditText" VBox.vgrow="ALWAYS">
                               <VBox.margin>
                                  <Insets bottom="10.0" right="10.0" top="10.0" />
                               </VBox.margin>
                            </TextField>
+                        <TextField fx:id="eventLocationEditText">
+                           <VBox.margin>
+                              <Insets bottom="10.0" right="10.0" top="20.0" />
+                           </VBox.margin>
+                        </TextField>
                            <TextField fx:id="eventDescEditText" VBox.vgrow="ALWAYS">
                               <VBox.margin>
                                  <Insets bottom="20.0" right="10.0" top="20.0" />

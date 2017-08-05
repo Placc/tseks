@@ -5,8 +5,9 @@
  */
 package com.phicaro.tseks.ui.controller;
 
-import com.phicaro.tseks.TseksApp;
-import com.phicaro.tseks.services.IDatabaseService;
+import com.phicaro.tseks.ui.controller.edit.EditEventController;
+import com.phicaro.tseks.model.TseksApp;
+import com.phicaro.tseks.model.services.IDatabaseService;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.Resources;
@@ -166,7 +167,7 @@ public class MainController implements Initializable {
     
     public void switchToEdit(EventViewModel existingEvent) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/pages/EditEvent.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/pages/edit/EditEvent.fxml"));
             Parent root = loader.load();
 
             final EditEventController controller = loader.getController();
@@ -193,11 +194,11 @@ public class MainController implements Initializable {
         return tseksApp;
     }
 
-    void showSuccessMessage(String message) {
+    public void showSuccessMessage(String message) {
         UiHelper.showMessage(header, message, false);
     }
 
-    void showErrorMessage(String message) {
+    public void showErrorMessage(String message) {
         UiHelper.showMessage(header, message, true);
     }
 

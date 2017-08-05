@@ -5,8 +5,7 @@
  */
 package com.phicaro.tseks.ui.models;
 
-import com.phicaro.tseks.entities.Event;
-import com.phicaro.tseks.entities.Location;
+import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.util.UiHelper;
 import java.util.Date;
 import javafx.beans.property.SimpleListProperty;
@@ -24,6 +23,7 @@ public class EventViewModel implements IViewModel<Event> {
     
     //Overview
     private final SimpleStringProperty name;
+    private final SimpleStringProperty title;
     private final SimpleStringProperty location;
     private final SimpleStringProperty date;
     private final SimpleListProperty<TableGroupViewModel> tableGroups;
@@ -32,6 +32,7 @@ public class EventViewModel implements IViewModel<Event> {
     private final SimpleStringProperty description;
     
     public EventViewModel() {
+        this.title = new SimpleStringProperty("");
         this.name = new SimpleStringProperty("");
         this.location = new SimpleStringProperty("");
         this.date = new SimpleStringProperty(UiHelper.format(new Date()));
@@ -43,6 +44,7 @@ public class EventViewModel implements IViewModel<Event> {
         this.event = event;
         
         this.name = new SimpleStringProperty(event.getName());
+        this.title = new SimpleStringProperty(event.getTitle());
         this.location = new SimpleStringProperty(event.getLocation().toString());
         this.date = new SimpleStringProperty(UiHelper.format(event.getDate()));
         this.tableGroups = new SimpleListProperty<>(FXCollections.observableArrayList(TableGroupViewModel.fromEvent(event)));   
@@ -55,6 +57,10 @@ public class EventViewModel implements IViewModel<Event> {
     
     public String getName() {
         return name.get();
+    }
+    
+    public String getTitle() {
+        return title.get();
     }
     
     public void setName(String name) {
@@ -94,6 +100,10 @@ public class EventViewModel implements IViewModel<Event> {
     public SimpleStringProperty getNameProperty() {
         return name;
     }
+    
+    public SimpleStringProperty getTitleProperty() {
+        return title;
+    }
 
     public SimpleStringProperty getLocationProperty() {
         return location;
@@ -116,6 +126,7 @@ public class EventViewModel implements IViewModel<Event> {
         boolean viewModelsInEvent = getTableGroups().stream().allMatch(model -> e.getTableGroups().stream().anyMatch(group -> model.matches(group)));
         boolean groupsInViewModels = e.getTableGroups().stream().allMatch(group -> getTableGroups().stream().anyMatch(model -> model.matches(group)));
         return name.get().equals(e.getName()) &&
+                title.get().equals(e.getTitle()) &&
                 location.get().equals(e.getLocation().toString()) &&
                 date.get().equals(UiHelper.format(e.getDate())) &&
                 description.get().equals(e.getDescription())
@@ -125,6 +136,7 @@ public class EventViewModel implements IViewModel<Event> {
     @Override
     public boolean equals(Object o) {
         return o instanceof EventViewModel &&
+                ((EventViewModel) o).title.get().equals(title.get()) &&
                 ((EventViewModel) o).date.get().equals(date.get()) &&
                 ((EventViewModel) o).name.get().equals(name.get()) &&
                 ((EventViewModel) o).location.get().equals(location.get()) &&

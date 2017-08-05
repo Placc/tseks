@@ -5,7 +5,7 @@
  */
 package com.phicaro.tseks.util.exceptions;
 
-import com.phicaro.tseks.entities.Event;
+import com.phicaro.tseks.model.entities.Event;
 
 /**
  *

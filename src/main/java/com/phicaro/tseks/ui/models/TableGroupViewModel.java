@@ -5,9 +5,9 @@
  */
 package com.phicaro.tseks.ui.models;
 
-import com.phicaro.tseks.entities.Event;
-import com.phicaro.tseks.entities.TableGroup;
-import com.phicaro.tseks.services.TableService;
+import com.phicaro.tseks.model.entities.Event;
+import com.phicaro.tseks.model.entities.TableGroup;
+import com.phicaro.tseks.model.services.TableService;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.ui.controller;
+package com.phicaro.tseks.ui.controller.edit;
 
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableGroupViewModel;
@@ -17,7 +17,6 @@ import java.util.ResourceBundle;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -35,7 +34,7 @@ import javafx.util.converter.NumberStringConverter;
  *
  * @author Placc
  */
-public class EditEventTableGroupController implements Initializable {
+public class EditEventTableGroupController implements IEditEventController {
     
     @FXML
     private TableView<TableGroupViewModel> eventTableView;
@@ -81,14 +80,70 @@ public class EditEventTableGroupController implements Initializable {
         optionsColumn.setCellValueFactory(group -> createOptionsHbox(group.getValue()));
     }
 
-    public List<String> invalidChanges() {
+    public List<String> errors() {
         List<String> invalids = new ArrayList<>();
         
-        //TODO invalids
-        
+        if(eventViewModel.getTableGroups().stream().anyMatch(group -> group.getEndNumber() < group.getStartNumber())) {
+            invalids.add(Resources.getString("DESC_EndnumberBeforeStartnumber"));
+        }
+        if(eventViewModel.getTableGroups().stream().anyMatch(group -> group.getSeats() <= 0)) {
+            invalids.add(Resources.getString("DESC_SeatsZero"));
+        }
+        if(eventViewModel.getTableGroups().stream().anyMatch(group -> 
+                eventViewModel.getTableGroups().stream().filter(g -> !g.equals(group)).anyMatch(g -> 
+                        UiHelper.isIntersection(g.getStartNumber(), g.getEndNumber(), group.getStartNumber(), group.getEndNumber())))) {
+            invalids.add(Resources.getString("DESC_GroupIntersections"));
+        }
+
         return invalids;
     }
+    
+    public List<String> warnings() {
+        List<String> warnings = new ArrayList<>();
+        
+        //Missing table numbers
+        List<String> missingTables = getMissingTables();
+        
+        if(!missingTables.isEmpty()) {            
+            String message = Resources.getString("DESC_TableNumbersXNotPresent", UiHelper.combine(missingTables));
+            warnings.add(message);
+        }
+        
+        //Price 0
+        if(eventViewModel.getTableGroups().stream().anyMatch(group -> group.getPrice() <= 0)) {
+            warnings.add(Resources.getString("DESC_PriceZero"));
+        }
+        
+        return warnings;
+    }
 
+    private List<String> getMissingTables() {
+        List<String> missingTables = new ArrayList<>();
+        int max = eventViewModel.getTableGroups().stream().map(group -> group.getEndNumber()).max(Comparator.naturalOrder()).orElse(1);
+        int interval = 0;
+        
+        for(int number = 1; number <= max; number++) {
+            final int n = number;
+            boolean found = eventViewModel.getTableGroups().stream().anyMatch(group -> group.getStartNumber() <= n && n <= group.getEndNumber());
+        
+            if(!found) {
+                if(interval <= 0) {
+                    interval = n;
+                }
+            } 
+            else if (interval > 0) {
+                missingTables.add(interval + " - " + Math.max(interval, n - 1));
+                interval = 0;
+            }
+        }
+        
+        if(interval > 0) {
+            missingTables.add(interval + " - " + interval);
+        }
+        
+        return missingTables;
+    }
+    
     private void onAddTableGroupClicked() {
         List<TableGroupViewModel> tableGroups = eventViewModel.getTableGroups();
         

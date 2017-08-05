@@ -3,13 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.ui.controller;
+package com.phicaro.tseks.ui.controller.edit;
 
-import com.phicaro.tseks.entities.Event;
-import com.phicaro.tseks.entities.Location;
-import com.phicaro.tseks.entities.TableGroup;
-import com.phicaro.tseks.services.EventService;
-import com.phicaro.tseks.services.TableService;
+import com.phicaro.tseks.model.entities.Event;
+import com.phicaro.tseks.model.entities.Location;
+import com.phicaro.tseks.model.entities.TableGroup;
+import com.phicaro.tseks.model.services.EventService;
+import com.phicaro.tseks.model.services.TableService;
+import com.phicaro.tseks.ui.controller.INavigationController;
+import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableGroupViewModel;
 import com.phicaro.tseks.util.Resources;
@@ -39,7 +41,7 @@ import javafx.scene.layout.BorderPane;
  *
  * @author Placc
  */
-public class EditEventController implements Initializable, INavigationController {
+public class EditEventController implements IEditEventController, INavigationController {
 
     @FXML
     private Button saveButton;
@@ -176,17 +178,41 @@ public class EditEventController implements Initializable, INavigationController
         discardButton.setDisable(!enabled);
     }
 
+    @Override
+    public List<String> errors() {
+        List<String> invalidChanges = new ArrayList<>();
+        
+        invalidChanges.addAll(eventInfoController.errors());
+        invalidChanges.addAll(tableGroupsController.errors());
+        
+        return invalidChanges;
+    }
+    
+    @Override 
+    public List<String> warnings() {
+        List<String> warnings = new ArrayList<>();
+        
+        warnings.addAll(eventInfoController.warnings());
+        warnings.addAll(tableGroupsController.warnings());
+        
+        return warnings;
+    }
+    
     private Completable saveEvent() {
         if(!hasChanges()) {
             return Completable.complete();
         }
         
-        List<String> invalidChanges = new ArrayList<>();
-        invalidChanges.addAll(eventInfoController.invalidChanges());
-        invalidChanges.addAll(tableGroupsController.invalidChanges());
+        List<String> invalidChanges = errors();
             
         if(!invalidChanges.isEmpty()) {
             return Completable.error(new Exception(invalidChanges.stream().reduce("", (s1, s2) -> s1 + "\n" + s2)));
+        }
+        
+        List<String> warnings = warnings();
+        
+        if(!warnings.isEmpty() && !UiHelper.showSaveWarningDialog(warnings).blockingFirst()) {
+            return Completable.complete();
         }
         
         EventService eventService = MainController.instance().getTseksApp().getEventService();
@@ -196,6 +222,7 @@ public class EditEventController implements Initializable, INavigationController
             event = Single.just(eventViewModel.getModel())
                         .doOnSuccess(e -> {
                             e.setName(eventViewModel.getName());
+                            e.setTitle(eventViewModel.getTitle());
                             e.setLocation(new Location(eventViewModel.getLocation()));
                             e.setDescription(eventViewModel.getDescription());
                             e.setDate(UiHelper.parse(eventViewModel.getDate()));
@@ -203,7 +230,7 @@ public class EditEventController implements Initializable, INavigationController
                             e.clearTableGroups();
                         });
         } else {
-            event = eventService.createNewEvent(eventViewModel.getName(), UiHelper.parse(eventViewModel.getDate()), new Location(eventViewModel.getLocation()), eventViewModel.getDescription());
+            event = eventService.createNewEvent(eventViewModel.getName(), eventViewModel.getTitle(), UiHelper.parse(eventViewModel.getDate()), new Location(eventViewModel.getLocation()), eventViewModel.getDescription());
         }
 
         return event

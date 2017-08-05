@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.services;
+package com.phicaro.tseks.model.services;
 
-import com.phicaro.tseks.entities.Event;
+import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.util.exceptions.DatabaseConnectionException;
 import com.phicaro.tseks.util.exceptions.PersistenceException;
 import io.reactivex.Completable;
