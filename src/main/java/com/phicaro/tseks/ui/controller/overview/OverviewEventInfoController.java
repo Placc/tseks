@@ -7,7 +7,7 @@ package com.phicaro.tseks.ui.controller.overview;
 
 import com.phicaro.tseks.ui.controller.IEventController;
 import com.phicaro.tseks.ui.models.EventViewModel;
-import com.phicaro.tseks.ui.models.TableGroupViewModel;
+import com.phicaro.tseks.ui.models.TableCategoryViewModel;
 import com.phicaro.tseks.util.Resources;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -36,15 +36,15 @@ public class OverviewEventInfoController implements IEventController {
     @FXML
     private Label infoEventTableDesc;
     @FXML
-    private TableView<TableGroupViewModel> infoEventTable;
+    private TableView<TableCategoryViewModel> infoEventTable;
     @FXML
     private Button printButton;
     @FXML
-    private TableColumn<TableGroupViewModel, Integer> infoTableCountColumn;
+    private TableColumn<TableCategoryViewModel, Integer> infoTableCountColumn;
     @FXML
-    private TableColumn<TableGroupViewModel, Integer> infoTableSeatsColumn;
+    private TableColumn<TableCategoryViewModel, Integer> infoTableSeatsColumn;
     @FXML
-    private TableColumn<TableGroupViewModel, String> infoTablePriceColumn;
+    private TableColumn<TableCategoryViewModel, String> infoTablePriceColumn;
 
     //Model
     private EventViewModel eventViewModel;
@@ -60,10 +60,10 @@ public class OverviewEventInfoController implements IEventController {
             infoEventTitle.setText(Resources.getString("LAB_EventTitle") + ": " + eventViewModel.getTitle());
             infoEventDescription.setText(Resources.getString("LAB_Description") + ": " + eventViewModel.getDescription());
             
-            int sumTables = eventViewModel.getModel().getTableGroups().stream().map(group -> group.getNumberOfTables()).reduce(0, (a, b) -> a + b);
+            int sumTables = eventViewModel.getModel().getTableCategories().stream().map(group -> group.getNumberOfTables()).reduce(0, (a, b) -> a + b);
             infoEventTableDesc.setText(Resources.getString("LAB_XTablesOverall", sumTables));
             
-            infoEventTable.getItems().addAll(TableGroupViewModel.fromEvent(eventViewModel.getModel()));
+            infoEventTable.getItems().addAll(TableCategoryViewModel.fromEvent(eventViewModel.getModel()));
 
             infoEventTable.setDisable(false);
             printButton.setDisable(eventViewModel.getTableGroups().isEmpty());

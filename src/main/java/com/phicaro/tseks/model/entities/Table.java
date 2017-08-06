@@ -13,10 +13,12 @@ import java.util.UUID;
  */
 public class Table {
     
+    private String id;
     private int seats;
     private int tableNumber;
     
-    public Table(int tableNumber, int seats) {
+    public Table(String id, int tableNumber, int seats) {
+        this.id = id;
         this.tableNumber = tableNumber;
         this.seats = seats;
     }
@@ -27,5 +29,9 @@ public class Table {
 
     public int getTableNumber() {
         return tableNumber;
+    }
+    
+    public String getId() {
+        return id;
     }
 }

@@ -101,7 +101,7 @@ public class EventService {
                                 .orElse(0);
         
         return createNewEvent(event.getName() + " (" + highestIdx + ")", event.getTitle(), event.getDate(), event.getLocation(), event.getDescription())
-                .doOnSuccess(copy -> event.getTableGroups().forEach(group -> copy.addTableGroup(group.clone())))
+                .doOnSuccess(copy -> event.getTableCategories().forEach(group -> copy.addTableCategory(group.clone())))
                 .flatMapCompletable(this::updateEvent);
     }
 
@@ -127,8 +127,8 @@ public class EventService {
                         .filter(e -> e.getId().equals(event.getId()))
                         .firstOrError()
                         .doOnSuccess(e -> {
-                            event.getTableGroups().clear();
-                            event.getTableGroups().addAll(e.getTableGroups());
+                            event.getTableCategories().clear();
+                            event.getTableCategories().addAll(e.getTableCategories());
                             event.setName(e.getName());
                             event.setDate(e.getDate());
                             event.setTitle(e.getTitle());

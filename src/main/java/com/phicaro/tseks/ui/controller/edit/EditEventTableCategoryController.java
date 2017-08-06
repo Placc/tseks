@@ -6,7 +6,7 @@
 package com.phicaro.tseks.ui.controller.edit;
 
 import com.phicaro.tseks.ui.models.EventViewModel;
-import com.phicaro.tseks.ui.models.TableGroupViewModel;
+import com.phicaro.tseks.ui.models.TableCategoryViewModel;
 import com.phicaro.tseks.util.Resources;
 import com.phicaro.tseks.util.UiHelper;
 import java.net.URL;
@@ -34,18 +34,18 @@ import javafx.util.converter.NumberStringConverter;
  *
  * @author Placc
  */
-public class EditEventTableGroupController implements IEditEventController {
+public class EditEventTableCategoryController implements IEditEventController {
     
     @FXML
-    private TableView<TableGroupViewModel> eventTableView;
+    private TableView<TableCategoryViewModel> eventTableView;
     @FXML
-    private TableColumn<TableGroupViewModel, HBox> tableNumberColumn;
+    private TableColumn<TableCategoryViewModel, HBox> tableNumberColumn;
     @FXML
-    private TableColumn<TableGroupViewModel, HBox> seatsColumn;
+    private TableColumn<TableCategoryViewModel, HBox> seatsColumn;
     @FXML
-    private TableColumn<TableGroupViewModel, HBox> categoryColumn;
+    private TableColumn<TableCategoryViewModel, HBox> categoryColumn;
     @FXML
-    private TableColumn<TableGroupViewModel, HBox> optionsColumn;
+    private TableColumn<TableCategoryViewModel, HBox> optionsColumn;
     @FXML
     private Label tableGroupLabel;
     @FXML
@@ -145,14 +145,14 @@ public class EditEventTableGroupController implements IEditEventController {
     }
     
     private void onAddTableGroupClicked() {
-        List<TableGroupViewModel> tableGroups = eventViewModel.getTableGroups();
+        List<TableCategoryViewModel> tableGroups = eventViewModel.getTableGroups();
         
         int seats = 1;
         double price = 0.0; 
         int numberOfTables = 1;
         
         if(!tableGroups.isEmpty()) {
-            TableGroupViewModel lastGroup = tableGroups.get(tableGroups.size() - 1);
+            TableCategoryViewModel lastGroup = tableGroups.get(tableGroups.size() - 1);
             seats = lastGroup.getSeats();
             price = lastGroup.getPrice();
             numberOfTables = lastGroup.getNumberOfTables();
@@ -160,12 +160,12 @@ public class EditEventTableGroupController implements IEditEventController {
         
         int startTableNumber = 1 + tableGroups.stream().map(group -> group.getEndNumber()).max(Comparator.naturalOrder()).orElse(0);
         
-        TableGroupViewModel viewModel = new TableGroupViewModel(startTableNumber, numberOfTables, seats, price);
+        TableCategoryViewModel viewModel = new TableCategoryViewModel(startTableNumber, numberOfTables, seats, price);
         
         eventViewModel.getTableGroups().add(viewModel);
     }
     
-    private ObservableValue<HBox> createTableNumbersHbox(TableGroupViewModel group) {
+    private ObservableValue<HBox> createTableNumbersHbox(TableCategoryViewModel group) {
         Label minus = new Label(" - ");
         
         TextField from = new TextField();
@@ -194,7 +194,7 @@ public class EditEventTableGroupController implements IEditEventController {
         return new SimpleObjectProperty<>(result);
     }
 
-    private ObservableValue<HBox> createCategoryHBox(TableGroupViewModel group) {
+    private ObservableValue<HBox> createCategoryHBox(TableCategoryViewModel group) {
         Label currency = new Label(Resources.getString("LAB_Currency"));
         
         TextField amount = new TextField();
@@ -240,7 +240,7 @@ public class EditEventTableGroupController implements IEditEventController {
         return new SimpleObjectProperty<>(result);
     }
     
-    private ObservableValue<HBox> createSeatsHbox(TableGroupViewModel group) {
+    private ObservableValue<HBox> createSeatsHbox(TableCategoryViewModel group) {
         TextField seats = new TextField();
         
         seats.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -257,7 +257,7 @@ public class EditEventTableGroupController implements IEditEventController {
         return new SimpleObjectProperty<>(result);
     }
 
-    private ObservableValue<HBox> createOptionsHbox(TableGroupViewModel group) {
+    private ObservableValue<HBox> createOptionsHbox(TableCategoryViewModel group) {
          Image deleteImage = Resources.getImage("delete.png", Resources.ImageSize.NORMAL);
          
          ColorAdjust colorAdjust = UiHelper.getColorAdjust(Color.STEELBLUE);
@@ -273,7 +273,7 @@ public class EditEventTableGroupController implements IEditEventController {
          return new SimpleObjectProperty<>(new HBox(delete));
     }
     
-    private void deleteTableGroupClicked(TableGroupViewModel tableGroup) {
+    private void deleteTableGroupClicked(TableCategoryViewModel tableGroup) {
         eventViewModel.getTableGroups().remove(tableGroup);
     }    
 }

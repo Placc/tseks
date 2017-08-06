@@ -14,8 +14,6 @@ import java.util.*;
 
 public class Event implements Cloneable {
     
-    private static final int DESCRIPTION_LINES = 2;
-    
     private String id;
     private Date date;
     private Location location;
@@ -32,7 +30,7 @@ public class Event implements Cloneable {
         return location;
     }
 
-    public List<ITableCategory> getTableGroups() {
+    public List<ITableCategory> getTableCategories() {
         return tableGroups;
     }
 
@@ -78,17 +76,17 @@ public class Event implements Cloneable {
         this.date = date;
     }
     
-    public void addTableGroup(ITableCategory table) {
+    public void addTableCategory(ITableCategory table) {
         if(!this.tableGroups.contains(table)) {
             this.tableGroups.add(table);
         }
     }
     
-    public void clearTableGroups() {
+    public void clearTableCategories() {
         this.tableGroups.clear();
     }
     
-    public void removeTableGroup(ITableCategory table) {
+    public void removeTableCategory(ITableCategory table) {
         this.tableGroups.remove(table);
     }
     

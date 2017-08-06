@@ -11,7 +11,7 @@
       <SplitPane dividerPositions="0.4" prefHeight="160.0" prefWidth="200.0" style="-fx-background-color: #ffffff;" BorderPane.alignment="CENTER">
          <items>
             <fx:include fx:id="eventInfo" source="EditEventInfo.fxml" />
-            <fx:include fx:id="tableGroups" source="EditEventTableGroups.fxml" />
+            <fx:include fx:id="tableGroups" source="EditEventTableCategories.fxml" />
          </items>
       </SplitPane>
    </center>

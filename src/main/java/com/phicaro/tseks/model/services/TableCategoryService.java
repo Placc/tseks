@@ -8,26 +8,26 @@ package com.phicaro.tseks.model.services;
 import com.phicaro.tseks.model.entities.PriceCategory;
 import com.phicaro.tseks.model.entities.Table;
 import com.phicaro.tseks.model.entities.TableCategory;
-import java.util.List;
+import com.phicaro.tseks.model.entities.TableCategoryProxy;
 import java.util.UUID;
 
 /**
  *
  * @author Placc
  */
-public class TableService {
+public class TableCategoryService {
     
-    public static TableCategory createTableGroup(int seats, double price) {
+    public static TableCategory createTableCategory(int seats, double price) {
         return new TableCategory(UUID.randomUUID().toString(), seats, new PriceCategory(price));
-    }
-    
-    public static Table createTable(int tableNumber, int seats) {
-        return new Table(tableNumber, seats);
     }
     
     public static void setTablesRange(TableCategory group, int from, int to) {
         for (int number = from; number <= to; number++) {
-            group.addTable(createTable(number, group.getSeatsNumber()));
+            group.addTable(new Table(UUID.randomUUID().toString(), number, group.getSeatsNumber()));
         }
+    }
+
+    public static TableCategory resolveTabeCategoryProxy(TableCategoryProxy aThis) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

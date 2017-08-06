@@ -9,11 +9,11 @@ import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.entities.Location;
 import com.phicaro.tseks.model.entities.TableCategory;
 import com.phicaro.tseks.model.services.EventService;
-import com.phicaro.tseks.model.services.TableService;
+import com.phicaro.tseks.model.services.TableCategoryService;
 import com.phicaro.tseks.ui.controller.INavigationController;
 import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.models.EventViewModel;
-import com.phicaro.tseks.ui.models.TableGroupViewModel;
+import com.phicaro.tseks.ui.models.TableCategoryViewModel;
 import com.phicaro.tseks.util.Resources;
 import com.phicaro.tseks.util.UiHelper;
 import com.phicaro.tseks.util.exceptions.LifecycleException;
@@ -55,7 +55,7 @@ public class EditEventController implements IEditEventController, INavigationCon
     @FXML
     private EditEventInfoController eventInfoController;
     @FXML
-    private EditEventTableGroupController tableGroupsController;
+    private EditEventTableCategoryController tableGroupsController;
     
     //Model
     private EventViewModel eventViewModel = new EventViewModel();
@@ -75,8 +75,7 @@ public class EditEventController implements IEditEventController, INavigationCon
         eventViewModel.getDescriptionProperty().addListener(changeListener);
         eventViewModel.getLocationProperty().addListener(changeListener);
         eventViewModel.getTableGroupsProperty().addListener(changeListener);
-        eventViewModel.getTableGroupsProperty().addListener(
-                (ListChangeListener.Change<? extends TableGroupViewModel> c) -> {
+        eventViewModel.getTableGroupsProperty().addListener((ListChangeListener.Change<? extends TableCategoryViewModel> c) -> {
                     while(c.next()) {
                         c.getAddedSubList().forEach(group -> bindTableGroupViewModel(group));
                     }
@@ -86,7 +85,7 @@ public class EditEventController implements IEditEventController, INavigationCon
         invalidateControllers();
     }
     
-    private void bindTableGroupViewModel(TableGroupViewModel viewModel) {
+    private void bindTableGroupViewModel(TableCategoryViewModel viewModel) {
         viewModel.getStartNumberProperty().addListener(changeListener);
         viewModel.getEndNumberProperty().addListener(changeListener);
         viewModel.getSeatsProperty().addListener(changeListener);
@@ -228,7 +227,7 @@ public class EditEventController implements IEditEventController, INavigationCon
                             e.setDescription(eventViewModel.getDescription());
                             e.setDate(UiHelper.parse(eventViewModel.getDate()));
                             
-                            e.clearTableGroups();
+                            e.clearTableCategories();
                         });
         } else {
             event = eventService.createNewEvent(eventViewModel.getName(), eventViewModel.getTitle(), UiHelper.parse(eventViewModel.getDate()), new Location(eventViewModel.getLocation()), eventViewModel.getDescription());
@@ -238,9 +237,9 @@ public class EditEventController implements IEditEventController, INavigationCon
                 .doOnSuccess(e -> {
                     eventViewModel.getTableGroups().stream()
                     .forEach(model -> {
-                        TableCategory tableGroup = TableService.createTableGroup(model.getSeats(), model.getPrice());
-                        TableService.setTablesRange(tableGroup, model.getStartNumber(), model.getEndNumber());
-                        e.addTableGroup(tableGroup);
+                        TableCategory tableGroup = TableCategoryService.createTableCategory(model.getSeats(), model.getPrice());
+                        TableCategoryService.setTablesRange(tableGroup, model.getStartNumber(), model.getEndNumber());
+                        e.addTableCategory(tableGroup);
                     });
                     
                     setEvent(new EventViewModel(e));

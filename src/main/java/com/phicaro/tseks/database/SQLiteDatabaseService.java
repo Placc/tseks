@@ -6,10 +6,11 @@
 package com.phicaro.tseks.database;
 
 import com.phicaro.tseks.model.entities.Event;
+import com.phicaro.tseks.model.entities.ITableCategory;
 import com.phicaro.tseks.model.entities.Location;
 import com.phicaro.tseks.model.entities.PriceCategory;
 import com.phicaro.tseks.model.entities.Table;
-import com.phicaro.tseks.model.entities.TableCategory;
+import com.phicaro.tseks.model.entities.TableCategoryProxy;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -20,7 +21,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -60,9 +60,10 @@ public class SQLiteDatabaseService implements IDatabaseService {
            prepared.setLong(2, event.getDate().getTime());
            
            ResultSet result = prepared.executeQuery();
-           prepared.close();
            
            s.onSuccess(result.next());
+           
+           prepared.close();
         });
     }
 
@@ -73,18 +74,19 @@ public class SQLiteDatabaseService implements IDatabaseService {
            
            String tablesQuery = "SELECT * FROM EventsTableCategory etc"
                    + "JOIN TableCategory tablecategory ON etc.categoryId = tablecategory.id "
-                   + "JOIN TableTableCategory ttc ON tablecategory.id = ttc.categoryId "
-                   + "JOIN Table table ON ttc.tableId = table.id "
                    + "ORDER BY tablecategory.id"
                    + "WHERE etc.eventId = ?";
            
            Statement statement = databaseConnection.createStatement();
            
            ResultSet result = statement.executeQuery(idQuery);
-           statement.close();
            
            while(result.next()) {  
-               Event event = new Event(result.getString("id"), new Date(result.getLong("date")), result.getString("name"), result.getString("title"), new Location(result.getString("location")));
+               Event event = new Event(result.getString("id"), 
+                                        new Date(result.getLong("date")), 
+                                        result.getString("name"), 
+                                        result.getString("title"), 
+                                        new Location(result.getString("location")));
                
                PreparedStatement prepared = databaseConnection.prepareStatement(tablesQuery);
                
@@ -92,20 +94,20 @@ public class SQLiteDatabaseService implements IDatabaseService {
                
                ResultSet tablesResult = prepared.executeQuery();
                
-               TableCategory current = null;
-               
                while(tablesResult.next()) {
-                   if(current == null || !current.getId().equals(tablesResult.getString("tablecategory.id"))) {
-                       current = new TableCategory(tablesResult.getString("tablecategory.id"), tablesResult.getInt("tablecategory.seats"), new PriceCategory(tablesResult.getDouble("tablecategory.price")));
-                       event.addTableGroup(current);
-                   }
-                   
-                   Table table = new Table(tablesResult.getInt("table.number"), tablesResult.getInt("table.seats"));
-                   current.addTable(table);
+                    event.addTableCategory(
+                            new TableCategoryProxy(tablesResult.getString("tablecategory.id"), 
+                                                    tablesResult.getInt("tablecategory.tables"),
+                                                    tablesResult.getInt("tablecategory.seats"), 
+                                                    new PriceCategory(tablesResult.getDouble("tablecategory.price"))));
                }
                
                s.onNext(event);
+               
+               prepared.close();
            }
+           
+           statement.close();
                       
            s.onComplete();
         });
@@ -113,12 +115,168 @@ public class SQLiteDatabaseService implements IDatabaseService {
 
     @Override
     public Completable saveEvent(Event event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Completable.create(s -> {
+            String eventInsert = "INSERT INTO Events VALUES (?, ?, ?, ?, ?, ?)";
+            String tableCategoryInsert = "INSERT INTO TableCategory VALUES (?, ?, ?, ?)";
+            String etcInsert = "INSERT INTO EventsTableCategory VALUES (?, ?)";
+            String tableInsert = "INSERT INTO Table VALUES (?, ?, ?)";
+            String ttcInsert = "INSERT INTO TableTableCategory VALUES (?, ?)";
+            
+            PreparedStatement eventStmt = databaseConnection.prepareStatement(eventInsert);
+            
+            eventStmt.setString(0, event.getId());
+            eventStmt.setString(1, event.getName());
+            eventStmt.setString(2, event.getTitle());
+            eventStmt.setLong(3, event.getDate().getTime());
+            eventStmt.setString(4, event.getLocation().getLocationDescription());
+            eventStmt.setString(5, event.getDescription());
+            
+            eventStmt.executeUpdate();
+            eventStmt.close();
+            
+            for(ITableCategory category : event.getTableCategories()) {
+                PreparedStatement tcStmt = databaseConnection.prepareStatement(tableCategoryInsert);
+                
+                tcStmt.setString(0, category.getId());
+                tcStmt.setDouble(1, category.getPrice().getPrice());
+                tcStmt.setInt(2, category.getSeatsNumber());
+                tcStmt.setInt(3, category.getNumberOfTables());
+                
+                tcStmt.executeUpdate();
+                tcStmt.close();
+                
+                PreparedStatement etcStmt = databaseConnection.prepareStatement(etcInsert);
+                
+                etcStmt.setString(0, event.getId());
+                etcStmt.setString(1, category.getId());
+                
+                etcStmt.executeUpdate();
+                etcStmt.close();
+                
+                for(Table table : category.getTables()) {
+                    PreparedStatement tStmt = databaseConnection.prepareStatement(tableInsert);
+                    
+                    tStmt.setString(0, table.getId());
+                    tStmt.setInt(1, table.getSeats());
+                    tStmt.setInt(2, table.getTableNumber());
+                    
+                    tStmt.executeUpdate();
+                    tStmt.close();
+                    
+                    PreparedStatement ttcStmt = databaseConnection.prepareStatement(ttcInsert);
+                    
+                    ttcStmt.setString(0, table.getId());
+                    ttcStmt.setString(1, category.getId());
+                    
+                    ttcStmt.executeUpdate();
+                    ttcStmt.close();
+                }
+            }
+            
+            s.onComplete();
+        });
     }
 
     @Override
     public Completable updateEvent(Event event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Completable.create(s -> {
+            String eventUpdate = "UPDATE Events SET name = ?, title = ?, date = ?, location = ?, description = ? WHERE id = ?";
+            String tcUpdate = "INSERT OR REPLACE INTO TableCategory VALUES (?, ?, ?, ?)";
+            String etcUpdate = "INSERT OR REPLACE INTO EventsTableCategory VALUES (?, ?)";
+            String tableUpdate = "INSERT OR REPLACE INTO Table VALUES (?, ?, ?)";
+            String ttcUpdate = "INSERT OR REPLACE INTO TableTableCategory VALUES (?, ?)";
+
+            PreparedStatement eventStmt = databaseConnection.prepareStatement(eventUpdate);
+
+            eventStmt.setString(0, event.getName());
+            eventStmt.setString(1, event.getTitle());
+            eventStmt.setLong(2, event.getDate().getTime());
+            eventStmt.setString(3, event.getLocation().getLocationDescription());
+            eventStmt.setString(4, event.getDescription());
+            eventStmt.setString(5, event.getId());
+
+            eventStmt.executeUpdate();
+            eventStmt.close();
+                        
+            String cleanup = "DELETE FROM EventsTableCategory"
+                         + "WHERE eventId = ? AND categoryId NOT IN " 
+                         + createPlaceholder(event.getTableCategories().size());
+            
+            PreparedStatement cleanStmt = databaseConnection.prepareStatement(cleanup);
+            
+            cleanStmt.setString(0, event.getId());
+            
+            int categoryIdx = 1;
+            for(ITableCategory category : event.getTableCategories()) {
+                cleanStmt.setString(categoryIdx++, category.getId());
+                
+                PreparedStatement tcStmt = databaseConnection.prepareStatement(tcUpdate);
+                
+                tcStmt.setString(0, category.getId());
+                tcStmt.setDouble(1, category.getPrice().getPrice());
+                tcStmt.setInt(2, category.getSeatsNumber());
+                tcStmt.setInt(3, category.getNumberOfTables());
+                
+                tcStmt.executeUpdate();
+                tcStmt.close();
+                
+                PreparedStatement etcStmt = databaseConnection.prepareStatement(etcUpdate);
+                
+                etcStmt.setString(0, event.getId());
+                etcStmt.setString(1, category.getId());
+                
+                etcStmt.executeUpdate();
+                etcStmt.close();
+                
+                String tcleanup = "DELETE FROM TableTableCategory ttc "
+                         + "JOIN EventsTableCategory etc ON ttc.categoryId = etc.categoryId "
+                         + "WHERE etc.eventId = ? AND ttc.tableId NOT IN "
+                         + createPlaceholder(category.getNumberOfTables());
+                
+                PreparedStatement tcleanStmt = databaseConnection.prepareStatement(tcleanup);
+                
+                tcleanStmt.setString(0, event.getId());
+                
+                int tableIdx = 1;
+                for(Table table : category.getTables()) {
+                    tcleanStmt.setString(tableIdx++, table.getId());
+                    
+                    PreparedStatement tStmt = databaseConnection.prepareStatement(tableUpdate);
+                    
+                    tStmt.setString(0, table.getId());
+                    tStmt.setInt(1, table.getSeats());
+                    tStmt.setInt(2, table.getTableNumber());
+                    
+                    tStmt.executeUpdate();
+                    tStmt.close();
+                    
+                    PreparedStatement ttcStmt = databaseConnection.prepareStatement(ttcUpdate);
+                    
+                    ttcStmt.setString(0, table.getId());
+                    ttcStmt.setString(1, category.getId());
+                    
+                    ttcStmt.executeUpdate();
+                    ttcStmt.close();
+                }
+                
+                tcleanStmt.executeUpdate();
+                tcleanStmt.close();
+            }
+
+            cleanStmt.executeUpdate();
+            cleanStmt.close();
+            
+            s.onComplete();
+        });
+    }
+    
+    private String createPlaceholder(int length) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(?");
+        for (int i = 1; i < length; i++) {
+            sb.append(",?");
+        }
+        return sb.append(")").toString();
     }
 
     @Override

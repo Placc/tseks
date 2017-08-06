@@ -16,11 +16,9 @@ public interface ITableCategory extends Cloneable {
     String getId();
     int getSeatsNumber();
     int getNumberOfTables();
-    int getMinTableNumber();
-    int getMaxTableNumber();
-    //List<Table> getTables();
-    //void addTable(Table table);
-    //void removeTable(Table table);
-    //void clearTables();
+    List<Table> getTables();
+    void addTable(Table table);
+    void removeTable(Table table);
+    void clearTables();
     ITableCategory clone();
 }

@@ -107,8 +107,8 @@ public class DummyDatabaseService implements IDatabaseService {
             old.setDescription(event.getDescription());
             old.setLocation(event.getLocation());
             
-            old.clearTableGroups();
-            event.getTableGroups().forEach(group -> old.addTableGroup(group.clone()));
+            old.clearTableCategories();
+            event.getTableCategories().forEach(group -> old.addTableCategory(group.clone()));
             
             eventAdded.onNext(event);
             

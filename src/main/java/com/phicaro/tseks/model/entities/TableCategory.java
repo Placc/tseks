@@ -70,8 +70,6 @@ public class TableCategory implements ITableCategory {
                 && ((ITableCategory) o).getPrice().equals(priceCategory) 
                 && ((ITableCategory) o).getSeatsNumber() == seatsNumber 
                 && ((ITableCategory) o).getNumberOfTables() == tables.size()
-                && ((ITableCategory) o).getMinTableNumber() == getMinTableNumber()
-                && ((ITableCategory) o).getMaxTableNumber() == getMaxTableNumber()
                 && (!(o instanceof TableCategory) || ((TableCategory) o).getTables().equals(tables));
     }
     
@@ -80,7 +78,7 @@ public class TableCategory implements ITableCategory {
         try {
             TableCategory clone = (TableCategory) super.clone();
             clone.seatsNumber = seatsNumber;
-            clone.priceCategory = priceCategory;
+            clone.priceCategory = new PriceCategory(priceCategory.getPrice());
             clone.id = id;
             
             clone.tables = new ArrayList<>();
@@ -95,15 +93,5 @@ public class TableCategory implements ITableCategory {
     @Override
     public int getNumberOfTables() {
         return tables.size();
-    }
-
-    @Override
-    public int getMinTableNumber() {
-        return tables.stream().map(table -> table.getTableNumber()).min(Comparator.naturalOrder()).orElse(0);
-    }
-
-    @Override
-    public int getMaxTableNumber() {
-        return tables.stream().map(table -> table.getTableNumber()).max(Comparator.naturalOrder()).orElse(0);
     }
 }

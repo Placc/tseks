@@ -5,7 +5,7 @@
  */
 package com.phicaro.tseks.util;
 
-import com.phicaro.tseks.ui.models.TableGroupViewModel;
+import com.phicaro.tseks.ui.models.TableCategoryViewModel;
 import com.phicaro.tseks.util.exceptions.EventAlreadyExistsException;
 import com.phicaro.tseks.util.exceptions.LifecycleException;
 import com.phicaro.tseks.util.exceptions.PersistenceException;

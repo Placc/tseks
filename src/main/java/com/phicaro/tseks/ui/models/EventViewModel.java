@@ -26,7 +26,7 @@ public class EventViewModel implements IViewModel<Event> {
     private final SimpleStringProperty title;
     private final SimpleStringProperty location;
     private final SimpleStringProperty date;
-    private final SimpleListProperty<TableGroupViewModel> tableGroups;
+    private final SimpleListProperty<TableCategoryViewModel> tableGroups;
     
     //Edit
     private final SimpleStringProperty description;
@@ -47,11 +47,11 @@ public class EventViewModel implements IViewModel<Event> {
         this.title = new SimpleStringProperty(event.getTitle());
         this.location = new SimpleStringProperty(event.getLocation().toString());
         this.date = new SimpleStringProperty(UiHelper.format(event.getDate()));
-        this.tableGroups = new SimpleListProperty<>(FXCollections.observableArrayList(TableGroupViewModel.fromEvent(event)));   
+        this.tableGroups = new SimpleListProperty<>(FXCollections.observableArrayList(TableCategoryViewModel.fromEvent(event)));   
         this.description = new SimpleStringProperty(event.getDescription());
     }
     
-    public ObservableList<TableGroupViewModel> getTableGroups() {
+    public ObservableList<TableCategoryViewModel> getTableGroups() {
         return tableGroups.get();
     }
     
@@ -117,14 +117,14 @@ public class EventViewModel implements IViewModel<Event> {
         return description;
     }
     
-    public SimpleListProperty<TableGroupViewModel> getTableGroupsProperty() {
+    public SimpleListProperty<TableCategoryViewModel> getTableGroupsProperty() {
         return tableGroups;
     }
     
     @Override
     public boolean matches(Event e) {
-        boolean viewModelsInEvent = getTableGroups().stream().allMatch(model -> e.getTableGroups().stream().anyMatch(group -> model.matches(group)));
-        boolean groupsInViewModels = e.getTableGroups().stream().allMatch(group -> getTableGroups().stream().anyMatch(model -> model.matches(group)));
+        boolean viewModelsInEvent = getTableGroups().stream().allMatch(model -> e.getTableCategories().stream().anyMatch(group -> model.matches(group)));
+        boolean groupsInViewModels = e.getTableCategories().stream().allMatch(group -> getTableGroups().stream().anyMatch(model -> model.matches(group)));
         return name.get().equals(e.getName()) &&
                 title.get().equals(e.getTitle()) &&
                 location.get().equals(e.getLocation().toString()) &&
