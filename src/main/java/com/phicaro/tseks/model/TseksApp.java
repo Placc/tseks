@@ -9,6 +9,7 @@ import com.phicaro.tseks.database.DummyDatabaseService;
 import com.phicaro.tseks.model.services.EventService;
 import com.phicaro.tseks.database.IDatabaseService;
 import com.phicaro.tseks.database.IDatabaseService.ConnectionState;
+import com.phicaro.tseks.database.TseksDatabaseFactory;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -30,22 +31,28 @@ public class TseksApp {
 
     private TseksApp() {
         loadSettings();
-
-        /*TseksDatabaseFactory.getLocalDatabaseService()
-                .subscribe(db -> database = db,
-                        e -> Logger.error("tseks-app c",e));*/
-        
-        this.database = new DummyDatabaseService(DB_CONNECTION);
-        
-        eventService = new EventService(database);
     }
 
     public static Single<TseksApp> startApp() {
+        Single<TseksApp> application;
+        
         if (instance == null) {
             instance = new TseksApp();
+            
+            application = Single.just(new TseksApp())
+                    .flatMap(app -> TseksDatabaseFactory.getLocalDatabaseService()
+                                    .doOnSuccess(database -> app.database = database)
+                                    .map(database -> new EventService(database))
+                                    .doOnSuccess(service -> app.eventService = service)
+                                    .map(__ -> app));
+        } 
+        else {
+            application = Single.just(instance);
         }
 
-        return instance.reconnect()
+        return application
+                .doOnSuccess(app -> instance = app)
+                .flatMapCompletable(app -> app.reconnect())
                 .toSingleDefault(instance);
     }
 

@@ -22,7 +22,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Date;
-import java.util.List;
 
 /**
  *
@@ -281,7 +280,26 @@ public class SQLiteDatabaseService implements IDatabaseService {
 
     @Override
     public Completable deleteEvent(Event event) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return Completable.create(s -> {
+            String deleteEvent = "DELETE FROM Events WHERE id = ?";
+            String deleteTablesAndCategories = "DELETE FROM Table t JOIN TableTableCategory ttc ON t.id = ttc.tableId JOIN TableCategory tc ON ttc.categoryId = tc.id JOIN EventsTableCategory etc ON tc.id = etc.categoryId WHERE etc.eventId = ?";
+
+            PreparedStatement preparedDelete = databaseConnection.prepareStatement(deleteTablesAndCategories);
+
+            preparedDelete.setString(0, event.getId());
+        
+            preparedDelete.executeUpdate();
+            preparedDelete.close();
+            
+            preparedDelete = databaseConnection.prepareStatement(deleteEvent);
+            
+            preparedDelete.setString(0, event.getId());
+            
+            preparedDelete.executeUpdate();
+            preparedDelete.close();
+            
+            s.onComplete();
+        });
     }
 
     @Override
