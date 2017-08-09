@@ -37,8 +37,6 @@ public class TseksApp {
         Single<TseksApp> application;
         
         if (instance == null) {
-            instance = new TseksApp();
-            
             application = Single.just(new TseksApp())
                     .flatMap(app -> TseksDatabaseFactory.getLocalDatabaseService()
                                     .doOnSuccess(database -> app.database = database)
