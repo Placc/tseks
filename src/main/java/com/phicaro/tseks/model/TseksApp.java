@@ -5,11 +5,11 @@
  */
 package com.phicaro.tseks.model;
 
-import com.phicaro.tseks.database.DummyDatabaseService;
+import com.phicaro.tseks.model.database.DatabaseType;
 import com.phicaro.tseks.model.services.EventService;
-import com.phicaro.tseks.database.IDatabaseService;
-import com.phicaro.tseks.database.IDatabaseService.ConnectionState;
-import com.phicaro.tseks.database.TseksDatabaseFactory;
+import com.phicaro.tseks.model.database.IDatabaseService;
+import com.phicaro.tseks.model.database.IDatabaseService.ConnectionState;
+import com.phicaro.tseks.model.database.TseksDatabaseFactory;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -38,7 +38,8 @@ public class TseksApp {
         
         if (instance == null) {
             application = Single.just(new TseksApp())
-                    .flatMap(app -> TseksDatabaseFactory.getLocalDatabaseService()
+                    .flatMap(app -> TseksDatabaseFactory.getDatabase(DatabaseType.SQLite)
+                                    .initializeDatabase()
                                     .doOnSuccess(database -> app.database = database)
                                     .map(database -> new EventService(database))
                                     .doOnSuccess(service -> app.eventService = service)
@@ -50,8 +51,8 @@ public class TseksApp {
 
         return application
                 .doOnSuccess(app -> instance = app)
-                .flatMapCompletable(app -> app.reconnect())
-                .toSingleDefault(instance);
+                .flatMap(app -> app.reconnect()
+                                    .toSingleDefault(app));
     }
 
     private void loadSettings() {

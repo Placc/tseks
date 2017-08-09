@@ -105,5 +105,10 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.19.3</version>
         </dependency>
+        <dependency>
+            <groupId>com.j256.ormlite</groupId>
+            <artifactId>ormlite-jdbc</artifactId>
+            <version>5.0</version>
+        </dependency>
     </dependencies>
 </project>

@@ -7,7 +7,7 @@ package com.phicaro.tseks.ui.controller;
 
 import com.phicaro.tseks.ui.controller.edit.EditEventController;
 import com.phicaro.tseks.model.TseksApp;
-import com.phicaro.tseks.database.IDatabaseService;
+import com.phicaro.tseks.model.database.IDatabaseService;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.Resources;
@@ -104,7 +104,11 @@ public class MainController implements Initializable {
                     .filter(state -> state.equals(IDatabaseService.ConnectionState.CLOSED))
                     .subscribe(onConnectionError);
 
-            switchToOverview();
+            app.connectionState()
+                    .filter(state -> state.equals(IDatabaseService.ConnectionState.CONNECTED))
+                    .subscribe(__ -> {
+                        switchToOverview();
+                    });
         };
 
         Consumer<Throwable> onError = e -> {

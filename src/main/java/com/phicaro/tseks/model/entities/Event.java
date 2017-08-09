@@ -5,6 +5,10 @@
  */
 package com.phicaro.tseks.model.entities;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
+import com.phicaro.tseks.model.persister.LocationPersister;
 import java.util.*;
 
 /**
@@ -12,16 +16,44 @@ import java.util.*;
  * @author Placc
  */
 
-public class Event implements Cloneable {
+@DatabaseTable(tableName = Event.TABLE_NAME)
+public class Event {
+    public static final String TABLE_NAME = "Event";
     
-    private String id;
-    private Date date;
-    private Location location;
-    private List<ITableCategory> tableGroups;
-    private String description;
-    private String title;
-    private String name;
+    public static final String COLUMN_ID = "id";
+    public static final String COLUMN_DATE = "date";
+    public static final String COLUMN_LOCATION = "location";
+    public static final String COLUMN_DESCRIPTION = "description";
+    public static final String COLUMN_TITLE = "title";
+    public static final String COLUMN_NAME = "name";
+    
+    public static final String FOREIGN_COLLECTION_FIELD = "tableCategories";
+    
+    @DatabaseField(columnName = COLUMN_ID, id = true) private String id;
+    @DatabaseField(columnName = COLUMN_DATE) private Date date;
+    @DatabaseField(columnName = COLUMN_LOCATION, persisterClass = LocationPersister.class) private Location location;
+    @DatabaseField(columnName = COLUMN_DESCRIPTION) private String description;
+    @DatabaseField(columnName = COLUMN_TITLE) private String title;
+    @DatabaseField(columnName = COLUMN_NAME) private String name;
 
+    @ForeignCollectionField private Collection<TableCategory> tableCategories;
+    
+    /*Database constructor*/
+    Event() {
+    }
+    
+    public Event(Date date, String name, String title, Location location) {
+        this.id = UUID.randomUUID().toString();
+        
+        this.description = "";
+        this.tableCategories = new ArrayList<>();
+        
+        setLocation(location);
+        setDate(date);
+        setName(name);
+        setTitle(title);
+    }
+    
     public Date getDate() {
         return date;
     }
@@ -30,8 +62,8 @@ public class Event implements Cloneable {
         return location;
     }
 
-    public List<ITableCategory> getTableCategories() {
-        return tableGroups;
+    public List<TableCategory> getTableCategories() {
+        return new ArrayList<>(tableCategories);
     }
 
     public String getDescription() {
@@ -46,16 +78,7 @@ public class Event implements Cloneable {
         return title;
     }
     
-    public Event(String id, Date date, String name, String title, Location location) {
-        this.id = id;
-        this.description = "";
-        this.tableGroups = new ArrayList(); 
-        setLocation(location);
-        setDate(date);
-        setName(name);
-        setTitle(title);
-    }
-    
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -76,18 +99,18 @@ public class Event implements Cloneable {
         this.date = date;
     }
     
-    public void addTableCategory(ITableCategory table) {
-        if(!this.tableGroups.contains(table)) {
-            this.tableGroups.add(table);
+    public void addTableCategory(TableCategory table) {
+        if(!this.tableCategories.contains(table)) {
+            this.tableCategories.add(table);
         }
     }
     
     public void clearTableCategories() {
-        this.tableGroups.clear();
+        this.tableCategories.clear();
     }
     
-    public void removeTableCategory(ITableCategory table) {
-        this.tableGroups.remove(table);
+    public void removeTableCategory(TableCategory table) {
+        this.tableCategories.remove(table);
     }
     
     @Override
@@ -97,24 +120,5 @@ public class Event implements Cloneable {
 
     public String getId() {
         return id;
-    }
-    
-    @Deprecated
-    @Override
-    public Event clone() throws CloneNotSupportedException {
-        Event clone = (Event) super.clone();
-        clone.date = date;
-        clone.description = description;
-        clone.location = location;
-        clone.name = name;
-        clone.title = title;
-        clone.id = id;
-        clone.tableGroups = new ArrayList<>();
-        
-        for(ITableCategory g : tableGroups) {
-            clone.tableGroups.add(g.clone());
-        }
-        
-        return clone;
     }
 }

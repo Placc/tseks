@@ -3,15 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.database;
+package com.phicaro.tseks.model.database;
 
 import com.phicaro.tseks.model.entities.Event;
-import com.phicaro.tseks.util.exceptions.DatabaseConnectionException;
-import com.phicaro.tseks.util.exceptions.PersistenceException;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import java.util.List;
 
 /**
  *
@@ -29,7 +26,7 @@ public interface IDatabaseService {
     Observable<Event> getSnapshot();
 
     //Manipulation
-    Completable saveEvent(Event event);
+    Completable createEvent(Event event);
 
     Completable updateEvent(Event event);
     

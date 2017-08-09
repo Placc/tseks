@@ -6,7 +6,6 @@
 package com.phicaro.tseks.ui.models;
 
 import com.phicaro.tseks.model.entities.Event;
-import com.phicaro.tseks.model.entities.ITableCategory;
 import com.phicaro.tseks.model.entities.TableCategory;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,7 +17,7 @@ import javafx.beans.property.SimpleIntegerProperty;
  *
  * @author Placc
  */
-public class TableCategoryViewModel implements IViewModel<ITableCategory> {
+public class TableCategoryViewModel implements IViewModel<TableCategory> {
     
     private SimpleIntegerProperty numberOfTables;
     private SimpleIntegerProperty startNumber;
@@ -26,7 +25,7 @@ public class TableCategoryViewModel implements IViewModel<ITableCategory> {
     private SimpleDoubleProperty category;
     private SimpleIntegerProperty seats;
     
-    private ITableCategory tableGroup;
+    private TableCategory tableGroup;
     
     public static List<TableCategoryViewModel> fromEvent(Event event) {
         List<TableCategoryViewModel> result = new ArrayList<>();
@@ -44,7 +43,7 @@ public class TableCategoryViewModel implements IViewModel<ITableCategory> {
         this.seats = new SimpleIntegerProperty(seats);
     }
     
-    public TableCategoryViewModel(ITableCategory tableGroup) {
+    public TableCategoryViewModel(TableCategory tableGroup) {
         this.tableGroup = tableGroup;
         
         this.startNumber = new SimpleIntegerProperty(computeStartNumber(tableGroup));
@@ -54,7 +53,7 @@ public class TableCategoryViewModel implements IViewModel<ITableCategory> {
         this.seats = new SimpleIntegerProperty(tableGroup.getSeatsNumber());
     }
     
-    public ITableCategory getModel() {
+    public TableCategory getModel() {
         return tableGroup;
     }
     
@@ -118,14 +117,14 @@ public class TableCategoryViewModel implements IViewModel<ITableCategory> {
         return numberOfTables;
     }
 
-    private int computeStartNumber(ITableCategory g) {
+    private int computeStartNumber(TableCategory g) {
         if(g instanceof TableCategory) {
             return g.getTables().stream().map(table -> table.getTableNumber()).min(Comparator.naturalOrder()).orElse(1);
         }
         return 1;
     }
     
-    private int computeEndNumber(ITableCategory g) {
+    private int computeEndNumber(TableCategory g) {
         if(g instanceof TableCategory) {
             return g.getTables().stream().map(table -> table.getTableNumber()).max(Comparator.naturalOrder()).orElse(1);
         }
@@ -133,7 +132,7 @@ public class TableCategoryViewModel implements IViewModel<ITableCategory> {
     }
     
     @Override
-    public boolean matches(ITableCategory g) {
+    public boolean matches(TableCategory g) {
         return getStartNumber() == computeStartNumber(g) &&
                 getEndNumber() == computeEndNumber(g) &&
                 getNumberOfTables() == g.getNumberOfTables() &&

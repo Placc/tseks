@@ -5,27 +5,45 @@
  */
 package com.phicaro.tseks.model.entities;
 
-import com.phicaro.tseks.util.Logger;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
+import com.phicaro.tseks.model.persister.PricePersister;
 import com.phicaro.tseks.util.exceptions.BadArgumentException;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
  * @author Placc
  */
-public class TableCategory implements ITableCategory {
+@DatabaseTable(tableName = TableCategory.TABLE_NAME)
+public class TableCategory {
+    public static final String TABLE_NAME = "TableCategory";
     
-    private String id;
-    private PriceCategory priceCategory;
-    private int seatsNumber;
-    private List<Table> tables;
+    public static final String COLUMN_ID = "id";
+    public static final String COLUMN_EVENT = "event";
+    public static final String COLUMN_PRICE = "price";
+    public static final String COLUMN_SEATS = "seats";
     
-    public TableCategory(String id, int seats, PriceCategory priceCategory) {
+    @DatabaseField(columnName = COLUMN_ID, id = true) private String id;
+    @DatabaseField(columnName = COLUMN_EVENT, foreign = true, foreignAutoRefresh = true) private Event event;
+    @DatabaseField(columnName = COLUMN_PRICE, persisterClass = PricePersister.class) private PriceCategory priceCategory;
+    @DatabaseField(columnName = COLUMN_SEATS) private int seatsNumber;
+    @ForeignCollectionField(eager = true) private Collection<Table> tables;
+    
+    /*Database constructor*/
+    TableCategory() {
+    }
+    
+    public TableCategory(Event event, int seats, PriceCategory priceCategory) {
+        this.id = UUID.randomUUID().toString();
+        
         this.tables = new ArrayList<>();
         
-        this.id = id;
+        this.event = event;
         this.priceCategory = priceCategory;
         this.seatsNumber = seats;
     }
@@ -66,32 +84,19 @@ public class TableCategory implements ITableCategory {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof ITableCategory 
-                && ((ITableCategory) o).getPrice().equals(priceCategory) 
-                && ((ITableCategory) o).getSeatsNumber() == seatsNumber 
-                && ((ITableCategory) o).getNumberOfTables() == tables.size()
-                && (!(o instanceof TableCategory) || ((TableCategory) o).getTables().equals(tables));
+        return o instanceof TableCategory 
+                && ((TableCategory) o).getEvent().equals(event)
+                && ((TableCategory) o).getPrice().equals(priceCategory) 
+                && ((TableCategory) o).getSeatsNumber() == seatsNumber 
+                && ((TableCategory) o).getNumberOfTables() == tables.size()
+                && ((TableCategory) o).getTables().equals(tables);
     }
     
-    @Override
-    public ITableCategory clone() {
-        try {
-            TableCategory clone = (TableCategory) super.clone();
-            clone.seatsNumber = seatsNumber;
-            clone.priceCategory = new PriceCategory(priceCategory.getPrice());
-            clone.id = id;
-            
-            clone.tables = new ArrayList<>();
-            clone.tables.addAll(tables);
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            Logger.error("table-group clone", e);
-        }
-        return null;
-    }
-
-    @Override
     public int getNumberOfTables() {
         return tables.size();
+    }
+    
+    public Event getEvent() {
+        return event;
     }
 }

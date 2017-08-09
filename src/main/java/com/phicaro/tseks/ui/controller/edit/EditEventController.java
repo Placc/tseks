@@ -7,9 +7,10 @@ package com.phicaro.tseks.ui.controller.edit;
 
 import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.entities.Location;
+import com.phicaro.tseks.model.entities.PriceCategory;
+import com.phicaro.tseks.model.entities.Table;
 import com.phicaro.tseks.model.entities.TableCategory;
 import com.phicaro.tseks.model.services.EventService;
-import com.phicaro.tseks.model.services.TableCategoryService;
 import com.phicaro.tseks.ui.controller.INavigationController;
 import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.models.EventViewModel;
@@ -26,12 +27,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 import javafx.beans.InvalidationListener;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.WeakChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -237,8 +236,11 @@ public class EditEventController implements IEditEventController, INavigationCon
                 .doOnSuccess(e -> {
                     eventViewModel.getTableGroups().stream()
                     .forEach(model -> {
-                        TableCategory tableGroup = TableCategoryService.createTableCategory(model.getSeats(), model.getPrice());
-                        TableCategoryService.setTablesRange(tableGroup, model.getStartNumber(), model.getEndNumber());
+                        TableCategory tableGroup = new TableCategory(e, model.getSeats(), new PriceCategory(model.getPrice()));
+                        
+                        IntStream.rangeClosed(model.getStartNumber(), model.getEndNumber())
+                                .forEach(number -> tableGroup.addTable(new Table(tableGroup, number, model.getSeats())));
+
                         e.addTableCategory(tableGroup);
                     });
                     

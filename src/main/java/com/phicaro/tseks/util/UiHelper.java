@@ -97,6 +97,7 @@ public class UiHelper {
             message = Resources.getString("DESC_PersistenceException");
         }
         
+        Logger.error(message, e);
         showError(title, message);
     }
 

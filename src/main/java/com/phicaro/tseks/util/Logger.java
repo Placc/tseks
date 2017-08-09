@@ -13,7 +13,10 @@ public class Logger {
 
     public static void error(String message, Throwable e) {
         System.out.println(message);
-        e.printStackTrace();
+        
+        if(e != null) {
+            e.printStackTrace();
+        }
     }
 
     public static void error(String message) {

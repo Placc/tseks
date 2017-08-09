@@ -5,9 +5,11 @@
  */
 package com.phicaro.tseks.model.services;
 
-import com.phicaro.tseks.database.IDatabaseService;
+import com.phicaro.tseks.model.database.IDatabaseService;
 import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.entities.Location;
+import com.phicaro.tseks.model.entities.Table;
+import com.phicaro.tseks.model.entities.TableCategory;
 import com.phicaro.tseks.util.exceptions.EventAlreadyExistsException;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -18,7 +20,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  *
@@ -56,16 +57,16 @@ public class EventService {
     public Observable<Event> getEvents() {
         return Observable.fromIterable(events)
                 .concatWith(
-                        database.getSnapshot()
-                                .doOnNext(event -> {
-                                    Optional<Event> existing = events.stream().filter(e -> e.getId().equals(event.getId())).findAny();
-                                    if(existing.isPresent() && !existing.get().equals(event)) {
-                                        removeEvent(existing.get());
-                                        addEvent(event);
-                                    } else if (!existing.isPresent()) {
-                                        addEvent(event);
-                                    }
-                                })
+                    database.getSnapshot()
+                        .doOnNext(event -> {
+                            Optional<Event> existing = events.stream().filter(e -> e.getId().equals(event.getId())).findAny();
+                            if(existing.isPresent() && !existing.get().equals(event)) {
+                                removeEvent(existing.get());
+                                addEvent(event);
+                            } else if (!existing.isPresent()) {
+                                addEvent(event);
+                            }
+                        })
                 );
     }
 
@@ -78,7 +79,7 @@ public class EventService {
     }
 
     public Single<Event> createNewEvent(String name, String title, Date date, Location location, String description) {
-        Event event = new Event(UUID.randomUUID().toString(), date, name, title, location);
+        Event event = new Event(date, name, title, location);
 
         if (description != null) {
             event.setDescription(description);
@@ -88,7 +89,7 @@ public class EventService {
             return Single.error(new EventAlreadyExistsException(event));
         }
 
-        return database.saveEvent(event)
+        return database.createEvent(event)
                 .toSingleDefault(event);
     }
     
@@ -101,40 +102,25 @@ public class EventService {
                                 .orElse(0);
         
         return createNewEvent(event.getName() + " (" + highestIdx + ")", event.getTitle(), event.getDate(), event.getLocation(), event.getDescription())
-                .doOnSuccess(copy -> event.getTableCategories().forEach(group -> copy.addTableCategory(group.clone())))
+                .doOnSuccess(copy -> event.getTableCategories().forEach(group -> {
+                    TableCategory clone = new TableCategory(copy, group.getSeatsNumber(), group.getPrice());
+                    
+                    group.getTables().forEach(table -> clone.addTable(new Table(clone, table.getTableNumber(), table.getSeats())));
+                    
+                    copy.addTableCategory(clone);
+                }))
                 .flatMapCompletable(this::updateEvent);
     }
 
     public Completable updateEvent(Event event) {
-        System.out.println("Events:" + events.stream().filter(e -> e.equals(event)).count());
-        
         if(events.stream().filter(e -> !e.getId().equals(event.getId()) && e.equals(event)).findAny().isPresent()) {
-            return resetEventChanges(event)
-                    .andThen(Completable.error(new EventAlreadyExistsException(event)));
+            return Completable.error(new EventAlreadyExistsException(event));
         }
         
-        return database.updateEvent(event)
-                .onErrorResumeNext(error -> resetEventChanges(event)
-                                                .andThen(Completable.error(error)));
+        return database.updateEvent(event);
     }
     
     public Completable deleteEvent(Event event) {
         return database.deleteEvent(event);
-    }
-
-    private Completable resetEventChanges(Event event) {
-        return database.getSnapshot()
-                        .filter(e -> e.getId().equals(event.getId()))
-                        .firstOrError()
-                        .doOnSuccess(e -> {
-                            event.getTableCategories().clear();
-                            event.getTableCategories().addAll(e.getTableCategories());
-                            event.setName(e.getName());
-                            event.setDate(e.getDate());
-                            event.setTitle(e.getTitle());
-                            event.setLocation(e.getLocation());
-                            event.setDescription(e.getDescription());
-                        })
-                        .toCompletable();
     }
 }

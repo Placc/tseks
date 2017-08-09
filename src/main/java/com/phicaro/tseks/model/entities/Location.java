@@ -5,8 +5,6 @@
  */
 package com.phicaro.tseks.model.entities;
 
-import java.util.UUID;
-
 /**
  *
  * @author Placc

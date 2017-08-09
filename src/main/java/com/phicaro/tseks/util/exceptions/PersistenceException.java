@@ -14,7 +14,11 @@ public class PersistenceException extends Exception {
     public PersistenceException(Exception innerException) {
         super(innerException);
     }
- 
+
+    public PersistenceException(String message) {
+        super(message);
+    }
+    
     public PersistenceException() {
         super();
     }
