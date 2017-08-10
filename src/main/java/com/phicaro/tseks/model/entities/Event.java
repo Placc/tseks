@@ -36,7 +36,7 @@ public class Event {
     @DatabaseField(columnName = COLUMN_TITLE) private String title;
     @DatabaseField(columnName = COLUMN_NAME) private String name;
 
-    @ForeignCollectionField private Collection<TableCategory> tableCategories;
+    @ForeignCollectionField(eager = true) private Collection<TableCategory> tableCategories;
     
     /*Database constructor*/
     Event() {

@@ -85,11 +85,10 @@ public class TableCategory {
     @Override
     public boolean equals(Object o) {
         return o instanceof TableCategory 
-                && ((TableCategory) o).getEvent().equals(event)
                 && ((TableCategory) o).getPrice().equals(priceCategory) 
                 && ((TableCategory) o).getSeatsNumber() == seatsNumber 
                 && ((TableCategory) o).getNumberOfTables() == tables.size()
-                && ((TableCategory) o).getTables().equals(tables);
+                && ((TableCategory) o).getTables().equals(getTables());
     }
     
     public int getNumberOfTables() {

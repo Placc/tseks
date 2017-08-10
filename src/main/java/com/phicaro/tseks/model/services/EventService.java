@@ -49,24 +49,28 @@ public class EventService {
         eventAdded.onNext(event);
     }
     
-    private void removeEvent(Event event) {
-        events.remove(event);
-        eventRemoved.onNext(event);
+    private void removeEvent(String id) {
+        Optional<Event> toRemove = events.stream().filter(e -> e.getId().equals(id)).findAny();
+        
+        if(toRemove.isPresent()) {
+            events.remove(toRemove.get());
+            eventRemoved.onNext(toRemove.get());
+        }
     }
     
     public Observable<Event> getEvents() {
         return Observable.fromIterable(events)
                 .concatWith(
                     database.getSnapshot()
-                        .doOnNext(event -> {
-                            Optional<Event> existing = events.stream().filter(e -> e.getId().equals(event.getId())).findAny();
-                            if(existing.isPresent() && !existing.get().equals(event)) {
-                                removeEvent(existing.get());
-                                addEvent(event);
-                            } else if (!existing.isPresent()) {
-                                addEvent(event);
-                            }
-                        })
+                         .doOnNext(event -> {
+                             Optional<Event> existing = events.stream().filter(e -> e.getId().equals(event.getId())).findAny();
+                             if(existing.isPresent() && !existing.get().equals(event)) {
+                                 removeEvent(existing.get().getId());
+                                 addEvent(event);
+                             } else if (!existing.isPresent()) {
+                                 addEvent(event);
+                         }
+                    })
                 );
     }
 
@@ -96,20 +100,23 @@ public class EventService {
     public Completable copyEvent(Event event) {
         int highestIdx = 1 + events.stream()
                                 .map(e -> e.getName().replace(" ", ""))
-                                .filter(name -> name.replace(event.getName(), "").matches("\\([0-9]+\\)"))
+                                .filter(name -> name.replace(event.getName(), "").matches("\\([0-9]+\\)$"))
                                 .map(e -> Integer.valueOf(e.replace(event.getName(), "").replaceAll("\\(|\\)", "")))
                                 .max(Comparator.naturalOrder())
                                 .orElse(0);
         
-        return createNewEvent(event.getName() + " (" + highestIdx + ")", event.getTitle(), event.getDate(), event.getLocation(), event.getDescription())
-                .doOnSuccess(copy -> event.getTableCategories().forEach(group -> {
-                    TableCategory clone = new TableCategory(copy, group.getSeatsNumber(), group.getPrice());
+        Event copy = new Event(event.getDate(), event.getName() + " (" + highestIdx + ")", event.getTitle(), event.getLocation());
+        copy.setDescription(event.getDescription());
+        
+        event.getTableCategories().forEach(group -> {
+            TableCategory clone = new TableCategory(copy, group.getSeatsNumber(), group.getPrice());
                     
-                    group.getTables().forEach(table -> clone.addTable(new Table(clone, table.getTableNumber(), table.getSeats())));
+            group.getTables().forEach(table -> clone.addTable(new Table(clone, table.getTableNumber(), table.getSeats())));
                     
-                    copy.addTableCategory(clone);
-                }))
-                .flatMapCompletable(this::updateEvent);
+            copy.addTableCategory(clone);
+        });
+         
+        return database.createEvent(copy);
     }
 
     public Completable updateEvent(Event event) {

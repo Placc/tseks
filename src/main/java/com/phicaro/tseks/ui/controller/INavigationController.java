@@ -12,5 +12,5 @@ import io.reactivex.Single;
  * @author Placc
  */
 public interface INavigationController {
-    Single<Boolean> onNavigateBack();
+    Single<Boolean> onNavigateAway();
 }

@@ -7,16 +7,19 @@ package com.phicaro.tseks.ui.controller.overview;
 
 import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.services.EventService;
+import com.phicaro.tseks.ui.controller.INavigationController;
 import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.util.Resources;
 import com.phicaro.tseks.util.UiHelper;
+import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import io.reactivex.schedulers.Schedulers;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -39,7 +42,7 @@ import javafx.scene.paint.Color;
  *
  * @author Placc
  */
-public class OverviewController implements Initializable {
+public class OverviewController implements INavigationController, Initializable {
 
     @FXML
     private TableView<EventViewModel> eventTable;
@@ -62,6 +65,9 @@ public class OverviewController implements Initializable {
     //Model
     private EventService eventService;
     private ObservableList<EventViewModel> events;
+    
+    private Disposable addedDisposable;
+    private Disposable removedDisposable;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -96,25 +102,36 @@ public class OverviewController implements Initializable {
         eventService.getEvents()
                 .doOnComplete(() -> {
                     MainController.instance().toggleSpinner(false);
-                    eventService.eventAdded().subscribe(this::addEvent);
-                    eventService.eventRemoved().subscribe(this::removeEvent);
+                    addedDisposable = eventService.eventAdded().subscribe(this::addEvent);
+                    removedDisposable = eventService.eventRemoved().subscribe(this::removeEvent);
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
                 .subscribe(this::addEvent, e -> UiHelper.showException(Resources.getString("LAB_ErrorOccured"), e));
     }
 
+    @Override
+    public Single<Boolean> onNavigateAway() {
+        addedDisposable.dispose();
+        removedDisposable.dispose();
+        
+        return Single.just(true);
+    }
+    
     private void addEvent(Event event) {
-        EventViewModel viewModel = new EventViewModel(event);
+        Platform.runLater(() -> {
+            EventViewModel viewModel = new EventViewModel(event);
 
-        if (!events.contains(viewModel)) {
-            events.add(viewModel);
-        }
+            if (!events.contains(viewModel)) {
+                events.add(viewModel);
+            }
+        });
     }
 
     private void removeEvent(Event event) {
-        EventViewModel viewModel = new EventViewModel(event);
-        events.remove(viewModel);
+        Platform.runLater(() ->
+            events.removeIf(viewModel -> viewModel.getModel() != null && viewModel.getModel().getId().equals(event.getId()))
+        );
     }
 
     private ObjectProperty<HBox> createLabelHBox(String value) {
@@ -157,7 +174,9 @@ public class OverviewController implements Initializable {
     }
 
     private void onAddEventClicked() {
-        MainController.instance().switchToEdit(null);
+        this.onNavigateAway().subscribe(__ ->
+            MainController.instance().switchToEdit(null)
+        );
     }
     
     private void copyEventClicked(EventViewModel e) {
@@ -169,7 +188,9 @@ public class OverviewController implements Initializable {
     }
 
     private void editEventClicked(EventViewModel e) {
-        MainController.instance().switchToEdit(e);
+        this.onNavigateAway().subscribe(__ ->
+            MainController.instance().switchToEdit(e)
+        );
     }
 
     private void deleteEventClicked(EventViewModel e) {

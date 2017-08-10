@@ -39,7 +39,7 @@ public class LocalDatabaseService implements IDatabaseService {
     
     private final BehaviorSubject<ConnectionState> connectionState;
     private final PublishSubject<Event> eventAdded;
-    private final PublishSubject<Event> eventRemoved;
+    private final PublishSubject<String> eventRemoved;
     
     public LocalDatabaseService(String connectionString) {
         this.connectionString = connectionString;
@@ -132,8 +132,9 @@ public class LocalDatabaseService implements IDatabaseService {
             createOrUpdateTablesAndCategories(event);
             
             if(eventDao.createOrUpdate(event).isUpdated()) {
-                eventRemoved.onNext(event);
-                eventAdded.onNext(eventDao.queryForSameId(event));
+                eventRemoved.onNext(event.getId());
+                
+                eventAdded.onNext(event);
                 s.onComplete();
             } else {
                 s.onError(new PersistenceException("Could not update event"));
@@ -179,8 +180,11 @@ public class LocalDatabaseService implements IDatabaseService {
             
             deleteTablesAndCategories(event, false);
             
+            Event old = eventDao.queryForSameId(event);
+            
             if(eventDao.deleteById(event.getId()) == 1) {
-                eventRemoved.onNext(event);
+                eventRemoved.onNext(event.getId());
+                
                 s.onComplete();
             } else {
                 s.onError(new PersistenceException("Deletion did not affect one row"));
@@ -194,7 +198,7 @@ public class LocalDatabaseService implements IDatabaseService {
     }
 
     @Override
-    public Observable<Event> eventRemoved() {
+    public Observable<String> eventRemoved() {
         return eventRemoved;
     }
 

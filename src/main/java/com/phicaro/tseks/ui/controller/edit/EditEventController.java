@@ -70,6 +70,7 @@ public class EditEventController implements IEditEventController, INavigationCon
         this.eventViewModel = eventViewModel;
         
         eventViewModel.getNameProperty().addListener(changeListener);
+        eventViewModel.getTitleProperty().addListener(changeListener);
         eventViewModel.getDateProperty().addListener(changeListener);
         eventViewModel.getDescriptionProperty().addListener(changeListener);
         eventViewModel.getLocationProperty().addListener(changeListener);
@@ -116,7 +117,7 @@ public class EditEventController implements IEditEventController, INavigationCon
 
     private void handleEventChanges(Event event, boolean added) {
         if((added ^ hasChanges()) && eventViewModel.getModel() != null && event.getId().equals(eventViewModel.getModel().getId()) && !eventViewModel.getModel().equals(event)) {
-            MainController.instance().navigateBack(EditEventController.this);
+            MainController.instance().navigateTo(EditEventController.this);
             UiHelper.showException(Resources.getString("LAB_LifecycleError"), new LifecycleException());
         }
     }
@@ -135,7 +136,7 @@ public class EditEventController implements IEditEventController, INavigationCon
     }
     
     @Override
-    public Single<Boolean> onNavigateBack() {
+    public Single<Boolean> onNavigateAway() {
         if(hasChanges() && !UiHelper.showDiscardChangesDialog().blockingFirst()) {
             return Single.just(false);
         }
@@ -225,8 +226,6 @@ public class EditEventController implements IEditEventController, INavigationCon
                             e.setLocation(new Location(eventViewModel.getLocation()));
                             e.setDescription(eventViewModel.getDescription());
                             e.setDate(UiHelper.parse(eventViewModel.getDate()));
-                            
-                            e.clearTableCategories();
                         });
         } else {
             event = eventService.createNewEvent(eventViewModel.getName(), eventViewModel.getTitle(), UiHelper.parse(eventViewModel.getDate()), new Location(eventViewModel.getLocation()), eventViewModel.getDescription());
@@ -235,15 +234,20 @@ public class EditEventController implements IEditEventController, INavigationCon
         return event
                 .doOnSuccess(e -> {
                     eventViewModel.getTableGroups().stream()
-                    .forEach(model -> {
-                        TableCategory tableGroup = new TableCategory(e, model.getSeats(), new PriceCategory(model.getPrice()));
-                        
-                        IntStream.rangeClosed(model.getStartNumber(), model.getEndNumber())
-                                .forEach(number -> tableGroup.addTable(new Table(tableGroup, number, model.getSeats())));
+                        .filter(model -> !e.getTableCategories().contains(model.getModel()))
+                        .forEach(model -> {
+                            TableCategory tableGroup = new TableCategory(e, model.getSeats(), new PriceCategory(model.getPrice()));
 
-                        e.addTableCategory(tableGroup);
-                    });
+                            IntStream.rangeClosed(model.getStartNumber(), model.getEndNumber())
+                                    .forEach(number -> tableGroup.addTable(new Table(tableGroup, number, model.getSeats())));
+
+                            e.addTableCategory(tableGroup);
+                        });
                     
+                    new ArrayList<>(e.getTableCategories()).stream()
+                        .filter(group -> !eventViewModel.getTableGroups().stream().anyMatch(model -> model.matches(group)))
+                        .forEach(group -> e.removeTableCategory(group));
+                        
                     setEvent(new EventViewModel(e));
                 })
                 .flatMapCompletable(e -> eventService.updateEvent(e));

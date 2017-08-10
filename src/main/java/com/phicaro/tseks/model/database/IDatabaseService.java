@@ -36,7 +36,7 @@ public interface IDatabaseService {
     //Notification
     Observable<Event> eventAdded();
 
-    Observable<Event> eventRemoved();
+    Observable<String> eventRemoved();
 
     Observable<ConnectionState> connection();
 

@@ -158,8 +158,8 @@ public class MainController implements Initializable {
         }
     }
     
-    public void navigateBack(INavigationController from) {
-        from.onNavigateBack()
+    public void navigateTo(INavigationController from) {
+        from.onNavigateAway()
             .observeOn(JavaFxScheduler.platform())
             .subscribe(result -> {
                 if(result) {
@@ -177,7 +177,7 @@ public class MainController implements Initializable {
             final EditEventController controller = loader.getController();
 
             backButton.setOnAction(e -> {
-                navigateBack(controller);
+                navigateTo(controller);
             });
             
             String title = "LAB_CreateNewEvent";

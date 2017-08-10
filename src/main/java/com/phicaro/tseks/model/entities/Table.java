@@ -23,7 +23,7 @@ public class Table {
     public static final String COLUMN_NUMBER = "number";
     
     @DatabaseField(columnName = COLUMN_ID, id = true) private String id;
-    @DatabaseField(columnName = COLUMN_CATEGORY, foreign = true) private TableCategory category;
+    @DatabaseField(columnName = COLUMN_CATEGORY, foreign = true, foreignAutoRefresh = true) private TableCategory category;
     @DatabaseField(columnName = COLUMN_SEATS) private int seats;
     @DatabaseField(columnName = COLUMN_NUMBER) private int tableNumber;
     
@@ -49,5 +49,12 @@ public class Table {
     
     public String getId() {
         return id;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof Table
+                && ((Table) o).getSeats() == seats
+                && ((Table) o).getTableNumber() == tableNumber;
     }
 }
