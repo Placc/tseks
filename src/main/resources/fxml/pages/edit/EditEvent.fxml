@@ -5,33 +5,39 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
 <BorderPane id="editContentPane" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #ffffff;" stylesheets="@../../styles/Styles.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.phicaro.tseks.ui.controller.edit.EditEventController">
    <center>
       <SplitPane dividerPositions="0.4" prefHeight="160.0" prefWidth="200.0" style="-fx-background-color: #ffffff;" BorderPane.alignment="CENTER">
          <items>
-            <fx:include fx:id="eventInfo" source="EditEventInfo.fxml" />
-            <fx:include fx:id="tableGroups" source="EditEventTableCategories.fxml" />
+             <VBox fx:id="previewContainer" VBox.vgrow="ALWAYS">
+                  <children>
+                     <fx:include fx:id="eventInfo" source="EditEventInfo.fxml" />
+                     <fx:include fx:id="preview" source="../../components/Preview.fxml" />
+                  </children>
+            </VBox>
+            <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
+                <fx:include fx:id="tableGroups" source="EditEventTableCategories.fxml" />
+                <HBox alignment="BOTTOM_RIGHT" BorderPane.alignment="CENTER">
+                    <children>
+                       <Button fx:id="saveButton" mnemonicParsing="false" styleClass="success" text="Button">
+                          <HBox.margin>
+                             <Insets left="10.0" right="20.0" />
+                          </HBox.margin>
+                       </Button>
+                       <Button fx:id="discardButton" mnemonicParsing="false" styleClass="danger" text="Button">
+                          <HBox.margin>
+                             <Insets />
+                          </HBox.margin>
+                       </Button>
+                    </children>
+                    <VBox.margin>
+                       <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </VBox.margin>
+                 </HBox>
+            </VBox>
          </items>
       </SplitPane>
    </center>
-   <bottom>
-      <HBox alignment="BOTTOM_RIGHT" BorderPane.alignment="CENTER">
-         <children>
-            <Button fx:id="saveButton" mnemonicParsing="false" styleClass="success" text="Button">
-               <HBox.margin>
-                  <Insets left="10.0" right="20.0" />
-               </HBox.margin>
-            </Button>
-            <Button fx:id="discardButton" mnemonicParsing="false" styleClass="danger" text="Button">
-               <HBox.margin>
-                  <Insets />
-               </HBox.margin>
-            </Button>
-         </children>
-         <BorderPane.margin>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-         </BorderPane.margin>
-      </HBox>
-   </bottom>
 </BorderPane>

@@ -65,6 +65,38 @@ public class Resources {
         return findString(id, "/config/configDE");
     }
     
+    public static Image getPrintBackground() throws ResourceNotFoundException {
+         try {
+            InputStream stream = MainApp.class.getResourceAsStream("/images/assets/Page.png");
+
+            Image image = new Image(stream);
+
+            if (stream == null || image == null) {
+                throw new ResourceNotFoundException("Page.png");
+            }
+
+            return image;
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Page.png");
+        }
+    }
+    
+    public static Image getPreviewBackground() throws ResourceNotFoundException {
+         try {
+            InputStream stream = MainApp.class.getResourceAsStream("/images/assets/Card.png");
+
+            Image image = new Image(stream, 0, 0, true, true);
+
+            if (stream == null || image == null) {
+                throw new ResourceNotFoundException("Card.png");
+            }
+
+            return image;
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Card.png");
+        }
+    }
+    
     public static Image getImage(String name, ImageSize size) throws ResourceNotFoundException {
         if (!name.endsWith(".png")) {
             name = name + ".png";

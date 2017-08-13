@@ -57,6 +57,10 @@ public class UiHelper {
         return formatter.format(date);
     }
     
+    public static String format(Date date, String format) {
+        return new SimpleDateFormat(format).format(date);
+    }
+    
     public static Date parse(String date) {
         try {
             return formatter.parse(date);

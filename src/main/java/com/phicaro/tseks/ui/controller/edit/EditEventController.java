@@ -13,6 +13,7 @@ import com.phicaro.tseks.model.entities.TableCategory;
 import com.phicaro.tseks.model.services.EventService;
 import com.phicaro.tseks.ui.controller.INavigationController;
 import com.phicaro.tseks.ui.controller.MainController;
+import com.phicaro.tseks.ui.controller.components.PreviewController;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableCategoryViewModel;
 import com.phicaro.tseks.util.Resources;
@@ -52,13 +53,23 @@ public class EditEventController implements IEditEventController, INavigationCon
     private BorderPane tableGroups;
     
     @FXML
+    private PreviewController previewController;
+    @FXML
     private EditEventInfoController eventInfoController;
     @FXML
     private EditEventTableCategoryController tableGroupsController;
     
     //Model
-    private EventViewModel eventViewModel = new EventViewModel();
-    private InvalidationListener changeListener = o -> enableButtons(hasChanges());
+    private EventViewModel eventViewModel;
+    
+    private InvalidationListener eventChanged = o -> {
+        enableButtons(hasChanges());
+    };
+    
+    private InvalidationListener categoryChanged = o -> {
+        previewController.onChanged();
+        eventChanged.invalidated(o);
+    };
     
     //Subscription
     private Disposable addedDisposable;
@@ -69,31 +80,32 @@ public class EditEventController implements IEditEventController, INavigationCon
         
         this.eventViewModel = eventViewModel;
         
-        eventViewModel.getNameProperty().addListener(changeListener);
-        eventViewModel.getTitleProperty().addListener(changeListener);
-        eventViewModel.getDateProperty().addListener(changeListener);
-        eventViewModel.getDescriptionProperty().addListener(changeListener);
-        eventViewModel.getLocationProperty().addListener(changeListener);
-        eventViewModel.getTableGroupsProperty().addListener(changeListener);
+        eventViewModel.getNameProperty().addListener(eventChanged);
+        eventViewModel.getTitleProperty().addListener(eventChanged);
+        eventViewModel.getDateProperty().addListener(eventChanged);
+        eventViewModel.getDescriptionProperty().addListener(eventChanged);
+        eventViewModel.getLocationProperty().addListener(eventChanged);
+        eventViewModel.getTableGroupsProperty().addListener(categoryChanged);
         eventViewModel.getTableGroupsProperty().addListener((ListChangeListener.Change<? extends TableCategoryViewModel> c) -> {
-                    while(c.next()) {
-                        c.getAddedSubList().forEach(group -> bindTableGroupViewModel(group));
-                    }
-                });
+            while(c.next()) {
+                c.getAddedSubList().forEach(group -> bindTableGroupViewModel(group));
+            }
+        });
         eventViewModel.getTableGroups().forEach(this::bindTableGroupViewModel);
         
         invalidateControllers();
     }
     
     private void bindTableGroupViewModel(TableCategoryViewModel viewModel) {
-        viewModel.getStartNumberProperty().addListener(changeListener);
-        viewModel.getEndNumberProperty().addListener(changeListener);
-        viewModel.getSeatsProperty().addListener(changeListener);
-        viewModel.getPriceProperty().addListener(changeListener);
-        viewModel.getNumberOfTablesProperty().addListener(changeListener);
+        viewModel.getStartNumberProperty().addListener(categoryChanged);
+        viewModel.getEndNumberProperty().addListener(categoryChanged);
+        viewModel.getSeatsProperty().addListener(categoryChanged);
+        viewModel.getPriceProperty().addListener(categoryChanged);
+        viewModel.getNumberOfTablesProperty().addListener(categoryChanged);
     }
     
     private void invalidateControllers() {
+        previewController.setEvent(eventViewModel);
         eventInfoController.setEvent(eventViewModel);
         tableGroupsController.setEvent(eventViewModel);
     }
@@ -108,11 +120,11 @@ public class EditEventController implements IEditEventController, INavigationCon
         discardButton.setGraphic(new ImageView(Resources.getImage("clear.png", Resources.ImageSize.NORMAL)));
         discardButton.setOnAction(e -> onDiscardClicked());
         
+        setEvent(new EventViewModel());
+        
         EventService eventService = MainController.instance().getTseksApp().getEventService();
         addedDisposable = eventService.eventAdded().subscribe(e -> handleEventChanges(e, true));
         removedDisposable = eventService.eventRemoved().subscribe(e -> handleEventChanges(e, false));
-        
-        invalidateControllers();
     }    
 
     private void handleEventChanges(Event event, boolean added) {

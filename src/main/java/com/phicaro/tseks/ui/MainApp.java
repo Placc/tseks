@@ -14,7 +14,7 @@ public class MainApp extends Application {
         stage.setMaximized(true);
         stage.setTitle(Resources.getString("LAB_ApplicationName"));
         
-        BorderPane root = FXMLLoader.load(getClass().getResource("/fxml/Main.fxml"));
+        BorderPane root = FXMLLoader.load(getClass().getResource("/fxml/pages/Main.fxml"));
         
         Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles/Styles.css");

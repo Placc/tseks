@@ -25,7 +25,6 @@ import javafx.geometry.Insets;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
 /**
@@ -57,10 +56,6 @@ public class EditEventInfoController implements IEditEventController {
     private DatePicker eventDatePicker;
     @FXML
     private HBox eventDateHBox;   
-    @FXML
-    private Label previewLabel;
-    @FXML
-    private ImageView previewImageView;
     
     private TimeTextField timeTextField;
     
@@ -77,7 +72,6 @@ public class EditEventInfoController implements IEditEventController {
         eventDescLabel.setText(Resources.getString("LAB_Description"));
         eventDateLabel.setText(Resources.getString("LAB_DateTime"));
         eventLocationLabel.setText(Resources.getString("LAB_Location"));
-        previewLabel.setText(Resources.getString("LAB_Preview"));    
     }    
 
     public void setEvent(EventViewModel event) { 
