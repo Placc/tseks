@@ -10,10 +10,12 @@ import com.phicaro.tseks.model.services.EventService;
 import com.phicaro.tseks.model.database.IDatabaseService;
 import com.phicaro.tseks.model.database.IDatabaseService.ConnectionState;
 import com.phicaro.tseks.model.database.TseksDatabaseFactory;
+import com.phicaro.tseks.print.settings.PrintSettings;
+import com.phicaro.tseks.print.settings.SettingsService;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import java.util.prefs.Preferences;
+import java.io.IOException;
 
 /**
  *
@@ -21,16 +23,14 @@ import java.util.prefs.Preferences;
  */
 public class TseksApp {
 
-    private static final String DB_CONNECTION = "DB_CONNECTION";
-
     private IDatabaseService database;
     private EventService eventService;
-    private Preferences prefs;
+    private SettingsService settingsService;
 
     private static TseksApp instance;
 
     private TseksApp() {
-        loadSettings();
+        settingsService = new SettingsService();
     }
 
     public static Single<TseksApp> startApp() {
@@ -55,13 +55,17 @@ public class TseksApp {
                                     .toSingleDefault(app));
     }
 
-    private void loadSettings() {
-        //TODO
-        prefs = Preferences.userRoot();
+    public Completable saveSettings(PrintSettings settings) {
+        return Completable.create(s -> {
+            this.settingsService.saveSettings(settings);
+            s.onComplete();
+        });
     }
-
-    private void saveSettings() {
-        //TODO
+    
+    public Single<PrintSettings> getSettings() {
+        return Single.create(s -> {
+            s.onSuccess(settingsService.loadSettings());
+        });
     }
 
     public EventService getEventService() {
@@ -69,9 +73,7 @@ public class TseksApp {
     }
 
     public Completable stopApp() {
-        return database.shutdown().doOnComplete(() -> {
-            saveSettings();
-        });
+        return database.shutdown();
     }
 
     public Completable reconnect() {

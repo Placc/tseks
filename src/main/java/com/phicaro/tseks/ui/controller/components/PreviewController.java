@@ -5,8 +5,10 @@
  */
 package com.phicaro.tseks.ui.controller.components;
 
+import com.phicaro.tseks.print.settings.PrintSettings;
 import com.phicaro.tseks.util.ImageViewPane;
 import com.phicaro.tseks.ui.controller.IEventController;
+import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableCategoryViewModel;
 import com.phicaro.tseks.util.Resources;
@@ -53,6 +55,8 @@ public class PreviewController implements IEventController {
     private ImageViewPane imageView;
     
     private EventViewModel event;
+    
+    private PrintSettings settings;
 
     /**
      * Initializes the controller class.
@@ -71,12 +75,14 @@ public class PreviewController implements IEventController {
         imageView.boundsInParentProperty().addListener(this::onBoundsChanged);
         
         previewRoot.getChildren().add(0, imageView);
+        
+        MainController.instance().getTseksApp().getSettings()
+                .subscribe(s -> settings = s);
     }
     
     @Override
     public void setEvent(EventViewModel event) {
         this.event = event;
-        
         
         previewTitle.textProperty().bind(event.getTitleProperty());
         previewDescription.textProperty().bind(event.getDescriptionProperty());
@@ -132,20 +138,24 @@ public class PreviewController implements IEventController {
     }
     
     private void onBoundsChanged(Object args, Bounds oldVal, Bounds newVal) {
+        if(settings == null) {
+            return;
+        }
+        
         double size = Math.min(newVal.getHeight(), newVal.getWidth());
         
         setMargin(size);
         setFontSize(size);
         
-        previewCardNumber.translateYProperty().set(0.1 * size);
-        previewCardNumber.translateXProperty().set(0.6 * size);
+        previewVBox.translateYProperty().set(settings.getPositionScale() * size);
+        
+        previewCardNumber.translateYProperty().set(2.0 * settings.getPositionScale() * size);
+        previewCardNumber.translateXProperty().set(settings.getCardNumberScale() * size);
     }
     
     private void setMargin(double size) {
-        Insets margin = new Insets(0.04 * size, 0, 0, 0);
+        Insets margin = new Insets(settings.getMarginScale() * size, 0, 0, 0);
 
-        previewVBox.translateYProperty().set(0.05 * size);
-        
         VBox.setMargin(previewTitle, margin);
         VBox.setMargin(previewLocation, margin);
         VBox.setMargin(previewDescription, margin);
@@ -154,7 +164,7 @@ public class PreviewController implements IEventController {
     }
     
     private void setFontSize(double size) {
-        Font font = new Font("Times New Roman Bold", 0.055 * size);
+        Font font = new Font("Times New Roman Bold", settings.getFontScale() * size);
         
         previewCardNumber.setFont(font);
         previewTitle.setFont(font);

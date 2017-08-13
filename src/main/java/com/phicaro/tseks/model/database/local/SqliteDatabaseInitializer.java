@@ -13,6 +13,7 @@ import com.phicaro.tseks.model.database.IDatabaseService;
 import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.entities.Table;
 import com.phicaro.tseks.model.entities.TableCategory;
+import com.phicaro.tseks.util.Platform;
 import com.phicaro.tseks.util.Resources;
 import io.reactivex.Single;
 import java.io.File;
@@ -31,15 +32,9 @@ public class SqliteDatabaseInitializer implements IDatabaseInitializer {
     @Override
     public Single<IDatabaseService> initializeDatabase() {
          return Single.create(s -> {
-            File currentDir = new File(Paths.get(".").toAbsolutePath().normalize().toString());
-            File dbDir = new File(currentDir, "db");
-            File db = new File(dbDir, LOCAL_DB_NAME);
+            File db = new File(Platform.getWorkingDirectory(), LOCAL_DB_NAME);
 
             String connectionString = "jdbc:sqlite:" + db.getAbsolutePath();
-            
-            if(!dbDir.exists()) {
-                dbDir.mkdirs();
-            }
             
             if(!db.exists()) {
                 try(InputStream stream = Resources.getResourceAsStream("/database/tseks.db")) {
