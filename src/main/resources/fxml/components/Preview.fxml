@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
@@ -7,10 +8,13 @@
 <?import javafx.scene.text.Font?>
 
 <StackPane fx:id="previewRoot" HBox.hgrow="ALWAYS" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.phicaro.tseks.ui.controller.components.PreviewController">
-   <children>
+    <VBox.margin>
+        <Insets top="60.0" />
+    </VBox.margin>
+    <children>
       <VBox fx:id="previewVBox" alignment="CENTER">
          <children>
-            <Label fx:id="previewCardNumber" text="Label">
+            <Label fx:id="previewCardNumber" alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Label">
                <font>
                   <Font name="Times New Roman Bold" size="12.0" />
                </font>

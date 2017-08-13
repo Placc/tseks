@@ -17,10 +17,13 @@ import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 /**
@@ -59,16 +62,15 @@ public class PreviewController implements IEventController {
         Image image = Resources.getPreviewBackground();
         ImageView view = new ImageView(image);
 
-        view.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1;");
-        
         view.setPreserveRatio(true);
+
+        InnerShadow shadow = new InnerShadow(2, Color.GRAY);
+        view.setEffect(shadow);
         
         imageView = new ImageViewPane(view);
         imageView.boundsInParentProperty().addListener(this::onBoundsChanged);
         
         previewRoot.getChildren().add(0, imageView);
-        
-        previewRoot.translateYProperty().set(60);
     }
     
     @Override
@@ -132,17 +134,17 @@ public class PreviewController implements IEventController {
     private void onBoundsChanged(Object args, Bounds oldVal, Bounds newVal) {
         double size = Math.min(newVal.getHeight(), newVal.getWidth());
         
-        setMargin(0.035 * size);
-        setFontSize(0.05 * size);
+        setMargin(size);
+        setFontSize(size);
         
-        previewCardNumber.translateYProperty().set(0.085 * size);
+        previewCardNumber.translateYProperty().set(0.1 * size);
         previewCardNumber.translateXProperty().set(0.6 * size);
     }
     
     private void setMargin(double size) {
-        Insets margin = new Insets(size, 0, 0, 0);
+        Insets margin = new Insets(0.04 * size, 0, 0, 0);
 
-        previewVBox.translateYProperty().set(1.9 * size);
+        previewVBox.translateYProperty().set(0.05 * size);
         
         VBox.setMargin(previewTitle, margin);
         VBox.setMargin(previewLocation, margin);
@@ -152,7 +154,7 @@ public class PreviewController implements IEventController {
     }
     
     private void setFontSize(double size) {
-        Font font = new Font("Times New Roman Bold", size);
+        Font font = new Font("Times New Roman Bold", 0.055 * size);
         
         previewCardNumber.setFont(font);
         previewTitle.setFont(font);

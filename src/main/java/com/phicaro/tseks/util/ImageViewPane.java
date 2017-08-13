@@ -34,15 +34,8 @@ public class ImageViewPane extends Region {
     protected void layoutChildren() {
         ImageView imageView = imageViewProperty.get();
         if (imageView != null) {
-            if(getWidth() > getHeight()) {
-                imageView.setFitHeight(getHeight());
-                imageView.setFitWidth(0);
-            } else {
-                imageView.setFitWidth(getWidth());
-                imageView.setFitHeight(0);
-            }
-            //imageView.setFitWidth(getWidth());
-            //imageView.setFitHeight(getHeight());
+            imageView.setFitWidth(getWidth());
+            imageView.setFitHeight(getHeight());
             
             layoutInArea(imageView, 0, 0, getWidth(), getHeight(), 0, HPos.CENTER, VPos.CENTER);
         }
