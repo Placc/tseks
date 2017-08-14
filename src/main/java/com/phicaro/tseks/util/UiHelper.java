@@ -84,21 +84,9 @@ public class UiHelper {
     public static void showException(String title, Throwable e) {
         String message = e.getMessage();
         
-        if(e instanceof EventAlreadyExistsException) {
-            message = Resources.getString("DESC_EventAlreadyExists");
-        } 
-        else if (e instanceof LifecycleException) {
-            message = Resources.getString("DESC_LifecycleError");
-        }
-        else if (e instanceof PersistenceException) {
-            PersistenceException ex = ((PersistenceException) e);
-            
-            if(ex.getCause() != null) {
-                showException(title, ex.getCause());
-                return;
-            }
-            
-            message = Resources.getString("DESC_PersistenceException");
+        if(e.getCause() != null && e.getCause().getMessage() != null) {
+            showException(title, e.getCause());
+            return;
         }
         
         Logger.error(message, e);
@@ -113,7 +101,7 @@ public class UiHelper {
     }
     
     public static Observable<Boolean> showDeleteEventDialog() {
-        return createAlert(AlertType.WARNING, Resources.getString("LAB_DeleteEvent"), Resources.getString("DESC_DeleteEvent"), ButtonType.YES, ButtonType.NO)
+        return createAlert(AlertType.WARNING, Resources.getString("LAB_DeleteEvent"), Resources.getString("MSG_DeleteEvent"), ButtonType.YES, ButtonType.NO)
                 .subscribeOn(JavaFxScheduler.platform())
                 .flatMapObservable(alert -> JavaFxObservable.fromDialog((Alert) alert))
                 .map(result -> result.equals(ButtonType.YES));
@@ -121,21 +109,21 @@ public class UiHelper {
     } 
 
     public static Observable<Boolean> showReconnectDialog() {
-        return createAlert(AlertType.ERROR, Resources.getString("LAB_ConnectionError"), Resources.getString("DESC_ConnectionErrorRetry"), ButtonType.NO, ButtonType.YES)
+        return createAlert(AlertType.ERROR, Resources.getString("LAB_ConnectionError"), Resources.getString("MSG_ConnectionErrorRetry"), ButtonType.NO, ButtonType.YES)
                 .subscribeOn(JavaFxScheduler.platform())
                 .flatMapObservable(alert -> JavaFxObservable.fromDialog((Alert) alert))
                 .map(result -> result.equals(ButtonType.YES));
     }
     
     public static Observable<Boolean> showDiscardChangesDialog() {
-        return createAlert(AlertType.WARNING, Resources.getString("LAB_UnsavedChanges"), Resources.getString("DESC_DiscardChanges"), ButtonType.NO, ButtonType.YES)
+        return createAlert(AlertType.WARNING, Resources.getString("LAB_UnsavedChanges"), Resources.getString("MSG_DiscardChanges"), ButtonType.NO, ButtonType.YES)
                 .subscribeOn(JavaFxScheduler.platform())
                 .flatMapObservable(alert -> JavaFxObservable.fromDialog((Alert) alert))
                 .map(result -> result.equals(ButtonType.YES));
     }
     
     public static Observable<Boolean> showSaveWarningDialog(List<String> warnings) {
-        String message = Resources.getString("DESC_PotentialErrorsFound") + "\n" + warnings.stream().reduce("", (s1, s2) -> s1 + "\n" + s2);
+        String message = Resources.getString("MSG_PotentialErrorsFound") + "\n" + warnings.stream().reduce("", (s1, s2) -> s1 + "\n" + s2);
         return createAlert(AlertType.WARNING, Resources.getString("LAB_SaveWithWarnings"), message, ButtonType.NO, ButtonType.YES)
                 .subscribeOn(JavaFxScheduler.platform())
                 .flatMapObservable(alert -> JavaFxObservable.fromDialog((Alert) alert))
@@ -143,7 +131,7 @@ public class UiHelper {
     }
     
     public static Observable<Boolean> showEventExistsDialog() {
-        return createAlert(AlertType.CONFIRMATION, Resources.getString("LAB_EventAlreadyExists"), Resources.getString("DESC_RenameEvent"), ButtonType.NO, ButtonType.YES)
+        return createAlert(AlertType.CONFIRMATION, Resources.getString("LAB_EventAlreadyExists"), Resources.getString("MSG_RenameEvent"), ButtonType.NO, ButtonType.YES)
                 .subscribeOn(JavaFxScheduler.platform())
                 .flatMapObservable(alert -> JavaFxObservable.fromDialog((Alert) alert))
                 .map(result -> result.equals(ButtonType.YES));

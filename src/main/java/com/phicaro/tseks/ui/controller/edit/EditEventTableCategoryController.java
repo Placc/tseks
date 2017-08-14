@@ -84,15 +84,15 @@ public class EditEventTableCategoryController implements IEditEventController {
         List<String> invalids = new ArrayList<>();
         
         if(eventViewModel.getTableGroups().stream().anyMatch(group -> group.getEndNumber() < group.getStartNumber())) {
-            invalids.add(Resources.getString("DESC_EndnumberBeforeStartnumber"));
+            invalids.add(Resources.getString("MSG_EndnumberBeforeStartnumber"));
         }
         if(eventViewModel.getTableGroups().stream().anyMatch(group -> group.getSeats() <= 0)) {
-            invalids.add(Resources.getString("DESC_SeatsZero"));
+            invalids.add(Resources.getString("MSG_SeatsZero"));
         }
         if(eventViewModel.getTableGroups().stream().anyMatch(group -> 
                 eventViewModel.getTableGroups().stream().filter(g -> !g.equals(group)).anyMatch(g -> 
                         UiHelper.isIntersection(g.getStartNumber(), g.getEndNumber(), group.getStartNumber(), group.getEndNumber())))) {
-            invalids.add(Resources.getString("DESC_GroupIntersections"));
+            invalids.add(Resources.getString("MSG_GroupIntersections"));
         }
 
         return invalids;
@@ -105,13 +105,13 @@ public class EditEventTableCategoryController implements IEditEventController {
         List<String> missingTables = getMissingTables();
         
         if(!missingTables.isEmpty()) {            
-            String message = Resources.getString("DESC_TableNumbersXNotPresent", UiHelper.combine(missingTables));
+            String message = Resources.getString("MSG_TableNumbersXNotPresent", UiHelper.combine(missingTables));
             warnings.add(message);
         }
         
         //Price 0
         if(eventViewModel.getTableGroups().stream().anyMatch(group -> group.getPrice() <= 0)) {
-            warnings.add(Resources.getString("DESC_PriceZero"));
+            warnings.add(Resources.getString("MSG_PriceZero"));
         }
         
         return warnings;

@@ -5,6 +5,8 @@
  */
 package com.phicaro.tseks.util.exceptions;
 
+import com.phicaro.tseks.util.Resources;
+
 /**
  *
  * @author Placc
@@ -20,6 +22,6 @@ public class PersistenceException extends Exception {
     }
     
     public PersistenceException() {
-        super();
+        super(Resources.getString("MSG_PersistenceException"));
     }
 }

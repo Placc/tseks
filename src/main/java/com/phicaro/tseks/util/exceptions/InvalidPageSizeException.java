@@ -11,9 +11,9 @@ import com.phicaro.tseks.util.Resources;
  *
  * @author Placc
  */
-public class LifecycleException extends Exception {
+public class InvalidPageSizeException extends Exception {
     
-    public LifecycleException() {
-        super(Resources.getString("MSG_LifecycleError"));
+    public InvalidPageSizeException() {
+        super(Resources.getString("LAB_InvalidPageSize"));
     }
 }

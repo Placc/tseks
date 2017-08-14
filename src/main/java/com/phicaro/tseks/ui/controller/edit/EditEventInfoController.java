@@ -113,16 +113,16 @@ public class EditEventInfoController implements IEditEventController {
         List<String> invalids = new ArrayList<>();
         
         if(eventNameEditText.getText().trim().isEmpty()) {
-            invalids.add(Resources.getString("DESC_EmptyEventName"));
+            invalids.add(Resources.getString("MSG_EmptyEventName"));
         }
         if(eventTitleEditText.getText().trim().isEmpty()) {
-            invalids.add(Resources.getString("DESC_EmptyEventTitle"));
+            invalids.add(Resources.getString("MSG_EmptyEventTitle"));
         }
         if(eventLocationEditText.getText().trim().isEmpty()) {
-            invalids.add(Resources.getString("DESC_EmptyEventLocation"));
+            invalids.add(Resources.getString("MSG_EmptyEventLocation"));
         }
         if(timeTextField.getText().trim().isEmpty()) {
-            invalids.add(Resources.getString("DESC_EmptyEventTime"));
+            invalids.add(Resources.getString("MSG_EmptyEventTime"));
         }
         
         return invalids;
@@ -132,7 +132,7 @@ public class EditEventInfoController implements IEditEventController {
         List<String> warnings = new ArrayList<>();
         
         if(UiHelper.parse(eventViewModel.getDate()).before(new Date())) {
-            warnings.add(Resources.getString("DESC_EventInPast"));
+            warnings.add(Resources.getString("MSG_EventInPast"));
         }
         
         return warnings;

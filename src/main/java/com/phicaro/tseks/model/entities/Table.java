@@ -51,6 +51,10 @@ public class Table {
         return id;
     }
     
+    public TableCategory getTableCategory() {
+        return category;
+    }
+    
     @Override
     public boolean equals(Object o) {
         return o instanceof Table

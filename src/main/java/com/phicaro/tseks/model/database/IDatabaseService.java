@@ -32,7 +32,6 @@ public interface IDatabaseService {
     
     Completable deleteEvent(Event event);
 
-    //TODO
     //Notification
     Observable<Event> eventAdded();
 

@@ -6,6 +6,7 @@
 package com.phicaro.tseks.util.exceptions;
 
 import com.phicaro.tseks.model.entities.Event;
+import com.phicaro.tseks.util.Resources;
 
 /**
  *
@@ -15,6 +16,7 @@ public class EventAlreadyExistsException extends Exception {
     private Event event;
     
     public EventAlreadyExistsException(Event event) {
+        super(Resources.getString("MSG_EventAlreadyExists"));
         this.event = event;
     }
     

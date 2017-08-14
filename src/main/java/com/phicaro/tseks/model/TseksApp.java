@@ -10,8 +10,9 @@ import com.phicaro.tseks.model.services.EventService;
 import com.phicaro.tseks.model.database.IDatabaseService;
 import com.phicaro.tseks.model.database.IDatabaseService.ConnectionState;
 import com.phicaro.tseks.model.database.TseksDatabaseFactory;
-import com.phicaro.tseks.print.settings.PrintSettings;
-import com.phicaro.tseks.print.settings.SettingsService;
+import com.phicaro.tseks.settings.DatabaseSettings;
+import com.phicaro.tseks.settings.PrintSettings;
+import com.phicaro.tseks.settings.SettingsService;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -38,7 +39,8 @@ public class TseksApp {
         
         if (instance == null) {
             application = Single.just(new TseksApp())
-                    .flatMap(app -> TseksDatabaseFactory.getDatabase(DatabaseType.SQLite)
+                    .doOnSuccess(app -> app.settingsService.loadSettings())
+                    .flatMap(app -> TseksDatabaseFactory.getDatabase(app.settingsService.getDatabaseSettings().getDatabaseType())
                                     .initializeDatabase()
                                     .doOnSuccess(database -> app.database = database)
                                     .map(database -> new EventService(database))
@@ -55,17 +57,8 @@ public class TseksApp {
                                     .toSingleDefault(app));
     }
 
-    public Completable saveSettings(PrintSettings settings) {
-        return Completable.create(s -> {
-            this.settingsService.saveSettings(settings);
-            s.onComplete();
-        });
-    }
-    
-    public Single<PrintSettings> getSettings() {
-        return Single.create(s -> {
-            s.onSuccess(settingsService.loadSettings());
-        });
+    public SettingsService getSettingsService() {
+        return settingsService;
     }
 
     public EventService getEventService() {

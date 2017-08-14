@@ -62,7 +62,7 @@ public class TableCategoryViewModel implements IViewModel<TableCategory> {
     }
     
     public void setStartNumber(int startNumber) {
-        this.startNumber.set(startNumber); //TODO
+        this.startNumber.set(startNumber);
     }
     
     public void setEndNumber(int endNumber) {

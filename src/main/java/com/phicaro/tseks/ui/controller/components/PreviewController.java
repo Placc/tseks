@@ -5,7 +5,7 @@
  */
 package com.phicaro.tseks.ui.controller.components;
 
-import com.phicaro.tseks.print.settings.PrintSettings;
+import com.phicaro.tseks.settings.PrintSettings;
 import com.phicaro.tseks.util.ImageViewPane;
 import com.phicaro.tseks.ui.controller.IEventController;
 import com.phicaro.tseks.ui.controller.MainController;
@@ -76,8 +76,7 @@ public class PreviewController implements IEventController {
         
         previewRoot.getChildren().add(0, imageView);
         
-        MainController.instance().getTseksApp().getSettings()
-                .subscribe(s -> settings = s);
+        settings = MainController.instance().getTseksApp().getSettingsService().getPrintSettings();
     }
     
     @Override
@@ -138,10 +137,6 @@ public class PreviewController implements IEventController {
     }
     
     private void onBoundsChanged(Object args, Bounds oldVal, Bounds newVal) {
-        if(settings == null) {
-            return;
-        }
-        
         double size = Math.min(newVal.getHeight(), newVal.getWidth());
         
         setMargin(size);

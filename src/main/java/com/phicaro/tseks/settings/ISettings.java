@@ -3,12 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.model.database;
+package com.phicaro.tseks.settings;
 
 /**
  *
  * @author Placc
  */
-public enum DatabaseType {
-    SQLite, PostgreSQL
+public interface ISettings {
 }

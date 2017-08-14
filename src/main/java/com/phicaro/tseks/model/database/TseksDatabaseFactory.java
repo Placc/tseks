@@ -5,7 +5,8 @@
  */
 package com.phicaro.tseks.model.database;
 
-import com.phicaro.tseks.model.database.local.SqliteDatabaseInitializer;
+import com.phicaro.tseks.model.database.impl.PostgresDatabaseInitializer;
+import com.phicaro.tseks.model.database.impl.SqliteDatabaseInitializer;
 import com.phicaro.tseks.util.exceptions.BadArgumentException;
 
 /**
@@ -17,6 +18,7 @@ public class TseksDatabaseFactory {
     public static IDatabaseInitializer getDatabase(DatabaseType type) {
        switch(type) {
            case SQLite: return new SqliteDatabaseInitializer();
+           case PostgreSQL: return new PostgresDatabaseInitializer();
            default: throw new BadArgumentException();
        }
     }
