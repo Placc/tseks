@@ -31,8 +31,8 @@ public class SettingsService {
     }
     
     public void loadSettings() throws IOException {
-        loadSettings(PrintSettings.class);
-        loadSettings(DatabaseSettings.class);
+        printSettings = (PrintSettings) loadSettings(PrintSettings.class);
+        databaseSettings = (DatabaseSettings) loadSettings(DatabaseSettings.class);
     }
     
     public void saveSettings() throws IOException {
@@ -45,7 +45,10 @@ public class SettingsService {
         
         if(!settingsFile.exists()) {
             try {
-                return settingsClass.newInstance();
+                ISettings settings = settingsClass.newInstance();
+                
+                saveSettings(settings);
+                return settings;
             } catch(IllegalAccessException | InstantiationException e) {
                 throw new IOException(e);
             }

@@ -16,7 +16,6 @@ import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,10 +37,6 @@ public class PrinterService {
         this.settingsService = settingsService;
     }
 
-    public String getDefaultPrinterName() throws PrinterException {
-        return getDefaultPrinter().getName();
-    }
-    
     private PrintService getDefaultPrinter() throws PrinterException {
         if(settingsService.getPrintSettings().getPrinter() == null) {
             throw new PrinterException("MSG_NoPrinterSelected");

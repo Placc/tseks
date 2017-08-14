@@ -5,18 +5,15 @@
  */
 package com.phicaro.tseks.model;
 
-import com.phicaro.tseks.model.database.DatabaseType;
 import com.phicaro.tseks.model.services.EventService;
 import com.phicaro.tseks.model.database.IDatabaseService;
 import com.phicaro.tseks.model.database.IDatabaseService.ConnectionState;
 import com.phicaro.tseks.model.database.TseksDatabaseFactory;
-import com.phicaro.tseks.settings.DatabaseSettings;
-import com.phicaro.tseks.settings.PrintSettings;
+import com.phicaro.tseks.print.PrinterService;
 import com.phicaro.tseks.settings.SettingsService;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import java.io.IOException;
 
 /**
  *
@@ -27,11 +24,13 @@ public class TseksApp {
     private IDatabaseService database;
     private EventService eventService;
     private SettingsService settingsService;
+    private PrinterService printerService;
 
     private static TseksApp instance;
 
     private TseksApp() {
         settingsService = new SettingsService();
+        printerService = new PrinterService(settingsService);
     }
 
     public static Single<TseksApp> startApp() {
@@ -59,6 +58,10 @@ public class TseksApp {
 
     public SettingsService getSettingsService() {
         return settingsService;
+    }
+    
+    public PrinterService getPrinterService() {
+        return printerService;
     }
 
     public EventService getEventService() {
