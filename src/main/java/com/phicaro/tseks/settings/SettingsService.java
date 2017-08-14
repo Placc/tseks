@@ -55,7 +55,7 @@ public class SettingsService {
         }
         
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(settingsFile, PrintSettings.class);
+        return mapper.readValue(settingsFile, settingsClass);
     }
     
     private void saveSettings(ISettings settings) throws IOException {
