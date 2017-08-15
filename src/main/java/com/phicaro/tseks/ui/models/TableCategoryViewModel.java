@@ -133,9 +133,9 @@ public class TableCategoryViewModel implements IViewModel<TableCategory> {
     
     @Override
     public boolean matches(TableCategory g) {
+        //Number of tables can be seen as derived (and therefore not needed) from start and end number
         return getStartNumber() == computeStartNumber(g) &&
                 getEndNumber() == computeEndNumber(g) &&
-                getNumberOfTables() == g.getNumberOfTables() &&
                 getSeats() == g.getSeatsNumber() &&
                 getPrice() == g.getPrice().getPrice();
     }

@@ -5,6 +5,7 @@
  */
 package com.phicaro.tseks.ui.util;
 
+import com.phicaro.tseks.ui.util.views.InfoPopup;
 import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.Resources;
 import io.reactivex.Observable;
@@ -30,6 +31,7 @@ import javafx.scene.effect.ColorAdjust;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -171,8 +173,8 @@ public class UiHelper {
         });
     }
     
-    public static void showMessage(StackPane header, String message, boolean error) {
-        //TODO
+    public static void showMessage(Pane content, String message, boolean error) {
+        content.getChildren().add(new InfoPopup(content, message, error));
     }
     
     public static ColorAdjust getColorAdjust(Color targetColor) {

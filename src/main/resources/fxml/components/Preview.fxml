@@ -14,7 +14,7 @@
     <children>
       <VBox fx:id="previewVBox" alignment="CENTER">
          <children>
-            <Label fx:id="previewCardNumber" alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Label">
+            <Label fx:id="previewCardNumber" alignment="CENTER_RIGHT" contentDisplay="RIGHT" nodeOrientation="RIGHT_TO_LEFT" text="Label">
                <font>
                   <Font name="Times New Roman Bold" size="12.0" />
                </font>

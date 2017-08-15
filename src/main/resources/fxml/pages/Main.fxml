@@ -5,12 +5,13 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 
 <BorderPane fx:id="root" style="-fx-background-color: #cccccc;" styleClass="root" stylesheets="@../styles/Styles.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.phicaro.tseks.ui.controller.MainController">
    <center>
-      <StackPane fx:id="content" BorderPane.alignment="CENTER" />
+      <StackPane fx:id="content" alignment="BOTTOM_LEFT" BorderPane.alignment="CENTER" />
    </center>
    <top>
       <StackPane fx:id="header" BorderPane.alignment="CENTER">
@@ -21,6 +22,11 @@
                   <HBox alignment="CENTER_LEFT" styleClass="headers-region" HBox.hgrow="ALWAYS">
                      <children>
                         <Label fx:id="pageTitle" style="-fx-font-size: 24px;" styleClass="hea" text="Label" />
+                        <Pane fx:id="messagePane">
+                            <HBox.margin>
+                                <Insets left="40.0" />
+                            </HBox.margin>
+                        </Pane>
                      </children>
                      <HBox.margin>
                         <Insets left="10.0" />

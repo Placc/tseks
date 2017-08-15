@@ -15,6 +15,7 @@ import com.phicaro.tseks.util.Resources;
 import com.phicaro.tseks.ui.util.UiHelper;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
@@ -94,8 +95,10 @@ public class PreviewController implements IEventController {
     }
     
     public void onChanged() {
-        updateNumberPriceLabel(event);
-        updateCardNumberLabel(event);
+        Platform.runLater(() -> {
+            updateNumberPriceLabel(event);
+            updateCardNumberLabel(event);
+        });
     }
     
     private void updateNumberPriceLabel(EventViewModel event) {
@@ -117,7 +120,7 @@ public class PreviewController implements IEventController {
             TableCategoryViewModel viewModel = event.getTableGroups().get(event.getTableGroups().size() - 1);
             int cardNumber = 1 + event.getTableGroups().stream()
                 .filter(group -> group.getEndNumber() < viewModel.getStartNumber())
-                .map(group -> group.getNumberOfTables() * group.getSeats())
+                .map(group -> (group.getEndNumber() - group.getStartNumber() + 1) * group.getSeats())
                 .reduce(0, (a, b) -> a + b);
             
             previewCardNumber.setText("" + cardNumber);

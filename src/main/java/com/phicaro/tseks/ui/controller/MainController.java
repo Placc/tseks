@@ -31,6 +31,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
@@ -53,6 +54,8 @@ public class MainController implements Initializable {
     private Button backButton;
     @FXML
     private StackPane content;
+    @FXML
+    private Pane messagePane;
     @FXML
     private StackPane header;
 
@@ -199,11 +202,11 @@ public class MainController implements Initializable {
     }
 
     public void showSuccessMessage(String message) {
-        UiHelper.showMessage(header, message, false);
+        UiHelper.showMessage(messagePane, message, false);
     }
 
     public void showErrorMessage(String message) {
-        UiHelper.showMessage(header, message, true);
+        UiHelper.showMessage(messagePane, message, true);
     }
 
 }
