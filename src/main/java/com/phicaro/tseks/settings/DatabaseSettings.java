@@ -7,7 +7,7 @@ package com.phicaro.tseks.settings;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.phicaro.tseks.model.database.DatabaseType;
+import com.phicaro.tseks.database.DatabaseType;
 
 /**
  *

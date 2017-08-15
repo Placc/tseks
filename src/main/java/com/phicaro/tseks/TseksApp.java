@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.model;
+package com.phicaro.tseks;
 
-import com.phicaro.tseks.model.services.EventService;
-import com.phicaro.tseks.model.database.IDatabaseService;
-import com.phicaro.tseks.model.database.IDatabaseService.ConnectionState;
-import com.phicaro.tseks.model.database.TseksDatabaseFactory;
+import com.phicaro.tseks.model.EventService;
+import com.phicaro.tseks.database.IDatabaseService;
+import com.phicaro.tseks.database.IDatabaseService.ConnectionState;
+import com.phicaro.tseks.database.TseksDatabaseFactory;
 import com.phicaro.tseks.print.PrinterService;
 import com.phicaro.tseks.settings.SettingsService;
 import io.reactivex.Completable;

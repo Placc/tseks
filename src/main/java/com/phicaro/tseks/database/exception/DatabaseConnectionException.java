@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.model.database;
+package com.phicaro.tseks.database.exception;
 
 /**
  *
  * @author Placc
  */
-public enum DatabaseType {
-    SQLite, PostgreSQL
+public class DatabaseConnectionException extends PersistenceException {
+    
 }

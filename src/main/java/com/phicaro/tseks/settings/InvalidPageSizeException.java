@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.util.exceptions;
+package com.phicaro.tseks.settings;
 
 import com.phicaro.tseks.util.Resources;
 
@@ -11,9 +11,9 @@ import com.phicaro.tseks.util.Resources;
  *
  * @author Placc
  */
-public class LifecycleException extends Exception {
+public class InvalidPageSizeException extends Exception {
     
-    public LifecycleException() {
-        super(Resources.getString("MSG_LifecycleError"));
+    public InvalidPageSizeException() {
+        super(Resources.getString("LAB_InvalidPageSize"));
     }
 }

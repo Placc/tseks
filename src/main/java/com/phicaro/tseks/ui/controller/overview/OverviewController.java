@@ -6,12 +6,12 @@
 package com.phicaro.tseks.ui.controller.overview;
 
 import com.phicaro.tseks.model.entities.Event;
-import com.phicaro.tseks.model.services.EventService;
+import com.phicaro.tseks.model.EventService;
 import com.phicaro.tseks.ui.controller.INavigationController;
 import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.util.Resources;
-import com.phicaro.tseks.util.UiHelper;
+import com.phicaro.tseks.ui.util.UiHelper;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;

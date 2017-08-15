@@ -9,7 +9,6 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.phicaro.tseks.model.persister.PricePersister;
-import com.phicaro.tseks.util.exceptions.BadArgumentException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -50,7 +49,7 @@ public class TableCategory {
     
     public void addTable(Table table) {
         if(table.getSeats() != this.seatsNumber) {
-            throw new BadArgumentException();
+            throw new RuntimeException();
         }
         
         if(!tables.contains(table)) {

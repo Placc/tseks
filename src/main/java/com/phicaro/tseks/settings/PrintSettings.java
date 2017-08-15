@@ -8,7 +8,6 @@ package com.phicaro.tseks.settings;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.phicaro.tseks.print.PageSize;
-import com.phicaro.tseks.util.exceptions.InvalidPageSizeException;
 
 /**
  *

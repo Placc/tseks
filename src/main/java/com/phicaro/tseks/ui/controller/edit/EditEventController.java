@@ -5,20 +5,20 @@
  */
 package com.phicaro.tseks.ui.controller.edit;
 
+import com.phicaro.tseks.ui.controller.exception.LifecycleException;
 import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.entities.Location;
 import com.phicaro.tseks.model.entities.PriceCategory;
 import com.phicaro.tseks.model.entities.Table;
 import com.phicaro.tseks.model.entities.TableCategory;
-import com.phicaro.tseks.model.services.EventService;
+import com.phicaro.tseks.model.EventService;
 import com.phicaro.tseks.ui.controller.INavigationController;
 import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.controller.components.PreviewController;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableCategoryViewModel;
 import com.phicaro.tseks.util.Resources;
-import com.phicaro.tseks.util.UiHelper;
-import com.phicaro.tseks.util.exceptions.LifecycleException;
+import com.phicaro.tseks.ui.util.UiHelper;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;

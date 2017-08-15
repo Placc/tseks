@@ -6,13 +6,13 @@
 package com.phicaro.tseks.ui.controller.components;
 
 import com.phicaro.tseks.settings.PrintSettings;
-import com.phicaro.tseks.util.ImageViewPane;
+import com.phicaro.tseks.ui.util.views.ImageViewPane;
 import com.phicaro.tseks.ui.controller.IEventController;
 import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableCategoryViewModel;
 import com.phicaro.tseks.util.Resources;
-import com.phicaro.tseks.util.UiHelper;
+import com.phicaro.tseks.ui.util.UiHelper;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;

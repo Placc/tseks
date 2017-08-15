@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.util.exceptions;
+package com.phicaro.tseks.database;
 
 /**
  *
  * @author Placc
  */
-public class BadArgumentException extends RuntimeException {
-    
+public enum DatabaseType {
+    SQLite, PostgreSQL
 }

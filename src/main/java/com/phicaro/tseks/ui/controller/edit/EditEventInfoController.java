@@ -11,8 +11,8 @@ package com.phicaro.tseks.ui.controller.edit;
  */
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.util.Resources;
-import com.phicaro.tseks.util.TimeTextField;
-import com.phicaro.tseks.util.UiHelper;
+import com.phicaro.tseks.ui.util.views.TimeTextField;
+import com.phicaro.tseks.ui.util.UiHelper;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

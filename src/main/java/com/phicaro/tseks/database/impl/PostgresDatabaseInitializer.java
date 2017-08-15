@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.model.database.impl;
+package com.phicaro.tseks.database.impl;
 
-import com.phicaro.tseks.model.database.IDatabaseInitializer;
-import com.phicaro.tseks.model.database.IDatabaseService;
+import com.phicaro.tseks.database.IDatabaseInitializer;
+import com.phicaro.tseks.database.IDatabaseService;
 import io.reactivex.Single;
 
 /**

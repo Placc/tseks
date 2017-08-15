@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.util.exceptions;
+package com.phicaro.tseks.database;
 
 import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.util.Resources;

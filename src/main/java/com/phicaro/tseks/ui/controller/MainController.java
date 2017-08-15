@@ -6,12 +6,12 @@
 package com.phicaro.tseks.ui.controller;
 
 import com.phicaro.tseks.ui.controller.edit.EditEventController;
-import com.phicaro.tseks.model.TseksApp;
-import com.phicaro.tseks.model.database.IDatabaseService;
+import com.phicaro.tseks.TseksApp;
+import com.phicaro.tseks.database.IDatabaseService;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.Resources;
-import com.phicaro.tseks.util.UiHelper;
+import com.phicaro.tseks.ui.util.UiHelper;
 import io.reactivex.functions.Consumer;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;

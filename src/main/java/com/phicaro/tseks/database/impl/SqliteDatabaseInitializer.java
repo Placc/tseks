@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.model.database.impl;
+package com.phicaro.tseks.database.impl;
 
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
-import com.phicaro.tseks.model.database.IDatabaseInitializer;
-import com.phicaro.tseks.model.database.IDatabaseService;
+import com.phicaro.tseks.database.IDatabaseInitializer;
+import com.phicaro.tseks.database.IDatabaseService;
 import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.entities.Table;
 import com.phicaro.tseks.model.entities.TableCategory;
@@ -50,7 +50,7 @@ public class SqliteDatabaseInitializer implements IDatabaseInitializer {
                 connection.closeQuietly();
             }
             
-            s.onSuccess(new LocalDatabaseService(connectionString));
+            s.onSuccess(new JdbcDatabaseService(connectionString));
         });
     }
     

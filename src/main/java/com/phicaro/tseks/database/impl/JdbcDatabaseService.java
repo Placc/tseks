@@ -3,19 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.model.database.impl;
+package com.phicaro.tseks.database.impl;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
-import com.phicaro.tseks.model.database.IDatabaseService;
+import com.phicaro.tseks.database.IDatabaseService;
 import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.entities.Table;
 import com.phicaro.tseks.model.entities.TableCategory;
 import com.phicaro.tseks.util.Logger;
-import com.phicaro.tseks.util.exceptions.EventAlreadyExistsException;
-import com.phicaro.tseks.util.exceptions.PersistenceException;
+import com.phicaro.tseks.database.EventAlreadyExistsException;
+import com.phicaro.tseks.database.exception.PersistenceException;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @author Placc
  */
-public class LocalDatabaseService implements IDatabaseService {
+public class JdbcDatabaseService implements IDatabaseService {
     
     private Dao<Event, String> eventDao;
     private Dao<TableCategory, String> categoryDao;
@@ -41,7 +41,7 @@ public class LocalDatabaseService implements IDatabaseService {
     private final PublishSubject<Event> eventAdded;
     private final PublishSubject<String> eventRemoved;
     
-    public LocalDatabaseService(String connectionString) {
+    public JdbcDatabaseService(String connectionString) {
         this.connectionString = connectionString;
         
         eventAdded = PublishSubject.create();

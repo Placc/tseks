@@ -3,12 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.util;
+package com.phicaro.tseks.ui.util;
 
-import com.phicaro.tseks.ui.models.TableCategoryViewModel;
-import com.phicaro.tseks.util.exceptions.EventAlreadyExistsException;
-import com.phicaro.tseks.util.exceptions.LifecycleException;
-import com.phicaro.tseks.util.exceptions.PersistenceException;
+import com.phicaro.tseks.util.Logger;
+import com.phicaro.tseks.util.Resources;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;

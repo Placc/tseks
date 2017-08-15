@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.model.database;
+package com.phicaro.tseks.database;
 
 import com.phicaro.tseks.model.entities.Event;
 import io.reactivex.Completable;

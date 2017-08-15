@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.util;
+package com.phicaro.tseks.ui.util.views;
 
 import java.util.regex.Pattern;
 import javafx.beans.binding.IntegerBinding;

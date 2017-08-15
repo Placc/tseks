@@ -6,7 +6,7 @@
 package com.phicaro.tseks.ui.models;
 
 import com.phicaro.tseks.model.entities.Event;
-import com.phicaro.tseks.util.UiHelper;
+import com.phicaro.tseks.ui.util.UiHelper;
 import java.util.Date;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;

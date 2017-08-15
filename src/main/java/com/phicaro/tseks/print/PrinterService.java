@@ -9,7 +9,6 @@ import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.settings.SettingsService;
 import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.Resources;
-import com.phicaro.tseks.util.exceptions.InvalidPageSizeException;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.awt.print.PageFormat;
@@ -83,10 +82,6 @@ public class PrinterService {
         PageSize cardSize = settingsService.getPrintSettings().getCardSize();
         
         int cardsPerPage = computeCardsPerPage(total, format, cardSize);
-        
-        if(cardsPerPage < 1) {
-            return Observable.error(new InvalidPageSizeException());
-        }
         
         AtomicInteger count = new AtomicInteger();
         

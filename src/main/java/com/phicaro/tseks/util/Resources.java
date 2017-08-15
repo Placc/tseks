@@ -7,7 +7,6 @@ package com.phicaro.tseks.util;
 
 import com.phicaro.tseks.ui.MainApp;
 import com.phicaro.tseks.ui.controller.MainController;
-import com.phicaro.tseks.util.exceptions.ResourceNotFoundException;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;

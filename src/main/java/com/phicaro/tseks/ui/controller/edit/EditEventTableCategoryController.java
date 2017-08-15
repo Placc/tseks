@@ -8,7 +8,7 @@ package com.phicaro.tseks.ui.controller.edit;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableCategoryViewModel;
 import com.phicaro.tseks.util.Resources;
-import com.phicaro.tseks.util.UiHelper;
+import com.phicaro.tseks.ui.util.UiHelper;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;

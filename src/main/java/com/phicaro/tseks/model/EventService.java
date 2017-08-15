@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.model.services;
+package com.phicaro.tseks.model;
 
-import com.phicaro.tseks.model.database.IDatabaseService;
+import com.phicaro.tseks.database.IDatabaseService;
 import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.entities.Location;
 import com.phicaro.tseks.model.entities.Table;
 import com.phicaro.tseks.model.entities.TableCategory;
-import com.phicaro.tseks.util.exceptions.EventAlreadyExistsException;
+import com.phicaro.tseks.database.EventAlreadyExistsException;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
