@@ -36,6 +36,33 @@ public class Card implements IPrintable {
         this.location = event.getLocation().getLocationDescription();
         this.date = event.getDate();
     }
+
+    public int getCardNumber() {
+        return cardNumber;
+    }
+
+    public int getTableNumber() {
+        return tableNumber;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+    public String getLocation() {
+        return location;
+    }
+
+    public Date getDate() {
+        return date;
+    }
     
     @Override
     public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
