@@ -1,105 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.geometry.Rectangle2D?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <BorderPane prefWidth="320.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.phicaro.tseks.ui.controller.edit.EditEventInfoController">
-    <center>
-        <VBox>
-            <children>
-               <HBox VBox.vgrow="ALWAYS">
-                  <children>
-                     <VBox HBox.hgrow="ALWAYS">
-                        <children>
-                           <Label fx:id="eventNameLabel" text="Label">
-                              <VBox.margin>
-                                 <Insets bottom="40.0" left="10.0" right="10.0" top="20.0" />
-                              </VBox.margin>
-                              <font>
-                                 <Font size="20.0" />
-                              </font>
-                           </Label>
-                           <Label fx:id="eventTitleLabel" text="Label">
-                              <VBox.margin>
-                                 <Insets bottom="20.0" left="10.0" right="10.0" top="5.0" />
-                              </VBox.margin>
-                              <font>
-                                 <Font size="16.0" />
-                              </font>
-                           </Label>
-                        <Label fx:id="eventLocationLabel" text="Label">
+   <center>
+      <VBox BorderPane.alignment="CENTER">
+         <children>
+            <HBox VBox.vgrow="ALWAYS">
+               <children>
+                  <GridPane hgap="10.0" vgap="30.0" HBox.hgrow="ALWAYS">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+                        <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+                        <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+                        <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+                        <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+                     </rowConstraints>
+                     <children>
+                        <Label fx:id="eventNameLabel" text="Label">
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                           <GridPane.margin>
+                              <Insets left="20.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label fx:id="eventTitleLabel" text="Label" GridPane.rowIndex="1">
                            <font>
                               <Font size="16.0" />
                            </font>
-                           <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
+                           <GridPane.margin>
+                              <Insets left="20.0" />
+                           </GridPane.margin>
                         </Label>
-                           <Label fx:id="eventDescLabel" text="Label">
-                              <VBox.margin>
-                                 <Insets left="10.0" top="20.0" />
-                              </VBox.margin>
-                              <font>
-                                 <Font size="16.0" />
-                              </font>
-                           </Label>
-                           <Label fx:id="eventDateLabel" text="Label">
-                              <VBox.margin>
-                                 <Insets bottom="10.0" left="10.0" right="10.0" top="30.0" />
-                              </VBox.margin>
-                              <font>
-                                 <Font size="16.0" />
-                              </font>
-                           </Label>
-                        </children>
-                     </VBox>
-                     <VBox HBox.hgrow="ALWAYS">
-                        <children>
-                           <TextField fx:id="eventNameEditText" VBox.vgrow="ALWAYS">
-                              <VBox.margin>
-                                 <Insets bottom="40.0" right="10.0" top="20.0" />
-                              </VBox.margin>
-                           </TextField>
-                           <TextField fx:id="eventTitleEditText" VBox.vgrow="ALWAYS">
-                              <VBox.margin>
-                                 <Insets bottom="10.0" right="10.0" top="10.0" />
-                              </VBox.margin>
-                           </TextField>
-                        <TextField fx:id="eventLocationEditText">
-                           <VBox.margin>
-                              <Insets bottom="10.0" right="10.0" top="20.0" />
-                           </VBox.margin>
+                        <Label fx:id="eventLocationLabel" text="Label" GridPane.rowIndex="2">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                           <GridPane.margin>
+                              <Insets left="20.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label fx:id="eventDescLabel" text="Label" GridPane.rowIndex="3">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                           <GridPane.margin>
+                              <Insets left="20.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label fx:id="eventDateLabel" text="Label" GridPane.rowIndex="4">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                           <GridPane.margin>
+                              <Insets left="20.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <TextField fx:id="eventNameEditText" GridPane.columnIndex="1">
+                           <GridPane.margin>
+                              <Insets bottom="40.0" right="10.0" top="40.0" />
+                           </GridPane.margin>
                         </TextField>
-                           <TextField fx:id="eventDescEditText" VBox.vgrow="ALWAYS">
-                              <VBox.margin>
-                                 <Insets bottom="20.0" right="10.0" top="20.0" />
-                              </VBox.margin>
-                           </TextField>
-                           <HBox fx:id="eventDateHBox" VBox.vgrow="ALWAYS">
-                              <children>
-                                 <DatePicker fx:id="eventDatePicker" styleClass="date-picker">
-                                    <HBox.margin>
-                                       <Insets right="10.0" />
-                                    </HBox.margin>
-                                 </DatePicker>
-                              </children>
-                              <VBox.margin>
-                                 <Insets top="5.0" />
-                              </VBox.margin>
-                           </HBox>
-                        </children>
-                     </VBox>
-                  </children>
-               </HBox>
-            </children>
-         </VBox>
-    </center>
+                        <TextField fx:id="eventTitleEditText" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets right="10.0" />
+                           </GridPane.margin>
+                        </TextField>
+                        <TextField fx:id="eventLocationEditText" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                           <GridPane.margin>
+                              <Insets right="10.0" />
+                           </GridPane.margin>
+                        </TextField>
+                        <TextField fx:id="eventDescEditText" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                           <GridPane.margin>
+                              <Insets right="10.0" />
+                           </GridPane.margin>
+                        </TextField>
+                        <HBox fx:id="eventDateHBox" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                           <children>
+                              <DatePicker fx:id="eventDatePicker" styleClass="date-picker">
+                                 <HBox.margin>
+                                    <Insets bottom="10.0" right="10.0" />
+                                 </HBox.margin>
+                              </DatePicker>
+                           </children>
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </HBox>
+                     </children>
+                  </GridPane>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </center>
 </BorderPane>
