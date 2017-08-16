@@ -27,7 +27,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuButton;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -49,7 +48,7 @@ public class MainController implements Initializable {
     @FXML
     private Label pageTitle;
     @FXML
-    private MenuButton optionButton;
+    private Button optionButton;
     @FXML
     private BorderPane root;
     @FXML
@@ -64,7 +63,7 @@ public class MainController implements Initializable {
     private static MainController instance;
 
     private TseksApp tseksApp;
-    
+
     public static MainController instance() {
         return instance;
     }
@@ -74,13 +73,14 @@ public class MainController implements Initializable {
         instance = this;
 
         optionButton.setText(Resources.getString("LAB_Options"));
-        
+        optionButton.setOnAction(e -> switchToSettings());
+
         Image backImage = Resources.getImage("back.png", Resources.ImageSize.NORMAL);
         ColorAdjust colorAdjust = UiHelper.getColorAdjust(Color.STEELBLUE);
-        
+
         ImageView backView = new ImageView(backImage);
         backView.setEffect(colorAdjust);
-        
+
         backButton.setGraphic(backView);
 
         switchToStartup();
@@ -128,11 +128,11 @@ public class MainController implements Initializable {
                 .observeOn(JavaFxScheduler.platform())
                 .subscribe(onComplete, onError);
     }
- 
+
     public void hideToolbar() {
         toolbar.setVisible(false);
     }
-    
+
     private void setToolbar(String label, boolean backEnabled) {
         pageTitle.setText(label);
         backButton.setVisible(backEnabled);
@@ -142,7 +142,7 @@ public class MainController implements Initializable {
     public void toggleSpinner(boolean visible) {
         UiHelper.toggleSpinner(content, visible);
     }
-    
+
     public void switchToStartup() {
         try {
             BorderPane root = FXMLLoader.load(getClass().getResource("/fxml/pages/Startup.fxml"));
@@ -165,15 +165,16 @@ public class MainController implements Initializable {
     
     public void navigateAwayFrom(INavigationController from) {
         from.onNavigateAway()
-            .observeOn(JavaFxScheduler.platform())
-            .subscribe(result -> {
-                if(result) {
-                    switchToOverview();
-                    backButton.setOnAction(null);
-                }
-            });
+                .observeOn(JavaFxScheduler.platform())
+                .subscribe(result -> {
+                    if (result) {
+                        hideOptionButton(false);
+                        switchToOverview();
+                        backButton.setOnAction(null);
+                    }
+                });
     }
-    
+
     public void switchToEdit(EventViewModel existingEvent) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/pages/edit/EditEvent.fxml"));
@@ -184,18 +185,38 @@ public class MainController implements Initializable {
             backButton.setOnAction(e -> {
                 navigateAwayFrom(controller);
             });
-            
+
             String title = "LAB_CreateNewEvent";
-            
-            if(existingEvent != null) {
+
+            if (existingEvent != null) {
                 controller.setEvent(existingEvent);
                 title = "LAB_EditEvent";
             }
-            
+
             setToolbar(Resources.getString(title), true);
             content.getChildren().setAll(root);
         } catch (IOException e) {
             Logger.error("main-controller switch-to-edit", e);
+        }
+    }
+
+    public void switchToSettings() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/pages/Settings.fxml"));
+            Parent root = loader.load();
+            
+            final SettingsController controller = loader.getController();
+
+            backButton.setOnAction(e -> navigateAwayFrom(controller));
+
+            hideOptionButton(true);
+            
+            String title = "LAB_Options";
+
+            setToolbar(Resources.getString(title), true);
+            content.getChildren().setAll(root);
+        } catch (IOException e) {
+            Logger.error("main-controller switch-to-settings", e);
         }
     }
 
@@ -209,5 +230,9 @@ public class MainController implements Initializable {
 
     public void showErrorMessage(String message) {
         UiHelper.showMessage(messagePane, message, true);
+    }
+    
+    public void hideOptionButton(boolean hide) {
+        optionButton.setVisible(!hide);
     }
 }
