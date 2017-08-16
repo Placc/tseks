@@ -85,12 +85,13 @@ public class PrinterService {
                     printJobChanged.onNext(event.getId());
                 }
                 job.start()
-                        .subscribe(() -> {
+                        .doOnTerminate(() -> {
                             synchronized(runningJobs) {
                                 runningJobs.remove(event.getId());
                                 printJobChanged.onNext(event.getId());
                             }
-                        });
+                        })
+                        .subscribe();
             });
     }
 
@@ -113,13 +114,13 @@ public class PrinterService {
         
         int cardsPerPage = computeCardsPerPage(format, cardSize);
         
-        AtomicInteger count = new AtomicInteger();
+        AtomicInteger count = new AtomicInteger(1);
         
         return Observable.fromIterable(event.getTableCategories())
                     .flatMap(tableCategory -> Observable.fromIterable(tableCategory.getTables()))
                     .filter(table -> table.getTableNumber() >= from && table.getTableNumber() <= to)
                     .sorted((t1, t2) -> t1.getTableNumber() - t2.getTableNumber())
-                    .flatMap(table -> Observable.range(count.incrementAndGet(), table.getSeats())
+                    .flatMap(table -> Observable.range(count.get(), table.getSeats())
                                         .map(number -> new Card(number, event, table.getTableNumber(), table.getTableCategory().getPrice().getPrice(), cardSize))
                                         .doOnNext(__ -> count.incrementAndGet()))
                     .filter(card -> card.getCardNumber() >= from && card.getCardNumber() <= to)
@@ -128,8 +129,8 @@ public class PrinterService {
     }
     
     private int computeCardsPerPage(PageFormat format, PageSize cardSize) {
-        int horizontal = (int)((DEFAULT_DPI * format.getImageableWidth()) / cardSize.asMediaSize().getX(MediaSize.INCH));
-        int vertical = (int)((DEFAULT_DPI * format.getImageableHeight()) / cardSize.asMediaSize().getY(MediaSize.INCH));
+        int horizontal = (int)((format.getImageableWidth() / DEFAULT_DPI) / cardSize.asMediaSize().getY(MediaSize.INCH));
+        int vertical = (int)((format.getImageableHeight() / DEFAULT_DPI) / cardSize.asMediaSize().getX(MediaSize.INCH));
         return horizontal * vertical;
     }
     
@@ -166,8 +167,8 @@ public class PrinterService {
     private PageFormat getPageFormat() {
         MediaSize size = settingsService.getPrintSettings().getPageSize().asMediaSize();
         
-        double paperWidth = size.getX(MediaSize.INCH) / DEFAULT_DPI;
-        double paperHeight = size.getY(MediaSize.INCH) / DEFAULT_DPI;
+        double paperWidth = size.getX(MediaSize.INCH) * DEFAULT_DPI;
+        double paperHeight = size.getY(MediaSize.INCH) * DEFAULT_DPI;
 
         Paper paper = new Paper();
         

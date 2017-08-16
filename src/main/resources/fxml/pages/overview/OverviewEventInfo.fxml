@@ -49,8 +49,13 @@
                    </TableView>
                 </children>
              </VBox>
-             <VBox alignment="BOTTOM_CENTER" VBox.vgrow="ALWAYS" fx:id="buttonContainer">
+             <VBox fx:id="buttonContainer" alignment="BOTTOM_CENTER" VBox.vgrow="ALWAYS">
                 <children>
+                  <Label fx:id="printJobLabel">
+                     <VBox.margin>
+                        <Insets bottom="20.0" left="10.0" right="10.0" />
+                     </VBox.margin>
+                  </Label>
                   <Button fx:id="cancelButton" mnemonicParsing="false" styleClass="danger" text="Button" />
                   <SplitMenuButton fx:id="printButton" mnemonicParsing="false" styleClass="success" text="SplitMenuButton" />
                 </children>

@@ -8,7 +8,6 @@ package com.phicaro.tseks.print;
 import java.awt.print.PageFormat;
 import java.awt.print.Pageable;
 import java.awt.print.Printable;
-import java.awt.print.PrinterJob;
 import java.util.List;
 
 /**
@@ -48,6 +47,9 @@ public class Pages implements Pageable {
 
     @Override
     public Printable getPrintable(int pageIndex) throws IndexOutOfBoundsException {
+        if(printJob != null) {
+            printJob.setCurrentPage(pages.get(pageIndex));
+        }
         return pages.get(pageIndex);
     }
 }

@@ -36,7 +36,8 @@ public class PrintJob {
         return Completable.create(s -> {
                     printerJob.print();
                     progressDesc.subscribe(__ -> {}, e -> s.onError(e), () -> s.onComplete());
-                });
+                })
+                .doOnError(e -> progressDesc.onError(e));
     }
     
     public void cancel() {
@@ -45,7 +46,10 @@ public class PrintJob {
     }
     
     public void setCurrentPage(Page page) {
-        this.startCard += current.getCards().size();
+        if(current != null) {
+            this.startCard += current.getCards().size();
+        }
+        
         this.current = page;
         
         progressDesc.onNext(getDescription());
@@ -72,6 +76,10 @@ public class PrintJob {
     }
     
     public String getDescription() {
+        if(current == null) {
+            return "";
+        }
+        
         int endCard = startCard + current.getCards().size() - 1;
         int minCardNumber = current.getCards().stream().map(c -> c.getCardNumber()).min(Comparator.naturalOrder()).orElse(1);
         int maxCardNumber = current.getCards().stream().map(c -> c.getCardNumber()).max(Comparator.naturalOrder()).orElse(1);

@@ -5,6 +5,7 @@
  */
 package com.phicaro.tseks.ui.controller.overview;
 
+import com.phicaro.tseks.print.PrintJob;
 import com.phicaro.tseks.ui.controller.IEventController;
 import com.phicaro.tseks.ui.controller.INavigationController;
 import com.phicaro.tseks.ui.controller.MainController;
@@ -14,6 +15,7 @@ import com.phicaro.tseks.ui.models.TableCategoryViewModel;
 import com.phicaro.tseks.util.Resources;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.Optional;
@@ -55,6 +57,8 @@ public class OverviewEventInfoController implements IEventController, INavigatio
     private Button cancelButton;
     @FXML
     private SplitMenuButton printButton;
+    @FXML
+    private Label printJobLabel;
     @FXML
     private TableColumn<TableCategoryViewModel, Integer> infoTableCountColumn;
     @FXML
@@ -114,6 +118,8 @@ public class OverviewEventInfoController implements IEventController, INavigatio
         cancelButton.setGraphic(new ImageView(Resources.getImage("clear.png", Resources.ImageSize.NORMAL)));
         cancelButton.setOnAction(e -> onPrintCancelled());
         
+        printJobLabel.setVisible(false);
+        
         printButton.setText(Resources.getString("LAB_PrintTickets"));
         printButton.setContentDisplay(ContentDisplay.LEFT);
         printButton.setGraphic(new ImageView(Resources.getImage("print.png", Resources.ImageSize.NORMAL)));
@@ -166,9 +172,23 @@ public class OverviewEventInfoController implements IEventController, INavigatio
     
     private void onPrintJobChanged() {
         Platform.runLater(() -> {
-            boolean hasJob = eventViewModel != null && eventViewModel.getModel() != null && 
-                    MainController.instance().getTseksApp().getPrinterService().getRunningJobByEvent(eventViewModel.getModel()) != null;
+            boolean hasModel = eventViewModel != null && eventViewModel.getModel() != null;
+            boolean hasJob = false;
+            
+            if(hasModel) {
+                PrintJob job = MainController.instance().getTseksApp().getPrinterService().getRunningJobByEvent(eventViewModel.getModel());
+                
+                if(job != null) {
+                    hasJob = true;
+                    
+                    printJobLabel.setVisible(true);
+                    job.getProgressDescription()
+                            .observeOn(JavaFxScheduler.platform())
+                            .subscribe(text -> printJobLabel.setText(text));
+                }
+            }
 
+            printJobLabel.setVisible(hasJob);
             printButton.setDisable(eventViewModel == null || hasJob || eventViewModel.getTableGroups().isEmpty());
             cancelButton.setDisable(eventViewModel == null || !hasJob);
 
