@@ -32,11 +32,11 @@
                         <Insets left="10.0" />
                      </HBox.margin>
                   </HBox>
-                  <MenuButton fx:id="optionButton" alignment="CENTER" mnemonicParsing="false" styleClass="arrow-button">
+                  <Button fx:id="optionButton" alignment="CENTER" mnemonicParsing="false" styleClass="arrow-button">
                      <HBox.margin>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </HBox.margin>
-                  </MenuButton>
+                  </Button>
                </children>
             </HBox>
          </children>
