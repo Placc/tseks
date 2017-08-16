@@ -129,7 +129,7 @@ public class EditEventController implements IEditEventController, INavigationCon
 
     private void handleEventChanges(Event event, boolean added) {
         if((added ^ hasChanges()) && eventViewModel.getModel() != null && event.getId().equals(eventViewModel.getModel().getId()) && !eventViewModel.getModel().equals(event)) {
-            MainController.instance().navigateTo(EditEventController.this);
+            MainController.instance().navigateAwayFrom(EditEventController.this);
             UiHelper.showException(Resources.getString("LAB_LifecycleError"), new LifecycleException());
         }
     }

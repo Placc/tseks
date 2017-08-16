@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitMenuButton?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -48,9 +49,10 @@
                    </TableView>
                 </children>
              </VBox>
-             <VBox alignment="BOTTOM_CENTER" VBox.vgrow="ALWAYS">
+             <VBox alignment="BOTTOM_CENTER" VBox.vgrow="ALWAYS" fx:id="buttonContainer">
                 <children>
-                   <Button fx:id="printButton" mnemonicParsing="false" styleClass="success" text="Button" />
+                  <Button fx:id="cancelButton" mnemonicParsing="false" styleClass="danger" text="Button" />
+                  <SplitMenuButton fx:id="printButton" mnemonicParsing="false" styleClass="success" text="SplitMenuButton" />
                 </children>
                 <VBox.margin>
                    <Insets bottom="15.0" top="30.0" />

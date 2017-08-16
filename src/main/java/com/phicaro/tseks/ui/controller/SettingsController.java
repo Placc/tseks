@@ -221,7 +221,7 @@ public class SettingsController implements INavigationController, Initializable 
     }
 
     private void onDiscardClicked() {
-        MainController.instance().navigateTo(this);
+        MainController.instance().navigateAwayFrom(this);
     }
 
     private boolean mapDatabaseType(Toggle tog) {

@@ -8,6 +8,7 @@ package com.phicaro.tseks.print;
 import java.awt.print.PageFormat;
 import java.awt.print.Pageable;
 import java.awt.print.Printable;
+import java.awt.print.PrinterJob;
 import java.util.List;
 
 /**
@@ -17,13 +18,22 @@ import java.util.List;
 public class Pages implements Pageable {
 
     private List<Page> pages;
+    private PrintJob printJob;
     
     public Pages(List<Page> pages) {
         this.pages = pages;
     }
     
+    public void setPrintJob(PrintJob job) {
+        this.printJob = job;
+    }
+    
     public void addPage(Page page) {
         pages.add(page);
+    }
+    
+    public List<Page> getPages() {
+        return pages;
     }
     
     @Override

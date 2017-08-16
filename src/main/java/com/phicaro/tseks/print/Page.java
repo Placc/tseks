@@ -28,6 +28,10 @@ public class Page implements IPrintable {
         return format;
     }
     
+    public List<Card> getCards() {
+        return cards;
+    }
+    
     @Override
     public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
         return 0; //TODO

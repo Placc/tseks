@@ -76,7 +76,6 @@ public class UiHelper {
             alert.setTitle(title);
             alert.setHeaderText(title);
             alert.getDialogPane().getStylesheets().add(Resources.getStylesheet());
-            alert.getDialogPane().getStyleClass().add("root");
             s.onSuccess(alert);
         });
     }
@@ -154,7 +153,7 @@ public class UiHelper {
     public static void toggleSpinner(StackPane content, boolean visible) {
         Platform.runLater(() -> {
             if(!visible) {
-                content.getChildren().forEach(c -> c.setDisable(false));
+                content.getChildren().stream().forEach(c -> c.setDisable(false));
                 Optional<Node> indicator = content.getChildren().stream().filter(c -> c instanceof VBox).findAny();
                 if(indicator.isPresent()) {
                     content.getChildren().remove(indicator.get());
