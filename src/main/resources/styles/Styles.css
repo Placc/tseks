@@ -62,7 +62,7 @@
 .danger .arrow {
 	-fx-background-color: transparent, white;
 }
-
+/*-------*/
 .primary > .label,
 .success > .label,
 .info > .label,
@@ -701,7 +701,7 @@ VBox > .split-menu-button.last > .arrow-button {
 	-fx-border-color: #dddddd;
 	/*-fx-padding: -11;*/
 }
-
+/*--------*/
 .titled-pane.primary {
 	-fx-text-fill: white;
 }
