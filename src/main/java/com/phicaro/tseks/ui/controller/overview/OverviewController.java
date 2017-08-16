@@ -112,6 +112,8 @@ public class OverviewController implements INavigationController, Initializable 
 
     @Override
     public Single<Boolean> onNavigateAway() {
+        eventInfoController.onNavigateAway().subscribe();
+        
         addedDisposable.dispose();
         removedDisposable.dispose();
         

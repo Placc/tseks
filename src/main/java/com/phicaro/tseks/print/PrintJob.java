@@ -32,12 +32,16 @@ public class PrintJob {
         progressDesc = PublishSubject.create();
     }
     
-    public void start() throws Exception {
-        printerJob.print();
+    public Completable start() throws Exception {
+        return Completable.create(s -> {
+                    printerJob.print();
+                    progressDesc.subscribe(__ -> {}, e -> s.onError(e), () -> s.onComplete());
+                });
     }
     
     public void cancel() {
         printerJob.cancel();
+        progressDesc.onComplete();
     }
     
     public void setCurrentPage(Page page) {

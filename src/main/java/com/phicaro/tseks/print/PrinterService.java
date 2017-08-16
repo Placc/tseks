@@ -10,14 +10,15 @@ import com.phicaro.tseks.settings.SettingsService;
 import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.Resources;
 import io.reactivex.Observable;
-import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import javax.print.PrintService;
@@ -32,9 +33,13 @@ public class PrinterService {
     public static final double DEFAULT_DPI = 72.0;
     
     private SettingsService settingsService;
+    private ConcurrentHashMap<String, PrintJob> runningJobs;
+    private PublishSubject<String> printJobChanged;
     
     public PrinterService(SettingsService settingsService) {
         this.settingsService = settingsService;
+        this.runningJobs = new ConcurrentHashMap<>();
+        this.printJobChanged = PublishSubject.create();
     }
 
     private PrintService getDefaultPrinter() throws PrinterException {
@@ -68,14 +73,39 @@ public class PrinterService {
         }
     }
     
-    public Single<PrintJob> print(Event event, int fromCardNumber, int toCardNumber) {
-        return createPages(event, fromCardNumber, toCardNumber, getPageFormat())
-               .toList()
-               .map(list -> createPrintJob(new Pages(list), fromCardNumber, toCardNumber));
+    public void print(Event event, int fromCardNumber, int toCardNumber) {
+        createPages(event, fromCardNumber, toCardNumber, getPageFormat())
+            .subscribeOn(Schedulers.computation())
+            .observeOn(Schedulers.computation())
+            .toList()
+            .map(list -> createPrintJob(new Pages(list), fromCardNumber, toCardNumber))
+            .subscribe(job -> {
+                synchronized(runningJobs) {
+                    runningJobs.put(event.getId(), job);
+                    printJobChanged.onNext(event.getId());
+                }
+                job.start()
+                        .subscribe(() -> {
+                            synchronized(runningJobs) {
+                                runningJobs.remove(event.getId());
+                                printJobChanged.onNext(event.getId());
+                            }
+                        });
+            });
     }
 
-    public Single<PrintJob> print(Event event) {
-        return print(event, Integer.MIN_VALUE, Integer.MAX_VALUE);
+    public void print(Event event) {
+        print(event, Integer.MIN_VALUE, Integer.MAX_VALUE);
+    }
+    
+    public PrintJob getRunningJobByEvent(Event event) {
+        synchronized(runningJobs) {
+            return runningJobs.get(event.getId());
+        }
+    }
+    
+    public Observable<String> runningJobChanged() {
+        return printJobChanged;
     }
     
     private Observable<Page> createPages(Event event, int from, int to, PageFormat format) {
@@ -108,8 +138,10 @@ public class PrinterService {
 
         job.setPageable(pages);
         
+        PrintService printer = getDefaultPrinter();
+        
         try {
-            job.setPrintService(getDefaultPrinter());
+            job.setPrintService(printer);
         } catch (PrinterException e) {
             Logger.error("card-printer-service create-print-job default printservice", e);
             throw new PrinterException(Resources.getString("MSG_DefaultPrinterNotAvailable"));

@@ -48,6 +48,7 @@ LAB_CardNumbers=Kartennummern
 LAB_From=Von:
 LAB_To=Bis:
 LAB_Print=Drucken
+LAB_CancelPrint=Druckvorgang abbrechen
 MSG_EmptyEventTitle=Bitte geben Sie den Veranstaltungstitel ein!
 MSG_SeatsZero=Die Platzanzahl in einer Tischkategorie ist 0!
 MSG_GroupIntersections=Die Tischnummern einiger Tischkategorien überschneiden sich!
