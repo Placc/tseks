@@ -62,11 +62,11 @@
 .danger .arrow {
 	-fx-background-color: transparent, white;
 }
-/*-------*/
+
 .primary > .label,
 .success > .label,
 .info > .label,
-.warning > .label,
+/*.warning > .label,*/
 .danger > .label {
 	-fx-text-fill: white;
 }
@@ -701,10 +701,10 @@ VBox > .split-menu-button.last > .arrow-button {
 	-fx-border-color: #dddddd;
 	/*-fx-padding: -11;*/
 }
-/*--------*/
-.titled-pane.primary {
+
+/*.titled-pane.primary {
 	-fx-text-fill: white;
-}
+}*/
 
 .titled-pane.primary > .title {
 	-fx-background-color: #337ab7;
