@@ -19,7 +19,9 @@ import java.awt.print.PrinterJob;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.print.PrintService;
 import javax.print.attribute.standard.MediaSize;
@@ -85,13 +87,13 @@ public class PrinterService {
                     printJobChanged.onNext(event.getId());
                 }
                 job.start()
-                        .doOnTerminate(() -> {
+                        .onErrorComplete()
+                        .subscribe(() -> {
                             synchronized(runningJobs) {
                                 runningJobs.remove(event.getId());
                                 printJobChanged.onNext(event.getId());
                             }
-                        })
-                        .subscribe();
+                        });
             });
     }
 
@@ -118,13 +120,13 @@ public class PrinterService {
         
         return Observable.fromIterable(event.getTableCategories())
                     .flatMap(tableCategory -> Observable.fromIterable(tableCategory.getTables()))
-                    .filter(table -> table.getTableNumber() >= from && table.getTableNumber() <= to)
                     .sorted((t1, t2) -> t1.getTableNumber() - t2.getTableNumber())
                     .flatMap(table -> Observable.range(count.get(), table.getSeats())
-                                        .map(number -> new Card(number, event, table.getTableNumber(), table.getTableCategory().getPrice().getPrice(), cardSize))
-                                        .doOnNext(__ -> count.incrementAndGet()))
-                    .filter(card -> card.getCardNumber() >= from && card.getCardNumber() <= to)
-                    .buffer(cardsPerPage)
+                            .map(number -> new Card(number, event, table.getTableNumber(), table.getTableCategory().getPrice().getPrice(), cardSize))
+                            .doOnNext(__ -> count.incrementAndGet()))
+                    .filter(card -> card.getCardNumber() >= from && card.getCardNumber() <= to) 
+                    .window(cardsPerPage)
+                    .flatMapSingle(observable -> observable.toList())
                     .map(list -> new Page(list, format));
     }
     

@@ -104,6 +104,9 @@ public class SettingsController implements INavigationController, Initializable 
         settingsDatabaseSQLiteRadioButton.setText(Resources.getString("LAB_SqliteDatabase"));
         settingsDatabasePostgreSqlRadioButton.setText(Resources.getString("LAB_PostgresqlDatabase"));
 
+        //TODO remove
+        settingsDatabasePostgreSqlRadioButton.setDisable(true);
+        
         settingsDatabaseChangeLabel.setText("");
 
         loadSettings();

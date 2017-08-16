@@ -245,8 +245,9 @@ public class EditEventController implements IEditEventController, INavigationCon
 
         return event
                 .doOnSuccess(e -> {
+                    e.clearTableCategories();
+                    
                     eventViewModel.getTableGroups().stream()
-                        .filter(model -> !e.getTableCategories().contains(model.getModel()))
                         .forEach(model -> {
                             TableCategory tableGroup = new TableCategory(e, model.getSeats(), new PriceCategory(model.getPrice()));
 
@@ -256,10 +257,6 @@ public class EditEventController implements IEditEventController, INavigationCon
                             e.addTableCategory(tableGroup);
                         });
                     
-                    new ArrayList<>(e.getTableCategories()).stream()
-                        .filter(group -> !eventViewModel.getTableGroups().stream().anyMatch(model -> model.matches(group)))
-                        .forEach(group -> e.removeTableCategory(group));
-                        
                     setEvent(new EventViewModel(e));
                 })
                 .flatMapCompletable(e -> eventService.updateEvent(e));

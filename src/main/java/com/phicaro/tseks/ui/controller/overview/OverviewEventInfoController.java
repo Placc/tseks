@@ -181,6 +181,7 @@ public class OverviewEventInfoController implements IEventController, INavigatio
                 if(job != null) {
                     hasJob = true;
                     
+                    printJobLabel.setText("");
                     printJobLabel.setVisible(true);
                     job.getProgressDescription()
                             .observeOn(JavaFxScheduler.platform())
@@ -214,10 +215,11 @@ public class OverviewEventInfoController implements IEventController, INavigatio
     private void onPrintFromToClicked() {
         MainController.instance().toggleSpinner(true);
         
-        int minCardNumber = eventViewModel.getTableGroups().stream().map(group -> group.getStartNumber()).min(Comparator.naturalOrder()).orElse(1);
-        int maxCardNumber = eventViewModel.getTableGroups().stream().map(group -> group.getEndNumber()).max(Comparator.naturalOrder()).orElse(1);
+        int maxCardNumber = eventViewModel.getTableGroups().stream()
+                .map(group -> (group.getEndNumber() - group.getStartNumber() + 1) * group.getSeats())
+                .reduce(0, (a, b) -> a + b);
         
-        Optional<Pair<Integer, Integer>> resultOpt = new PrintFromToDialogController(minCardNumber, maxCardNumber).showAndWait();
+        Optional<Pair<Integer, Integer>> resultOpt = new PrintFromToDialogController(1, maxCardNumber).showAndWait();
         
         MainController.instance().toggleSpinner(false);
         
