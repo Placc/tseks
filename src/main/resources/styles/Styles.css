@@ -954,6 +954,27 @@ VBox > .split-menu-button.last > .arrow-button {
     -fx-effect: dropshadow(two-pass-box, rgba(0, 0, 0, 0.2), 5, 0.0, 0, 0);
 }
 
+/** TODO: Remove deprecated: */
+.selected-back-btn, .selected-back-btn:focused, .selected-back-btn:selected {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-effect: none;
+    -fx-border-color: none;
+    -fx-background-image: none;
+    -fx-background-color: none;
+    -fx-background-radius: 100;
+    -fx-pref-width: 48;
+    -fx-pref-height: 48;
+}
+
+/** TODO: Remove deprecated: */
+.selected-back-btn:hover {
+    -fx-border-radius: 100;
+    -fx-border-color: #ffffff;
+    -fx-background-color: none;
+    -fx-effect: dropshadow(two-pass-box, rgba(255, 255, 255, 0.2), 5, 0.0, 0, 0);
+}
+
 .split-pane > .split-pane-divider {
     -fx-opacity: 0;
     -fx-padding: 0 0.05em 0 0.05em;  

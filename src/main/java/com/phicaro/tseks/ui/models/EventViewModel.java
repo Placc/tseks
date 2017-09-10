@@ -18,19 +18,19 @@ import javafx.collections.ObservableList;
  * @author Placc
  */
 public class EventViewModel implements IViewModel<Event> {
-    
+
     private Event event;
-    
+
     //Overview
     private final SimpleStringProperty name;
     private final SimpleStringProperty title;
     private final SimpleStringProperty location;
     private final SimpleStringProperty date;
     private final SimpleListProperty<TableCategoryViewModel> tableGroups;
-    
+
     //Edit
     private final SimpleStringProperty description;
-    
+
     public EventViewModel() {
         this.title = new SimpleStringProperty("");
         this.name = new SimpleStringProperty("");
@@ -39,30 +39,30 @@ public class EventViewModel implements IViewModel<Event> {
         this.tableGroups = new SimpleListProperty<>(FXCollections.observableArrayList());
         this.description = new SimpleStringProperty("");
     }
-    
-    public EventViewModel(Event event) {       
+
+    public EventViewModel(Event event) {
         this.event = event;
-        
+
         this.name = new SimpleStringProperty(event.getName());
         this.title = new SimpleStringProperty(event.getTitle());
         this.location = new SimpleStringProperty(event.getLocation().toString());
         this.date = new SimpleStringProperty(UiHelper.format(event.getDate()));
-        this.tableGroups = new SimpleListProperty<>(FXCollections.observableArrayList(TableCategoryViewModel.fromEvent(event)));   
+        this.tableGroups = new SimpleListProperty<>(FXCollections.observableArrayList(TableCategoryViewModel.fromEvent(event)));
         this.description = new SimpleStringProperty(event.getDescription());
     }
-    
+
     public ObservableList<TableCategoryViewModel> getTableGroups() {
         return tableGroups.get();
     }
-    
+
     public String getName() {
         return name.get();
     }
-    
+
     public String getTitle() {
         return title.get();
     }
-    
+
     public void setName(String name) {
         this.name.set(name);
     }
@@ -74,7 +74,7 @@ public class EventViewModel implements IViewModel<Event> {
     public void setLocation(String location) {
         this.location.set(location);
     }
-    
+
     public String getDate() {
         return date.get();
     }
@@ -82,7 +82,7 @@ public class EventViewModel implements IViewModel<Event> {
     public void setDate(Date date) {
         this.date.set(UiHelper.format(date));
     }
-    
+
     public String getDescription() {
         return description.get();
     }
@@ -90,17 +90,16 @@ public class EventViewModel implements IViewModel<Event> {
     public void setDescription(String description) {
         this.description.set(description);
     }
-    
+
     public Event getModel() {
         return event;
     }
-    
+
     //Properties
-    
     public SimpleStringProperty getNameProperty() {
         return name;
     }
-    
+
     public SimpleStringProperty getTitleProperty() {
         return title;
     }
@@ -116,34 +115,34 @@ public class EventViewModel implements IViewModel<Event> {
     public SimpleStringProperty getDescriptionProperty() {
         return description;
     }
-    
+
     public SimpleListProperty<TableCategoryViewModel> getTableGroupsProperty() {
         return tableGroups;
     }
-    
+
     @Override
     public boolean matches(Event e) {
         boolean viewModelsInEvent = getTableGroups().stream().allMatch(model -> e.getTableCategories().stream().anyMatch(group -> model.matches(group)));
         boolean groupsInViewModels = e.getTableCategories().stream().allMatch(group -> getTableGroups().stream().anyMatch(model -> model.matches(group)));
-        return name.get().equals(e.getName()) &&
-                title.get().equals(e.getTitle()) &&
-                location.get().equals(e.getLocation().toString()) &&
-                date.get().equals(UiHelper.format(e.getDate())) &&
-                description.get().equals(e.getDescription())
+        return name.get().equals(e.getName())
+                && title.get().equals(e.getTitle())
+                && location.get().equals(e.getLocation().toString())
+                && date.get().equals(UiHelper.format(e.getDate()))
+                && description.get().equals(e.getDescription())
                 && viewModelsInEvent && groupsInViewModels;
     }
-    
+
     @Override
     public boolean equals(Object o) {
-        return o instanceof EventViewModel &&
-                ((EventViewModel) o).title.get().equals(title.get()) &&
-                ((EventViewModel) o).date.get().equals(date.get()) &&
-                ((EventViewModel) o).name.get().equals(name.get()) &&
-                ((EventViewModel) o).location.get().equals(location.get()) &&
-                ((EventViewModel) o).description.get().equals(description.get()) &&
-                ((EventViewModel) o).tableGroups.get().equals(tableGroups.get())
-                &&((event == null && ((EventViewModel) o).event == null) || 
-                (event != null && ((EventViewModel) o).event != null &&
-                ((EventViewModel) o).event.equals(event)));
+        return o instanceof EventViewModel
+                && ((EventViewModel) o).title.get().equals(title.get())
+                && ((EventViewModel) o).date.get().equals(date.get())
+                && ((EventViewModel) o).name.get().equals(name.get())
+                && ((EventViewModel) o).location.get().equals(location.get())
+                && ((EventViewModel) o).description.get().equals(description.get())
+                && ((EventViewModel) o).tableGroups.get().equals(tableGroups.get())
+                && ((event == null && ((EventViewModel) o).event == null)
+                || (event != null && ((EventViewModel) o).event != null
+                && ((EventViewModel) o).event.equals(event)));
     }
 }

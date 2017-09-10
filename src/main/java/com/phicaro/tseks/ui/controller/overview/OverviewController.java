@@ -5,13 +5,13 @@
  */
 package com.phicaro.tseks.ui.controller.overview;
 
-import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.model.EventService;
+import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.ui.controller.INavigationController;
 import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.models.EventViewModel;
-import com.phicaro.tseks.util.Resources;
 import com.phicaro.tseks.ui.util.UiHelper;
+import com.phicaro.tseks.util.Resources;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
@@ -37,6 +37,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 /**
  *
@@ -56,7 +57,7 @@ public class OverviewController implements INavigationController, Initializable 
     private TableColumn<EventViewModel, HBox> eventTableLocationColumn;
     @FXML
     private TableColumn<EventViewModel, HBox> eventTableOptionsColumn;
-    
+
     @FXML
     private AnchorPane eventInfo;
     @FXML
@@ -65,7 +66,7 @@ public class OverviewController implements INavigationController, Initializable 
     //Model
     private EventService eventService;
     private ObservableList<EventViewModel> events;
-    
+
     private Disposable addedDisposable;
     private Disposable removedDisposable;
 
@@ -78,13 +79,13 @@ public class OverviewController implements INavigationController, Initializable 
 
         //Table columns
         eventTableNameColumn.setText(Resources.getString("LAB_Event"));
-        eventTableNameColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getName()));
+        eventTableNameColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getName(), true));
 
         eventTableDateColumn.setText(Resources.getString("LAB_Date"));
-        eventTableDateColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getDate()));
+        eventTableDateColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getDate(), false));
 
         eventTableLocationColumn.setText(Resources.getString("LAB_Location"));
-        eventTableLocationColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getLocation()));
+        eventTableLocationColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getLocation(), false));
 
         eventTableOptionsColumn.setCellValueFactory(event -> createOptionsForEvent(event.getValue()));
 
@@ -113,13 +114,13 @@ public class OverviewController implements INavigationController, Initializable 
     @Override
     public Single<Boolean> onNavigateAway() {
         eventInfoController.onNavigateAway().subscribe();
-        
+
         addedDisposable.dispose();
         removedDisposable.dispose();
-        
+
         return Single.just(true);
     }
-    
+
     private void addEvent(Event event) {
         Platform.runLater(() -> {
             EventViewModel viewModel = new EventViewModel(event);
@@ -131,34 +132,36 @@ public class OverviewController implements INavigationController, Initializable 
     }
 
     private void removeEvent(Event event) {
-        Platform.runLater(() ->
-            events.removeIf(viewModel -> viewModel.getModel() != null && viewModel.getModel().getId().equals(event.getId()))
+        Platform.runLater(()
+                -> events.removeIf(viewModel -> viewModel.getModel() != null && viewModel.getModel().getId().equals(event.getId()))
         );
     }
 
-    private ObjectProperty<HBox> createLabelHBox(String value) {
+    private ObjectProperty<HBox> createLabelHBox(String value, boolean bold) {
         Label label = new Label(value);
-        
+        label.setFont(new Font(bold ? "System Bold" : "System", 16));
+
         HBox hbox = new HBox(label);
         hbox.alignmentProperty().setValue(Pos.CENTER);
-        
+
         return new SimpleObjectProperty<>(hbox);
     }
-    
+
     private ObjectProperty<HBox> createOptionsForEvent(EventViewModel eventViewModel) {
         Image copyImage = Resources.getImage("copy.png", Resources.ImageSize.NORMAL);
         Image editImage = Resources.getImage("create.png", Resources.ImageSize.NORMAL);
         Image deleteImage = Resources.getImage("delete.png", Resources.ImageSize.NORMAL);
 
-        ColorAdjust colorAdjust = UiHelper.getColorAdjust(Color.STEELBLUE);
+        ColorAdjust blueOverlay = UiHelper.getColorAdjust(Color.STEELBLUE);
+        ColorAdjust noOverlay = UiHelper.getColorAdjust(Color.WHITE);
 
         ImageView copyView = new ImageView(copyImage);
         ImageView editView = new ImageView(editImage);
         ImageView deleteView = new ImageView(deleteImage);
-        
-        copyView.setEffect(colorAdjust);
-        editView.setEffect(colorAdjust);
-        deleteView.setEffect(colorAdjust);
+
+        copyView.setEffect(blueOverlay);
+        editView.setEffect(blueOverlay);
+        deleteView.setEffect(blueOverlay);
 
         Button copy = new Button("", copyView);
         Button edit = new Button("", editView);
@@ -167,7 +170,23 @@ public class OverviewController implements INavigationController, Initializable 
         copy.getStyleClass().add("back-btn");
         edit.getStyleClass().add("back-btn");
         delete.getStyleClass().add("back-btn");
-        
+
+        eventTable.getSelectionModel().selectedItemProperty().addListener((obs, o, s) -> {
+            copyView.setEffect(s.equals(eventViewModel) ? noOverlay : blueOverlay);
+            editView.setEffect(s.equals(eventViewModel) ? noOverlay : blueOverlay);
+            deleteView.setEffect(s.equals(eventViewModel) ? noOverlay : blueOverlay);
+
+            String toRemove = s.equals(eventViewModel) ? "back-btn" : "selected-back-btn";
+            String toAdd = s.equals(eventViewModel) ? "selected-back-btn" : "back-btn";
+
+            copy.getStyleClass().remove(toRemove);
+            copy.getStyleClass().add(toAdd);
+            edit.getStyleClass().remove(toRemove);
+            edit.getStyleClass().add(toAdd);
+            delete.getStyleClass().remove(toRemove);
+            delete.getStyleClass().add(toAdd);
+        });
+
         copy.setOnAction(e -> copyEventClicked(eventViewModel));
         edit.setOnAction(e -> editEventClicked(eventViewModel));
         delete.setOnAction(e -> deleteEventClicked(eventViewModel));
@@ -176,11 +195,11 @@ public class OverviewController implements INavigationController, Initializable 
     }
 
     private void onAddEventClicked() {
-        this.onNavigateAway().subscribe(__ ->
-            MainController.instance().switchToEdit(null)
+        this.onNavigateAway().subscribe(__
+                -> MainController.instance().switchToEdit(null)
         );
     }
-    
+
     private void copyEventClicked(EventViewModel e) {
         MainController.instance().toggleSpinner(true);
         eventService.copyEvent(e.getModel())
@@ -190,13 +209,13 @@ public class OverviewController implements INavigationController, Initializable 
     }
 
     private void editEventClicked(EventViewModel e) {
-        this.onNavigateAway().subscribe(__ ->
-            MainController.instance().switchToEdit(e)
+        this.onNavigateAway().subscribe(__
+                -> MainController.instance().switchToEdit(e)
         );
     }
 
     private void deleteEventClicked(EventViewModel e) {
-        if(UiHelper.showDeleteEventDialog().blockingFirst()) {
+        if (UiHelper.showDeleteEventDialog().blockingFirst()) {
             MainController.instance().toggleSpinner(true);
             eventService.deleteEvent(e.getModel())
                     .subscribeOn(Schedulers.io())
