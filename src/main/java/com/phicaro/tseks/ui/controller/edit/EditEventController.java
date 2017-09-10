@@ -20,7 +20,6 @@ import com.phicaro.tseks.ui.util.UiHelper;
 import com.phicaro.tseks.util.Resources;
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import io.reactivex.schedulers.Schedulers;
 import java.net.URL;
@@ -70,10 +69,6 @@ public class EditEventController implements IEditEventController, INavigationCon
         eventChanged.invalidated(o);
     };
 
-    //Subscription
-    private Disposable addedDisposable;
-    private Disposable removedDisposable;
-
     public void setEvent(EventViewModel eventViewModel) {
         enableButtons(false);
 
@@ -122,8 +117,6 @@ public class EditEventController implements IEditEventController, INavigationCon
         setEvent(new EventViewModel());
 
         EventService eventService = MainController.instance().getTseksApp().getEventService();
-        addedDisposable = eventService.eventAdded().subscribe(e -> handleEventChanges(e, true));
-        removedDisposable = eventService.eventRemoved().subscribe(e -> handleEventChanges(e, false));
     }
 
     private void handleEventChanges(Event event, boolean added) {
@@ -151,9 +144,6 @@ public class EditEventController implements IEditEventController, INavigationCon
         if (hasChanges() && !UiHelper.showDiscardChangesDialog().blockingFirst()) {
             return Single.just(false);
         }
-
-        addedDisposable.dispose();
-        removedDisposable.dispose();
 
         return Single.just(true);
     }

@@ -13,7 +13,6 @@ import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.util.UiHelper;
 import com.phicaro.tseks.util.Resources;
 import io.reactivex.Single;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import io.reactivex.schedulers.Schedulers;
 import java.net.URL;
@@ -67,9 +66,6 @@ public class OverviewController implements INavigationController, Initializable 
     private EventService eventService;
     private ObservableList<EventViewModel> events;
 
-    private Disposable addedDisposable;
-    private Disposable removedDisposable;
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         addEventButton.setText(Resources.getString("LAB_NewEvent"));
@@ -103,8 +99,6 @@ public class OverviewController implements INavigationController, Initializable 
         eventService.getEvents()
                 .doOnComplete(() -> {
                     MainController.instance().toggleSpinner(false);
-                    addedDisposable = eventService.eventAdded().subscribe(this::addEvent);
-                    removedDisposable = eventService.eventRemoved().subscribe(this::removeEvent);
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
@@ -114,9 +108,6 @@ public class OverviewController implements INavigationController, Initializable 
     @Override
     public Single<Boolean> onNavigateAway() {
         eventInfoController.onNavigateAway().subscribe();
-
-        addedDisposable.dispose();
-        removedDisposable.dispose();
 
         return Single.just(true);
     }
@@ -210,7 +201,10 @@ public class OverviewController implements INavigationController, Initializable 
         eventService.copyEvent(e.getModel())
                 .subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
-                .subscribe(() -> MainController.instance().toggleSpinner(false));
+                .subscribe(event -> {
+                    addEvent(event);
+                    MainController.instance().toggleSpinner(false);
+                });
     }
 
     private void editEventClicked(EventViewModel e) {

@@ -22,24 +22,19 @@ public interface IDatabaseService {
 
     //State
     Single<Boolean> containsEvent(Event event);
-    
+
     Observable<Event> getSnapshot();
 
     //Manipulation
     Completable createEvent(Event event);
 
     Completable updateEvent(Event event);
-    
+
     Completable deleteEvent(Event event);
 
-    //Notification
-    Observable<Event> eventAdded();
-
-    Observable<String> eventRemoved();
-
+    //Lifecycle
     Observable<ConnectionState> connection();
 
-    //Lifecycle
     Completable connect();
 
     Completable shutdown();

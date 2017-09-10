@@ -19,7 +19,6 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.PublishSubject;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -36,16 +35,11 @@ public class JdbcDatabaseService implements IDatabaseService {
     private ConnectionSource connectionSource;
 
     private final BehaviorSubject<ConnectionState> connectionState;
-    private final PublishSubject<Event> eventAdded;
-    private final PublishSubject<String> eventRemoved;
 
     private static final Object LOCK = new Object();
 
     public JdbcDatabaseService(String connectionString) {
         this.connectionString = connectionString;
-
-        eventAdded = PublishSubject.create();
-        eventRemoved = PublishSubject.create();
 
         connectionState = BehaviorSubject.createDefault(ConnectionState.CLOSED);
     }
@@ -91,7 +85,6 @@ public class JdbcDatabaseService implements IDatabaseService {
                 createOrUpdateTablesAndCategories(event);
 
                 if (eventDao.createOrUpdate(event).isCreated()) {
-                    eventAdded.onNext(event);
                     s.onComplete();
                 } else {
                     s.onError(new PersistenceException("Could not create event"));
@@ -143,9 +136,6 @@ public class JdbcDatabaseService implements IDatabaseService {
                 createOrUpdateTablesAndCategories(event);
 
                 if (eventDao.createOrUpdate(event).isUpdated()) {
-                    eventRemoved.onNext(event.getId());
-
-                    eventAdded.onNext(event);
                     s.onComplete();
                 } else {
                     s.onError(new PersistenceException("Could not update event"));
@@ -188,24 +178,12 @@ public class JdbcDatabaseService implements IDatabaseService {
                 Event old = eventDao.queryForSameId(event);
 
                 if (eventDao.deleteById(event.getId()) == 1) {
-                    eventRemoved.onNext(event.getId());
-
                     s.onComplete();
                 } else {
                     s.onError(new PersistenceException("Deletion did not affect one row"));
                 }
             }
         });
-    }
-
-    @Override
-    public Observable<Event> eventAdded() {
-        return eventAdded;
-    }
-
-    @Override
-    public Observable<String> eventRemoved() {
-        return eventRemoved;
     }
 
     @Override
