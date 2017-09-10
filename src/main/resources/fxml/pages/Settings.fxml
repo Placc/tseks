@@ -74,65 +74,6 @@
 					<Insets bottom="10.0" left="20.0" right="10.0" top="20.0" />
 				</VBox.margin>
 			</Label>
-            <RadioButton fx:id="settingsDatabaseSQLiteRadioButton" mnemonicParsing="false" text="RadioButton">
-				<VBox.margin>
-					<Insets bottom="10.0" left="20.0" right="0.0" top="10.0" />
-				</VBox.margin>
-			</RadioButton>
-            <RadioButton fx:id="settingsDatabasePostgreSqlRadioButton" mnemonicParsing="false" text="RadioButton">
-				<VBox.margin>
-					<Insets bottom="10.0" left="20.0" right="0.0" top="10.0" />
-				</VBox.margin>
-			</RadioButton>
-            <HBox styleClass="text-area">
-				<VBox.margin>
-					<Insets bottom="10.0" left="40.0" right="20.0" top="10.0" />
-				</VBox.margin>
-               <children>
-                  <VBox>
-                     <children>
-                        <Label fx:id="settingsDatabaseUrlLabel" text="Label">
-							<VBox.margin>
-								<Insets bottom="20.0" left="20.0" right="10.0" top="26.0" />
-							</VBox.margin>
-						</Label>
-                        <Label fx:id="settingsDatabaseUserNameLabel" text="Label">
-							<VBox.margin>
-								<Insets bottom="20.0" left="20.0" right="10.0" top="12.0" />
-							</VBox.margin>
-						</Label><Label fx:id="settingsDatabasePasswordLabel" text="Label">
-							<VBox.margin>
-								<Insets bottom="20.0" left="20.0" right="10.0" top="12.0" />
-							</VBox.margin>
-						</Label>
-                     </children>
-                  </VBox>
-                  <VBox>
-                     <children>
-                        <TextField fx:id="settingsDatabaseUrlTextField">
-							<VBox.margin>
-								<Insets bottom="10.0" left="10.0" right="20.0" top="20.0" />
-							</VBox.margin>
-						</TextField>
-                        <TextField fx:id="settingsDatabaseUserNameTextField">
-							<VBox.margin>
-								<Insets bottom="10.0" left="10.0" right="20.0" top="10.0" />
-							</VBox.margin>
-						</TextField>
-						<TextField fx:id="settingsDatabasePasswordTextField">
-							<VBox.margin>
-								<Insets bottom="20.0" left="10.0" right="20.0" top="10.0" />
-							</VBox.margin>
-						</TextField>
-                     </children>
-                  </VBox>
-               </children>
-            </HBox>
-            <Label fx:id="settingsDatabaseChangeLabel" text="Label" textFill="RED">
-               <VBox.margin>
-                  <Insets bottom="20.0" left="20.0" right="10.0" top="10.0" />
-               </VBox.margin>
-            </Label>
          </children>
          <BorderPane.margin>
             <Insets />

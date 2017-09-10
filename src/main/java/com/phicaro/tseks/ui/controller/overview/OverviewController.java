@@ -123,18 +123,23 @@ public class OverviewController implements INavigationController, Initializable 
 
     private void addEvent(Event event) {
         Platform.runLater(() -> {
-            EventViewModel viewModel = new EventViewModel(event);
+            synchronized (events) {
+                EventViewModel viewModel = new EventViewModel(event);
 
-            if (!events.contains(viewModel)) {
-                events.add(viewModel);
+                if (!events.contains(viewModel)) {
+                    events.add(viewModel);
+                }
             }
         });
     }
 
     private void removeEvent(Event event) {
         Platform.runLater(()
-                -> events.removeIf(viewModel -> viewModel.getModel() != null && viewModel.getModel().getId().equals(event.getId()))
-        );
+                -> {
+            synchronized (events) {
+                events.removeIf(viewModel -> viewModel.getModel() != null && viewModel.getModel().getId().equals(event.getId()));
+            }
+        });
     }
 
     private ObjectProperty<HBox> createLabelHBox(String value, boolean bold) {

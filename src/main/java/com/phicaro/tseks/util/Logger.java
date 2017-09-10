@@ -16,23 +16,16 @@ import java.util.Date;
  */
 public class Logger {
 
-    private static boolean DEBUG = false;
     private static File logFile;
 
     private static void ensureLog() {
-        if (DEBUG) {
-            logFile = new File(Platform.getAppData(), "log");
-            if (!logFile.exists()) {
-                try {
-                    logFile.createNewFile();
-                } catch (IOException e) {
-                }
+        logFile = new File(Platform.getAppData(), "log");
+        if (!logFile.exists()) {
+            try {
+                logFile.createNewFile();
+            } catch (IOException e) {
             }
         }
-    }
-
-    public static void setDebugMode(boolean debug) {
-        DEBUG = debug;
     }
 
     public static void error(String message, Throwable e) {
@@ -50,7 +43,7 @@ public class Logger {
             e.printStackTrace();
         }
 
-        if (DEBUG) {
+        if (Resources.getConfig("CFG_Debug").equals("true")) {
             ensureLog();
 
             try {

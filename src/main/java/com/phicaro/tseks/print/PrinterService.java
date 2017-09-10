@@ -73,12 +73,12 @@ public class PrinterService {
         }
     }
 
-    public void print(Event event, int fromCardNumber, int toCardNumber) {
-        createPages(event, fromCardNumber, toCardNumber, getPageFormat())
+    public void print(Event event, int fromTableNumber, int toTableNumber) {
+        createPages(event, fromTableNumber, toTableNumber, getPageFormat())
                 .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.computation())
                 .toList()
-                .map(list -> createPrintJob(new Pages(list), fromCardNumber, toCardNumber))
+                .map(list -> createPrintJob(new Pages(list)))
                 .subscribe(job -> {
                     synchronized (runningJobs) {
                         runningJobs.put(event.getId(), job);
@@ -109,7 +109,7 @@ public class PrinterService {
         return printJobChanged;
     }
 
-    private Observable<Page> createPages(Event event, int from, int to, PageFormat format) {
+    private Observable<Page> createPages(Event event, int fromTable, int toTable, PageFormat format) {
         PageSize cardSize = settingsService.getPrintSettings().getCardSize();
 
         int cardsPerPage = computeCardsPerPage(format, cardSize);
@@ -118,10 +118,13 @@ public class PrinterService {
 
         return Observable.fromIterable(event.getTableCategories())
                 .sorted((t1, t2) -> t1.getMinTableNumber() - t2.getMinTableNumber())
-                .flatMap(category -> Observable.range(count.get(), category.getSeatsNumber() * category.getNumberOfTables())
-                .map(number -> new Card(number, event, 1 + (number - 1) / category.getSeatsNumber(), category.getPrice().getPrice(), cardSize))
-                .doOnNext(__ -> count.incrementAndGet()))
-                .filter(card -> card.getCardNumber() >= from && card.getCardNumber() <= to)
+                .flatMap(category -> {
+                    int categoryStartCardNumber = count.get();
+                    return Observable.range(categoryStartCardNumber, category.getSeatsNumber() * category.getNumberOfTables())
+                            .map(number -> new Card(number, event, category.getMinTableNumber() + (number - categoryStartCardNumber) / category.getSeatsNumber(), category.getPrice().getPrice(), cardSize))
+                            .doOnNext(__ -> count.incrementAndGet());
+                })
+                .filter(card -> card.getTableNumber() >= fromTable && card.getTableNumber() <= toTable)
                 .window(cardsPerPage)
                 .flatMapSingle(observable -> observable.toList())
                 .map(list -> new Page(list, format));
@@ -133,7 +136,7 @@ public class PrinterService {
         return horizontal * vertical;
     }
 
-    private PrintJob createPrintJob(Pages pages, int from, int to) throws PrinterException {
+    private PrintJob createPrintJob(Pages pages) throws PrinterException {
         PrinterJob job = PrinterJob.getPrinterJob();
 
         job.setPageable(pages);
@@ -147,12 +150,15 @@ public class PrinterService {
             throw new PrinterException(Resources.getString("MSG_DefaultPrinterNotAvailable"));
         }
 
-        int fromCard = Math.max(1, from);
+        int fromCard = 0;
         int toCard = 0;
         if (!pages.getPages().isEmpty()) {
+            Page firstPage = pages.getPages().get(0);
+            Card firstCard = firstPage.getCards().get(0);
             Page lastPage = pages.getPages().get(pages.getNumberOfPages() - 1);
             Card lastCard = lastPage.getCards().get(lastPage.getCards().size() - 1);
 
+            fromCard = firstCard.getCardNumber();
             toCard = lastCard.getCardNumber();
         }
 

@@ -41,6 +41,7 @@ import javafx.util.Pair;
  * @author Placc
  */
 public class OverviewEventInfoController implements IEventController, INavigationController {
+
     @FXML
     private Label infoEventTitle;
     @FXML
@@ -68,40 +69,40 @@ public class OverviewEventInfoController implements IEventController, INavigatio
 
     //Model
     private EventViewModel eventViewModel;
-    
+
     private Disposable runningJobsDisposable;
 
     @Override
     public Single<Boolean> onNavigateAway() {
-        if(runningJobsDisposable != null) {
+        if (runningJobsDisposable != null) {
             runningJobsDisposable.dispose();
         }
-        
+
         return Single.just(true);
     }
-    
+
     @Override
     public void setEvent(EventViewModel eventViewModel) {
         this.eventViewModel = eventViewModel;
-        
+
         onPrintJobChanged();
-        
+
         infoEventTable.getItems().clear();
-        
+
         if (eventViewModel != null) {
             infoEventName.setText(eventViewModel.getName());
             infoEventTitle.setText(Resources.getString("LAB_EventTitle") + ": " + eventViewModel.getTitle());
             infoEventDescription.setText(Resources.getString("LAB_Description") + ": " + eventViewModel.getDescription());
-            
+
             int sumTables = eventViewModel.getModel().getTableCategories().stream().map(group -> group.getNumberOfTables()).reduce(0, (a, b) -> a + b);
             infoEventTableDesc.setText(Resources.getString("LAB_XTablesOverall", sumTables));
-            
+
             infoEventTable.getItems().addAll(TableCategoryViewModel.fromEvent(eventViewModel.getModel()));
 
             infoEventTable.setDisable(false);
         } else {
             infoEventName.setText(Resources.getString("LAB_NoEventSelected"));
-            
+
             infoEventTitle.setText("");
             infoEventDescription.setText("");
             infoEventTableDesc.setText("");
@@ -110,24 +111,24 @@ public class OverviewEventInfoController implements IEventController, INavigatio
             printButton.setDisable(true);
         }
     }
-    
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         cancelButton.setText(Resources.getString("LAB_CancelPrint"));
         cancelButton.setContentDisplay(ContentDisplay.LEFT);
         cancelButton.setGraphic(new ImageView(Resources.getImage("clear.png", Resources.ImageSize.NORMAL)));
         cancelButton.setOnAction(e -> onPrintCancelled());
-        
+
         printJobLabel.setVisible(false);
-        
+
         printButton.setText(Resources.getString("LAB_PrintTickets"));
         printButton.setContentDisplay(ContentDisplay.LEFT);
         printButton.setGraphic(new ImageView(Resources.getImage("print.png", Resources.ImageSize.NORMAL)));
         printButton.setOnAction(e -> onPrintClicked());
-        
+
         MenuItem printCards = new MenuItem(Resources.getString("LAB_PrintFromTo"));
         printCards.setOnAction(e -> onPrintFromToClicked());
-        
+
         printButton.getItems().add(printCards);
 
         infoTableCountColumn.setText(Resources.getString("LAB_Number"));
@@ -142,45 +143,45 @@ public class OverviewEventInfoController implements IEventController, INavigatio
         infoEventTable.setPlaceholder(new Label(Resources.getString("LAB_NoTablesAvailable")));
         infoEventTable.setItems(FXCollections.observableArrayList());
         infoEventTable.getSelectionModel().setCellSelectionEnabled(false);
-        
+
         buttonContainer.getChildren().remove(cancelButton);
-        
+
         runningJobsDisposable = MainController.instance().getTseksApp().getPrinterService().runningJobChanged()
                 .filter(id -> eventViewModel != null && eventViewModel.getModel() != null && eventViewModel.getModel().getId().equals(id))
                 .subscribe(id -> onPrintJobChanged());
     }
-    
+
     private ObservableValue<String> convertToCurrency(double price) {
         String result = String.valueOf(price);
-        
+
         int toAppend = 2;
-        if(result.contains(".") || result.contains(",")) {
+        if (result.contains(".") || result.contains(",")) {
             int digitsAfter = result.substring(Math.max(result.indexOf("."), result.indexOf(","))).length() - 1;
             toAppend -= digitsAfter;
         } else {
             result += ".";
         }
-        
-        for(int cnt = 0; cnt < toAppend; cnt++) {
+
+        for (int cnt = 0; cnt < toAppend; cnt++) {
             result += "0";
         }
-        
-         result += Resources.getString("LAB_Currency");
-         
-         return new SimpleObjectProperty<>(result);
+
+        result += Resources.getString("LAB_Currency");
+
+        return new SimpleObjectProperty<>(result);
     }
-    
+
     private void onPrintJobChanged() {
         Platform.runLater(() -> {
             boolean hasModel = eventViewModel != null && eventViewModel.getModel() != null;
             boolean hasJob = false;
-            
-            if(hasModel) {
+
+            if (hasModel) {
                 PrintJob job = MainController.instance().getTseksApp().getPrinterService().getRunningJobByEvent(eventViewModel.getModel());
-                
-                if(job != null) {
+
+                if (job != null) {
                     hasJob = true;
-                    
+
                     printJobLabel.setText("");
                     printJobLabel.setVisible(true);
                     job.getProgressDescription()
@@ -193,39 +194,39 @@ public class OverviewEventInfoController implements IEventController, INavigatio
             printButton.setDisable(eventViewModel == null || hasJob || eventViewModel.getTableGroups().isEmpty());
             cancelButton.setDisable(eventViewModel == null || !hasJob);
 
-            if(!hasJob && buttonContainer.getChildren().contains(cancelButton)) {
+            if (!hasJob && buttonContainer.getChildren().contains(cancelButton)) {
                 buttonContainer.getChildren().remove(cancelButton);
                 buttonContainer.getChildren().add(printButton);
             }
-            if(hasJob && buttonContainer.getChildren().contains(printButton)) {
+            if (hasJob && buttonContainer.getChildren().contains(printButton)) {
                 buttonContainer.getChildren().remove(printButton);
                 buttonContainer.getChildren().add(cancelButton);
             }
         });
     }
-    
+
     private void onPrintCancelled() {
         MainController.instance().getTseksApp().getPrinterService().getRunningJobByEvent(eventViewModel.getModel()).cancel();
     }
-    
+
     private void onPrintClicked() {
         MainController.instance().getTseksApp().getPrinterService().print(eventViewModel.getModel());
     }
-    
+
     private void onPrintFromToClicked() {
         MainController.instance().toggleSpinner(true);
-        
-        int maxCardNumber = eventViewModel.getTableGroups().stream()
-                .map(group -> (group.getEndNumber() - group.getStartNumber() + 1) * group.getSeats())
-                .reduce(0, (a, b) -> a + b);
-        
-        Optional<Pair<Integer, Integer>> resultOpt = new PrintFromToDialogController(1, maxCardNumber).showAndWait();
-        
+
+        int maxTableNumber = eventViewModel.getTableGroups().stream()
+                .map(group -> group.getEndNumber())
+                .max(Comparator.naturalOrder()).orElse(1);
+
+        Optional<Pair<Integer, Integer>> resultOpt = new PrintFromToDialogController(1, maxTableNumber).showAndWait();
+
         MainController.instance().toggleSpinner(false);
-        
-        if(resultOpt.isPresent()) {
+
+        if (resultOpt.isPresent()) {
             Pair<Integer, Integer> result = resultOpt.get();
-            
+
             MainController.instance().getTseksApp().getPrinterService()
                     .print(eventViewModel.getModel(), result.getKey(), result.getValue());
         }

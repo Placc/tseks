@@ -44,16 +44,20 @@ public class EventService {
     }
 
     private void addEvent(Event event) {
-        events.add(event);
-        eventAdded.onNext(event);
+        synchronized (events) {
+            events.add(event);
+            eventAdded.onNext(event);
+        }
     }
 
     private void removeEvent(String id) {
-        Optional<Event> toRemove = events.stream().filter(e -> e.getId().equals(id)).findAny();
+        synchronized (events) {
+            Optional<Event> toRemove = events.stream().filter(e -> e.getId().equals(id)).findAny();
 
-        if (toRemove.isPresent()) {
-            events.remove(toRemove.get());
-            eventRemoved.onNext(toRemove.get());
+            if (toRemove.isPresent()) {
+                events.remove(toRemove.get());
+                eventRemoved.onNext(toRemove.get());
+            }
         }
     }
 
@@ -62,12 +66,14 @@ public class EventService {
                 .concatWith(
                         database.getSnapshot()
                                 .doOnNext(event -> {
-                                    Optional<Event> existing = events.stream().filter(e -> e.getId().equals(event.getId())).findAny();
-                                    if (existing.isPresent() && !existing.get().equals(event)) {
-                                        removeEvent(existing.get().getId());
-                                        addEvent(event);
-                                    } else if (!existing.isPresent()) {
-                                        addEvent(event);
+                                    synchronized (events) {
+                                        Optional<Event> existing = events.stream().filter(e -> e.getId().equals(event.getId())).findAny();
+                                        if (existing.isPresent() && !existing.get().equals(event)) {
+                                            removeEvent(existing.get().getId());
+                                            addEvent(event);
+                                        } else if (!existing.isPresent()) {
+                                            addEvent(event);
+                                        }
                                     }
                                 })
                 );
@@ -88,36 +94,42 @@ public class EventService {
             event.setDescription(description);
         }
 
-        if (events.contains(event)) {
-            return Single.error(new EventAlreadyExistsException(event));
-        }
+        synchronized (events) {
+            if (events.contains(event)) {
+                return Single.error(new EventAlreadyExistsException(event));
+            }
 
-        return database.createEvent(event)
-                .toSingleDefault(event);
+            return database.createEvent(event)
+                    .toSingleDefault(event);
+        }
     }
 
     public Completable copyEvent(Event event) {
-        int highestIdx = 1 + events.stream()
-                .map(e -> e.getName().replace(" ", ""))
-                .filter(name -> name.replace(event.getName(), "").matches("\\([0-9]+\\)$"))
-                .map(e -> Integer.valueOf(e.replace(event.getName(), "").replaceAll("\\(|\\)", "")))
-                .max(Comparator.naturalOrder())
-                .orElse(0);
+        synchronized (events) {
+            int highestIdx = 1 + events.stream()
+                    .map(e -> e.getName().replace(" ", ""))
+                    .filter(name -> name.replace(event.getName(), "").matches("\\([0-9]+\\)$"))
+                    .map(e -> Integer.valueOf(e.replace(event.getName(), "").replaceAll("\\(|\\)", "")))
+                    .max(Comparator.naturalOrder())
+                    .orElse(0);
 
-        Event copy = new Event(event.getDate(), event.getName() + " (" + highestIdx + ")", event.getTitle(), event.getLocation());
-        copy.setDescription(event.getDescription());
+            Event copy = new Event(event.getDate(), event.getName() + " (" + highestIdx + ")", event.getTitle(), event.getLocation());
+            copy.setDescription(event.getDescription());
 
-        event.getTableCategories().forEach(group -> copy.addTableCategory(new TableCategory(group.getEvent(), group.getSeatsNumber(), group.getPrice(), group.getMinTableNumber(), group.getMaxTableNumber())));
+            event.getTableCategories().forEach(group -> copy.addTableCategory(new TableCategory(group.getEvent(), group.getSeatsNumber(), group.getPrice(), group.getMinTableNumber(), group.getMaxTableNumber())));
 
-        return database.createEvent(copy);
+            return database.createEvent(copy);
+        }
     }
 
     public Completable updateEvent(Event event) {
-        if (events.stream().filter(e -> !e.getId().equals(event.getId()) && e.equals(event)).findAny().isPresent()) {
-            return Completable.error(new EventAlreadyExistsException(event));
-        }
+        synchronized (events) {
+            if (events.stream().filter(e -> !e.getId().equals(event.getId()) && e.equals(event)).findAny().isPresent()) {
+                return Completable.error(new EventAlreadyExistsException(event));
+            }
 
-        return database.updateEvent(event);
+            return database.updateEvent(event);
+        }
     }
 
     public Completable deleteEvent(Event event) {

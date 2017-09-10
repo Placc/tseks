@@ -10,5 +10,5 @@ package com.phicaro.tseks.database;
  * @author Placc
  */
 public enum DatabaseType {
-    SQLite, PostgreSQL
+    SQLite
 }

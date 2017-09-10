@@ -1,3 +1,4 @@
 CFG_ApplicationPackage=com.phicaro.tseks
 CFG_DateFormat=dd.MM.yyyy, HH:mm
 CFG_TimeFormat=HH:mm
+CFG_Debug=false

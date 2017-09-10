@@ -5,27 +5,25 @@
  */
 package com.phicaro.tseks.ui.controller;
 
-import com.phicaro.tseks.ui.controller.edit.EditEventController;
 import com.phicaro.tseks.TseksApp;
 import com.phicaro.tseks.database.IDatabaseService;
+import com.phicaro.tseks.ui.controller.edit.EditEventController;
 import com.phicaro.tseks.ui.models.EventViewModel;
+import com.phicaro.tseks.ui.util.UiHelper;
 import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.Resources;
-import com.phicaro.tseks.ui.util.UiHelper;
 import io.reactivex.functions.Consumer;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import io.reactivex.schedulers.Schedulers;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
@@ -140,6 +138,7 @@ public class MainController implements Initializable {
     }
 
     public void toggleSpinner(boolean visible) {
+        backButton.setDisable(visible);
         UiHelper.toggleSpinner(content, visible);
     }
 
@@ -162,7 +161,7 @@ public class MainController implements Initializable {
             Logger.error("main-controller switch-to-overview", e);
         }
     }
-    
+
     public void navigateAwayFrom(INavigationController from) {
         from.onNavigateAway()
                 .observeOn(JavaFxScheduler.platform())
@@ -204,13 +203,13 @@ public class MainController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/pages/Settings.fxml"));
             Parent root = loader.load();
-            
+
             final SettingsController controller = loader.getController();
 
             backButton.setOnAction(e -> navigateAwayFrom(controller));
 
             hideOptionButton(true);
-            
+
             String title = "LAB_Options";
 
             setToolbar(Resources.getString(title), true);
@@ -231,7 +230,7 @@ public class MainController implements Initializable {
     public void showErrorMessage(String message) {
         UiHelper.showMessage(messagePane, message, true);
     }
-    
+
     public void hideOptionButton(boolean hide) {
         optionButton.setVisible(!hide);
     }
