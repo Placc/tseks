@@ -242,7 +242,7 @@ public class EditEventTableCategoryController implements IEditEventController {
         amount.textProperty().bindBidirectional(group.getPriceProperty(), new NumberStringConverter());
 
         amount.setOnKeyPressed(key -> {
-            if (key.getCode().equals(KeyCode.TAB)) {
+            if (key.getCode().equals(KeyCode.TAB) && eventViewModel.getTableGroups().indexOf(group) >= eventViewModel.getTableGroups().size() - 1) {
                 onAddTableGroupClicked();
             }
         });

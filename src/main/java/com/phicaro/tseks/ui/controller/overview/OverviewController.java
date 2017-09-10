@@ -219,7 +219,10 @@ public class OverviewController implements INavigationController, Initializable 
             eventService.deleteEvent(e.getModel())
                     .subscribeOn(Schedulers.io())
                     .observeOn(JavaFxScheduler.platform())
-                    .subscribe(() -> MainController.instance().toggleSpinner(false));
+                    .subscribe(() -> {
+                        removeEvent(e.getModel());
+                        MainController.instance().toggleSpinner(false);
+                    });
         }
     }
 }

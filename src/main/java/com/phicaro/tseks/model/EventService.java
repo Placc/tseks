@@ -54,7 +54,7 @@ public class EventService {
         Event copy = new Event(event.getDate(), event.getName() + " (" + highestIdx + ")", event.getTitle(), event.getLocation());
         copy.setDescription(event.getDescription());
 
-        event.getTableCategories().forEach(group -> copy.addTableCategory(new TableCategory(group.getEvent(), group.getSeatsNumber(), group.getPrice(), group.getMinTableNumber(), group.getMaxTableNumber())));
+        event.getTableCategories().forEach(group -> copy.addTableCategory(new TableCategory(copy, group.getSeatsNumber(), group.getPrice(), group.getMinTableNumber(), group.getMaxTableNumber())));
 
         return database.createEvent(copy)
                 .toSingleDefault(copy);
