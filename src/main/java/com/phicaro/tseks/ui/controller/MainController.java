@@ -7,6 +7,7 @@ package com.phicaro.tseks.ui.controller;
 
 import com.phicaro.tseks.TseksApp;
 import com.phicaro.tseks.database.IDatabaseService;
+import com.phicaro.tseks.ui.controller.components.SettingsController;
 import com.phicaro.tseks.ui.controller.edit.EditEventController;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.util.UiHelper;
@@ -71,7 +72,7 @@ public class MainController implements Initializable {
         instance = this;
 
         optionButton.setText(Resources.getString("LAB_Options"));
-        optionButton.setOnAction(e -> switchToSettings());
+        optionButton.setOnAction(e -> onSettingsClicked());
 
         Image backImage = Resources.getImage("back.png", Resources.ImageSize.NORMAL);
         ColorAdjust colorAdjust = UiHelper.getColorAdjust(Color.STEELBLUE);
@@ -199,24 +200,10 @@ public class MainController implements Initializable {
         }
     }
 
-    public void switchToSettings() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/pages/Settings.fxml"));
-            Parent root = loader.load();
-
-            final SettingsController controller = loader.getController();
-
-            backButton.setOnAction(e -> navigateAwayFrom(controller));
-
-            hideOptionButton(true);
-
-            String title = "LAB_Options";
-
-            setToolbar(Resources.getString(title), true);
-            content.getChildren().setAll(root);
-        } catch (IOException e) {
-            Logger.error("main-controller switch-to-settings", e);
-        }
+    public void onSettingsClicked() {
+        toggleSpinner(true);
+        new SettingsController().showAndWait();
+        toggleSpinner(false);
     }
 
     public TseksApp getTseksApp() {

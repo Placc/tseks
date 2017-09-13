@@ -28,9 +28,14 @@ public class SqliteDatabaseInitializer implements IDatabaseInitializer {
     private static final String LOCAL_DB_NAME = "tseks.db";
 
     @Override
+    public File databaseFile() {
+        return new File(Platform.getWorkingDirectory(), LOCAL_DB_NAME);
+    }
+
+    @Override
     public Single<IDatabaseService> initializeDatabase() {
         return Single.create(s -> {
-            File db = new File(Platform.getWorkingDirectory(), LOCAL_DB_NAME);
+            File db = databaseFile();
 
             String connectionString = "jdbc:sqlite:" + db.getAbsolutePath();
 

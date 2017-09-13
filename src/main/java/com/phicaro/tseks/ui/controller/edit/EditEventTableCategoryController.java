@@ -7,8 +7,13 @@ package com.phicaro.tseks.ui.controller.edit;
 
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableCategoryViewModel;
+import com.phicaro.tseks.ui.util.NullTableViewSelectionModel;
 import com.phicaro.tseks.ui.util.UiHelper;
 import com.phicaro.tseks.util.Resources;
+import com.sun.javafx.scene.traversal.Algorithm;
+import com.sun.javafx.scene.traversal.Direction;
+import com.sun.javafx.scene.traversal.ParentTraversalEngine;
+import com.sun.javafx.scene.traversal.TraversalContext;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,6 +25,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -66,16 +72,28 @@ public class EditEventTableCategoryController implements IEditEventController {
         addTableGroupButton.setOnAction(e -> onAddTableGroupClicked());
 
         eventTableView.setPlaceholder(new Label(Resources.getString("LAB_NoTablesAvailable")));
+        eventTableView.setSelectionModel(new NullTableViewSelectionModel(eventTableView));
+        eventTableView.getSortOrder().setAll(tableNumberColumn);
 
         tableNumberColumn.setText(Resources.getString("LAB_TableNumbers"));
+        tableNumberColumn.comparatorProperty().set((HBox h1, HBox h2) -> {
+            TextField t1 = (TextField) h1.getChildren().get(0);
+            TextField t2 = (TextField) h2.getChildren().get(0);
+
+            return Integer.parseInt(t2.getText()) - Integer.parseInt(t1.getText());
+        });
+
         seatsColumn.setText(Resources.getString("LAB_Seats"));
+        seatsColumn.setSortable(false);
         categoryColumn.setText(Resources.getString("LAB_Price"));
+        categoryColumn.setSortable(false);
+        optionsColumn.setSortable(false);
     }
 
     public void setEvent(EventViewModel event) {
         eventViewModel = event;
 
-        eventTableView.itemsProperty().bindBidirectional(event.getTableGroupsProperty());
+        eventTableView.setItems(event.getTableGroups());
 
         tableNumberColumn.setCellValueFactory(group -> createTableNumbersHbox(group.getValue()));
         seatsColumn.setCellValueFactory(group -> createSeatsHbox(group.getValue()));
@@ -171,6 +189,7 @@ public class EditEventTableCategoryController implements IEditEventController {
         Label minus = new Label(" - ");
 
         TextField from = new TextField();
+
         from.boundsInParentProperty().addListener(new ChangeListener<Bounds>() {
             @Override
             public void changed(ObservableValue<? extends Bounds> observable, Bounds oldValue, Bounds newValue) {
@@ -241,8 +260,39 @@ public class EditEventTableCategoryController implements IEditEventController {
 
         amount.textProperty().bindBidirectional(group.getPriceProperty(), new NumberStringConverter());
 
+        Algorithm algorithm = new Algorithm() {
+            @Override
+            public Node select(Node owner, Direction dir, TraversalContext context) {
+                int groupIdx = eventViewModel.getTableGroups().indexOf(group);
+
+                if (groupIdx < eventViewModel.getTableGroups().size() - 1) {
+                    HBox data = (HBox) tableNumberColumn.getCellData(groupIdx + 1);
+                    TextField from = (TextField) data.getChildren().get(0);
+                    return from;
+                }
+
+                return null;
+            }
+
+            @Override
+            public Node selectFirst(TraversalContext context) {
+                return context.selectFirstInParent(context.getRoot());
+            }
+
+            @Override
+            public Node selectLast(TraversalContext context) {
+                return context.selectLastInParent(context.getRoot());
+            }
+        };
+
+        ParentTraversalEngine engine = new ParentTraversalEngine(amount, algorithm);
+        amount.setImpl_traversalEngine(engine);
+
         amount.setOnKeyPressed(key -> {
-            if (key.getCode().equals(KeyCode.TAB) && eventViewModel.getTableGroups().indexOf(group) >= eventViewModel.getTableGroups().size() - 1) {
+            int groupIdx = eventViewModel.getTableGroups().indexOf(group);
+
+            if (key.getCode().equals(KeyCode.TAB) && groupIdx >= eventViewModel.getTableGroups().size() - 1) {
+                key.consume();
                 onAddTableGroupClicked();
             }
         });
@@ -280,6 +330,7 @@ public class EditEventTableCategoryController implements IEditEventController {
 
         Button delete = new Button("", deleteView);
         delete.getStyleClass().add("back-btn");
+        delete.setFocusTraversable(false);
 
         delete.setOnAction(e -> deleteTableGroupClicked(group));
 

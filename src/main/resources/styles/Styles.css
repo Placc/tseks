@@ -997,3 +997,9 @@ VBox > .split-menu-button.last > .arrow-button {
 .add-table-group-btn:hover {
     -fx-background-color: #2e6da4;
 }
+
+.settings-clipboard-btn, settings-clipboard-btn:focused, settings-clipboard-btn:selected {
+    -fx-min-width: invalid;
+    -fx-pref-width: -1;
+    -fx-pref-height: -1;
+}

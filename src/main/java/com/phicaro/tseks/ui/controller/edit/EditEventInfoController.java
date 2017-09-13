@@ -15,6 +15,7 @@ import com.phicaro.tseks.ui.util.views.TimeTextField;
 import com.phicaro.tseks.util.Resources;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -85,14 +86,23 @@ public class EditEventInfoController implements IEditEventController {
         Date eventDate = UiHelper.parse(event.getDate());
 
         eventDatePicker.setValue(UiHelper.asLocalDate(eventDate));
-        eventDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+        eventDatePicker.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             Date oldDate = UiHelper.parse(event.getDate());
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(oldDate);
 
-            calendar.set(newValue.getYear(), newValue.getMonthValue() - 1, newValue.getDayOfMonth());
+            Date newDate = UiHelper.parse(newValue);
 
-            event.setDate(calendar.getTime());
+            if (newDate != null) {
+                eventDatePicker.getEditor().setStyle("-fx-text-inner-color: black");
+
+                LocalDate newLocal = UiHelper.asLocalDate(newDate);
+
+                calendar.set(newLocal.getYear(), newLocal.getMonthValue() - 1, newLocal.getDayOfMonth());
+                event.setDate(calendar.getTime());
+            } else {
+                eventDatePicker.getEditor().setStyle("-fx-text-inner-color: red");
+            }
         });
 
         timeTextField.setText(new SimpleDateFormat(Resources.getConfig("CFG_TimeFormat")).format(eventDate));
@@ -123,6 +133,9 @@ public class EditEventInfoController implements IEditEventController {
         }
         if (timeTextField.getText().trim().isEmpty()) {
             invalids.add(Resources.getString("MSG_EmptyEventTime"));
+        }
+        if (UiHelper.parse(eventDatePicker.getEditor().getText()) == null) {
+            invalids.add(Resources.getString("MSG_InvalidEventDate"));
         }
 
         return invalids;

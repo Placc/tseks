@@ -3,41 +3,48 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.phicaro.tseks.ui.controller;
+package com.phicaro.tseks.ui.controller.components;
 
+import com.phicaro.tseks.database.IDatabaseInitializer;
+import com.phicaro.tseks.database.TseksDatabaseFactory;
 import com.phicaro.tseks.print.PageSize;
 import com.phicaro.tseks.print.PrinterService;
 import com.phicaro.tseks.settings.DatabaseSettings;
 import com.phicaro.tseks.settings.InvalidPageSizeException;
 import com.phicaro.tseks.settings.PrintSettings;
+import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.util.UiHelper;
+import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.Resources;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import java.awt.print.PrinterException;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 
 /**
  * FXML Controller class
  *
  * @author Carola
  */
-public class SettingsController implements INavigationController, Initializable {
+public class SettingsController extends Dialog implements Initializable {
 
-    @FXML
-    private Button settingsSaveButton;
-    @FXML
-    private Button settingsDiscardButton;
     @FXML
     private Label settingsPaperSizeLabel;
     @FXML
@@ -48,30 +55,59 @@ public class SettingsController implements INavigationController, Initializable 
     private ChoiceBox<String> settingsPrinterChoiceBox;
     @FXML
     private Label settingsDatabaseLabel;
+    @FXML
+    private Button clipboardButton;
 
-    private static PrinterService printerService = MainController.instance().getTseksApp().getPrinterService();
-    private static PrintSettings printSettings = MainController.instance().getTseksApp().getSettingsService().getPrintSettings();
-    private static DatabaseSettings databaseSettings = MainController.instance().getTseksApp().getSettingsService().getDatabaseSettings();
+    private PrinterService printerService = MainController.instance().getTseksApp().getPrinterService();
+    private PrintSettings printSettings = MainController.instance().getTseksApp().getSettingsService().getPrintSettings();
+    private DatabaseSettings databaseSettings = MainController.instance().getTseksApp().getSettingsService().getDatabaseSettings();
+
+    private Button settingsSaveButton;
+    private Button settingsDiscardButton;
+
+    public SettingsController() {
+        super();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/components/Settings.fxml"));
+            loader.setController(this);
+
+            getDialogPane().setContent(loader.load());
+        } catch (Exception e) {
+            Logger.error("print-from-to-dialog-controller constructor", e);
+        }
+    }
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        this.setTitle(Resources.getString("LAB_Options"));
 
-        settingsSaveButton.setText(Resources.getString("LAB_Save"));
+        ButtonType saveType = new ButtonType(Resources.getString("LAB_Save"));
+        ButtonType discardType = new ButtonType(Resources.getString("LAB_Discard"));
+
+        this.getDialogPane().getStylesheets().add(Resources.getStylesheet());
+        this.getDialogPane().getButtonTypes().add(saveType);
+        this.getDialogPane().getButtonTypes().add(discardType);
+
+        settingsSaveButton = (Button) this.getDialogPane().lookupButton(saveType);
         settingsSaveButton.setGraphic(new ImageView(Resources.getImage("save.png", Resources.ImageSize.NORMAL)));
-        settingsSaveButton.setOnAction(e -> onSaveClicked());
+        settingsSaveButton.getStyleClass().add("success");
+        settingsSaveButton.setOnAction(evt -> onSaveClicked());
 
-        settingsDiscardButton.setText(Resources.getString("LAB_Discard"));
+        settingsDiscardButton = (Button) this.getDialogPane().lookupButton(discardType);
         settingsDiscardButton.setGraphic(new ImageView(Resources.getImage("clear.png", Resources.ImageSize.NORMAL)));
-        settingsDiscardButton.setOnAction(e -> onDiscardClicked());
+        settingsDiscardButton.getStyleClass().add("danger");
 
         enableButtons(false);
 
         settingsPaperSizeLabel.setText(Resources.getString("LAB_SelectPaperSize"));
         settingsPrinterLabel.setText(Resources.getString("LAB_SelectPrinter"));
         settingsDatabaseLabel.setText(Resources.getString("LAB_SelectDatabase"));
+
+        clipboardButton.setText(Resources.getString("LAB_CopyDatabaseToClipboard"));
+        clipboardButton.setOnAction(e -> copyDatabaseToClipboard());
 
         loadSettings();
     }
@@ -99,14 +135,6 @@ public class SettingsController implements INavigationController, Initializable 
         settingsPrinterChoiceBox.setItems(printerList);
     }
 
-    @Override
-    public Single<Boolean> onNavigateAway() {
-        if (hasChanges() && !UiHelper.showDiscardChangesDialog().blockingFirst()) {
-            return Single.just(false);
-        }
-        return Single.just(true);
-    }
-
     private boolean hasChanges() {
 
         return !PageSize.valueOf(settingsPaperSizeChoiceBox.getValue()).equals(printSettings.getPageSize())
@@ -130,13 +158,20 @@ public class SettingsController implements INavigationController, Initializable 
         enableButtons(hasChanges());
     }
 
-    private void onDiscardClicked() {
-        MainController.instance().navigateAwayFrom(this);
+    private void copyDatabaseToClipboard() {
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        List<File> filesList = new ArrayList<>();
+
+        IDatabaseInitializer initializer = TseksDatabaseFactory.getDatabase(databaseSettings.getDatabaseType());
+        filesList.add(initializer.databaseFile());
+
+        content.putFiles(filesList);
+        clipboard.setContent(content);
     }
 
     private void enableButtons(boolean enable) {
         settingsSaveButton.setDisable(!enable);
-        settingsDiscardButton.setDisable(!enable);
     }
 
 }
