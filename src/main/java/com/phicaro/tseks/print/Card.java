@@ -31,10 +31,13 @@ public class Card implements Printable {
     public static final int PREVIEW_NO_CATEGORY_INDEX = -1;
     public static final int DEFAULT_FONT_SIZE = 11;
 
+    private static final double NUMBER_FONT_SCALE = 0.5;
+
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy");
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
 
     private Font cardFont;
+    private Font numberFont;
     private double scale;
 
     private int cardNumber;
@@ -60,12 +63,14 @@ public class Card implements Printable {
 
         this.scale = 1.0;
         this.cardFont = new Font("Times New Roman", Font.BOLD, DEFAULT_FONT_SIZE);
+        this.numberFont = new Font("Times New Roman", Font.BOLD, (int) (NUMBER_FONT_SCALE * DEFAULT_FONT_SIZE));
     }
 
     public void setScale(double scale) {
         this.scale = scale;
 
         this.cardFont = new Font("Times New Roman", Font.BOLD, (int) (scale * DEFAULT_FONT_SIZE));
+        this.numberFont = new Font("Times New Roman", Font.BOLD, (int) (scale * NUMBER_FONT_SCALE * DEFAULT_FONT_SIZE));
     }
 
     public PageSize getCardSize() {
@@ -106,8 +111,6 @@ public class Card implements Printable {
 
         //Text begin: 2,8 cm from top = 1.10236 inches
         double textBegin = 1.10236 * scale;
-        //Text offset: 0,4 cm = 0.23622 inches
-        double textOffset = 0.23622 * scale;
         //Number right: 0,6 cm = 0.15748 inches
 
         double xPos = pageFormat.getImageableX() + pageFormat.getImageableWidth() / 2.0;
@@ -117,23 +120,6 @@ public class Card implements Printable {
 
         //Title
         drawLine(graphics2d, pageFormat, position, title);
-
-        //Cardnumber
-        AttributedString attrString = new AttributedString("" + cardNumber);
-        attrString.addAttribute(TextAttribute.FONT, cardFont);
-        attrString.addAttribute(TextAttribute.FOREGROUND, Color.black);
-
-        AttributedCharacterIterator charIterator = attrString.getIterator();
-        TextMeasurer measurer = new TextMeasurer(charIterator, graphics2d.getFontRenderContext());
-        TextLayout layout = measurer.getLayout(0, ("" + cardNumber).length());
-
-        Point2D.Float pen = new Point2D.Float();
-        pen.y = (float) yPos + layout.getAscent();
-        pen.x = (float) (pageFormat.getImageableX() + pageFormat.getImageableWidth() - textOffset * PrinterService.DEFAULT_DPI) - layout.getAdvance();
-
-        if (pageIndex != PREVIEW_NO_CATEGORY_INDEX) {
-            layout.draw(graphics2d, pen.x, pen.y);
-        }
 
         drawLine(graphics2d, pageFormat, position, " ");
 
@@ -161,9 +147,32 @@ public class Card implements Printable {
 
             String tablePrice = tableNumber + space + price;
             drawLine(graphics2d, pageFormat, position, tablePrice);
+
+            drawCardNumber(graphics2d, pageFormat, position);
         }
 
         return Printable.PAGE_EXISTS;
+    }
+
+    private void drawCardNumber(Graphics2D graphics2d, PageFormat pageFormat, Point2D.Double position) {
+        //Text offset: 0,4 cm = 0.23622 inches
+        //Mini text offset: 0,3 cm = 0,11811 inches
+        double textOffset = 0.11811 * scale;
+
+        //Cardnumber
+        AttributedString attrString = new AttributedString("" + cardNumber);
+        attrString.addAttribute(TextAttribute.FONT, numberFont);
+        attrString.addAttribute(TextAttribute.FOREGROUND, Color.black);
+
+        AttributedCharacterIterator charIterator = attrString.getIterator();
+        TextMeasurer measurer = new TextMeasurer(charIterator, graphics2d.getFontRenderContext());
+        TextLayout layout = measurer.getLayout(0, ("" + cardNumber).length());
+
+        Point2D.Float pen = new Point2D.Float();
+        pen.y = (float) position.y + 2.f * (layout.getAscent() + layout.getDescent());
+        pen.x = (float) (pageFormat.getImageableX() + pageFormat.getImageableWidth() - textOffset * PrinterService.DEFAULT_DPI) - layout.getAdvance();
+
+        layout.draw(graphics2d, pen.x, pen.y);
     }
 
     private void drawLine(Graphics2D graphics2d, PageFormat format, Point2D.Double position, String text) throws PrinterException {
