@@ -14,15 +14,12 @@ import com.sun.javafx.scene.traversal.Algorithm;
 import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalContext;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.ResourceBundle;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -45,27 +42,22 @@ import javafx.util.converter.NumberStringConverter;
  */
 public class EditEventTableCategoryController implements IEditEventController {
 
-    @FXML
     private TableView<TableCategoryViewModel> eventTableView;
-    @FXML
     private TableColumn<TableCategoryViewModel, HBox> tableNumberColumn;
-    @FXML
     private TableColumn<TableCategoryViewModel, HBox> seatsColumn;
-    @FXML
     private TableColumn<TableCategoryViewModel, HBox> categoryColumn;
-    @FXML
     private TableColumn<TableCategoryViewModel, HBox> optionsColumn;
-    @FXML
-    private Label tableGroupLabel;
-    @FXML
-    private Button addTableGroupButton;
 
     //Model
     private EventViewModel eventViewModel;
 
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        tableGroupLabel.setText(Resources.getString("LAB_TableGroups"));
+    public EditEventTableCategoryController(TableView<TableCategoryViewModel> eventTableView, Button addTableGroupButton) {
+        this.eventTableView = eventTableView;
+
+        this.tableNumberColumn = (TableColumn<TableCategoryViewModel, HBox>) eventTableView.getColumns().get(0);
+        this.seatsColumn = (TableColumn<TableCategoryViewModel, HBox>) eventTableView.getColumns().get(1);
+        this.categoryColumn = (TableColumn<TableCategoryViewModel, HBox>) eventTableView.getColumns().get(2);
+        this.optionsColumn = (TableColumn<TableCategoryViewModel, HBox>) eventTableView.getColumns().get(3);
 
         addTableGroupButton.setText(Resources.getString("LAB_NewTableGroup"));
         addTableGroupButton.setGraphic(new ImageView(Resources.getImage("add_outline.png", Resources.ImageSize.NORMAL)));

@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -34,7 +35,7 @@ import javafx.scene.layout.Priority;
  *
  * @author Placc
  */
-public class EditEventInfoController implements IEditEventController {
+public class EditEventInfoController implements IEditEventController, Initializable {
 
     @FXML
     private Label eventNameLabel;

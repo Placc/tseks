@@ -25,6 +25,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
@@ -40,7 +41,7 @@ import javafx.util.Pair;
  *
  * @author Placc
  */
-public class OverviewEventInfoController implements IEventController, INavigationController {
+public class OverviewEventInfoController implements IEventController, INavigationController, Initializable {
 
     @FXML
     private Label infoEventTitle;

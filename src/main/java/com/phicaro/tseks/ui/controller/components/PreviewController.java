@@ -8,6 +8,7 @@ package com.phicaro.tseks.ui.controller.components;
 import com.phicaro.tseks.print.Card;
 import com.phicaro.tseks.print.PrinterService;
 import com.phicaro.tseks.settings.PrintSettings;
+import com.phicaro.tseks.ui.controller.IEventController;
 import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableCategoryViewModel;
@@ -36,7 +37,7 @@ import javafx.scene.paint.Color;
  *
  * @author Placc
  */
-public class PreviewController {
+public class PreviewController implements IEventController {
 
     private ImageViewPane imageView;
 

@@ -6,12 +6,12 @@
 package com.phicaro.tseks.ui.controller;
 
 import com.phicaro.tseks.ui.models.EventViewModel;
-import javafx.fxml.Initializable;
 
 /**
  *
  * @author Placc
  */
-public interface IEventController extends Initializable {
+public interface IEventController {
+
     public void setEvent(EventViewModel event);
 }

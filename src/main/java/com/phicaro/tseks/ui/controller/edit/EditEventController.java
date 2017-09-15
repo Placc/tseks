@@ -30,7 +30,10 @@ import java.util.ResourceBundle;
 import javafx.beans.InvalidationListener;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
@@ -39,7 +42,7 @@ import javafx.scene.layout.VBox;
  *
  * @author Placc
  */
-public class EditEventController implements IEditEventController, INavigationController {
+public class EditEventController implements IEditEventController, INavigationController, Initializable {
 
     @FXML
     private Button saveButton;
@@ -48,10 +51,16 @@ public class EditEventController implements IEditEventController, INavigationCon
     @FXML
     private VBox previewContainer;
     @FXML
-    private EditEventInfoController eventInfoController;
+    private Label tableGroupLabel;
     @FXML
-    private EditEventTableCategoryController tableGroupsController;
+    private TableView<TableCategoryViewModel> eventTableView;
+    @FXML
+    private Button addTableGroupButton;
 
+    @FXML
+    private EditEventInfoController eventInfoController;
+
+    private EditEventTableCategoryController tableGroupsController;
     private PreviewController previewController;
 
     //Model
@@ -103,6 +112,8 @@ public class EditEventController implements IEditEventController, INavigationCon
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        tableGroupLabel.setText(Resources.getString("LAB_TableGroups"));
+
         saveButton.setText(Resources.getString("LAB_Save"));
         saveButton.setGraphic(new ImageView(Resources.getImage("save.png", Resources.ImageSize.NORMAL)));
         saveButton.setOnAction(e -> onSaveClicked());
@@ -112,10 +123,9 @@ public class EditEventController implements IEditEventController, INavigationCon
         discardButton.setOnAction(e -> onDiscardClicked());
 
         previewController = new PreviewController(previewContainer);
+        tableGroupsController = new EditEventTableCategoryController(eventTableView, addTableGroupButton);
 
         setEvent(new EventViewModel());
-
-        EventService eventService = MainController.instance().getTseksApp().getEventService();
     }
 
     private void handleEventChanges(Event event, boolean added) {
