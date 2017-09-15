@@ -14,13 +14,13 @@ import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableCategoryViewModel;
 import com.phicaro.tseks.ui.util.UiHelper;
 import com.phicaro.tseks.ui.util.views.ImageViewPane;
-import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.Resources;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
+import java.awt.print.PrinterException;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
@@ -97,11 +97,19 @@ public class PreviewController implements IEventController {
 
                 price = viewModel.getPrice();
                 tableNumber = viewModel.getStartNumber();
-                cardNumber = 1 + event.getTableGroups().stream()
-                        .filter(group -> group.getEndNumber() < viewModel.getStartNumber())
-                        .map(group -> (group.getEndNumber() - group.getStartNumber() + 1) * group.getSeats())
-                        .reduce(0, (a, b) -> a + b);
+                cardNumber
+                        = 1 + event.getTableGroups().stream()
+                                .filter(group -> group.getEndNumber() < viewModel.getStartNumber())
+                                .map(group -> (group.getEndNumber() - group.getStartNumber() + 1) * group.getSeats())
+                                .reduce(0, (a, b) -> a + b);
 
+                if (cardNumber - 1 + (viewModel.getEndNumber() - viewModel.getStartNumber() + 1) * viewModel.getSeats() < 0) {
+                    UiHelper.showException(Resources.getString("LAB_ErrorOccured"), new Exception(Resources.getString("MSG_CardNumberTooBig")));
+
+                    if (cardNumber < 0) {
+                        cardNumber = Integer.MAX_VALUE;
+                    }
+                }
             }
 
             Card card = new Card(cardNumber, event.getTitle(), event.getDescription(), event.getLocation(), UiHelper.parse(event.getDate()), tableNumber, price, null);
@@ -121,8 +129,18 @@ public class PreviewController implements IEventController {
             try {
                 graphics.drawImage(background, 0, 0, null);
                 card.print(graphics, format, event.getTableGroups().size() > 0 ? 0 : Card.PREVIEW_NO_CATEGORY_INDEX);
-            } catch (Exception e) {
-                Logger.error("preview-controller on-changed", e);
+            } catch (PrinterException e) {
+                String tooLongText = e.getMessage();
+
+                if (event.getTitle().equals(tooLongText)) {
+                    event.setTitle(event.getTitle().substring(0, event.getTitle().length() - 1));
+                }
+                if (event.getDescription().equals(tooLongText)) {
+                    event.setDescription(event.getDescription().substring(0, event.getDescription().length() - 1));
+                }
+                if (event.getLocation().equals(tooLongText)) {
+                    event.setLocation(event.getLocation().substring(0, event.getLocation().length() - 1));
+                }
             }
 
             imageView.imageViewProperty().get().setImage(SwingFXUtils.toFXImage(buffered, image));

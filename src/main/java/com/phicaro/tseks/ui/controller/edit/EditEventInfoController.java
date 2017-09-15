@@ -72,6 +72,7 @@ public class EditEventInfoController implements IEditEventController, Initializa
         HBox.setMargin(timeTextField, new Insets(0, 10, 0, 10));
 
         eventNameLabel.setText(Resources.getString("LAB_EventName"));
+
         eventTitleLabel.setText(Resources.getString("LAB_EventTitle"));
         eventDescLabel.setText(Resources.getString("LAB_Description"));
         eventDateLabel.setText(Resources.getString("LAB_DateTime"));

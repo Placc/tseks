@@ -109,6 +109,14 @@ public class EditEventTableCategoryController implements IEditEventController {
             invalids.add(Resources.getString("MSG_GroupIntersections"));
         }
 
+        int maxCardNumber = eventViewModel.getTableGroups().stream()
+                .map(group -> (group.getEndNumber() - group.getStartNumber() + 1) * group.getSeats())
+                .reduce(0, (a, b) -> a + b);
+
+        if (maxCardNumber < 0) {
+            invalids.add(Resources.getString("MSG_CardNumberTooBig"));
+        }
+
         return invalids;
     }
 

@@ -64,6 +64,7 @@ LAB_Copy=Kopieren
 LAB_Delete=Löschen
 LAB_Cancel=Abbrechen
 LAB_Back=Zurück
+MSG_CardNumberTooBig=Die Kartennummer übersteigt den darstellbaren Bereich. Bitte reduzieren Sie die Anzahl an Tischen und/oder Plätzen!
 MSG_EmptyEventTitle=Bitte geben Sie den Veranstaltungstitel ein!
 MSG_SeatsZero=Die Platzanzahl in einer Tischkategorie ist 0!
 MSG_GroupIntersections=Die Tischnummern einiger Tischkategorien überschneiden sich!

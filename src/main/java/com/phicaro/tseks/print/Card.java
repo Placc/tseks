@@ -116,7 +116,7 @@ public class Card implements Printable {
         Point2D.Double position = new Point2D.Double(xPos, yPos);
 
         //Title
-        drawLine(graphics2d, position, title);
+        drawLine(graphics2d, pageFormat, position, title);
 
         //Cardnumber
         AttributedString attrString = new AttributedString("" + cardNumber);
@@ -135,23 +135,23 @@ public class Card implements Printable {
             layout.draw(graphics2d, pen.x, pen.y);
         }
 
-        drawLine(graphics2d, position, " ");
+        drawLine(graphics2d, pageFormat, position, " ");
 
         //Location
-        drawLine(graphics2d, position, location);
-        drawLine(graphics2d, position, " ");
+        drawLine(graphics2d, pageFormat, position, location);
+        drawLine(graphics2d, pageFormat, position, " ");
 
         //Description
-        drawLine(graphics2d, position, description);
-        drawLine(graphics2d, position, " ");
+        drawLine(graphics2d, pageFormat, position, description);
+        drawLine(graphics2d, pageFormat, position, " ");
 
         //Date + Time
         String dateText = Resources.getString("LAB_AtDateCard", dateFormat.format(date));
         String timeText = Resources.getString("LAB_AtTimeCard", timeFormat.format(date));
 
         String dateTime = (dateText + "    " + timeText);
-        drawLine(graphics2d, position, dateTime);
-        drawLine(graphics2d, position, " ");
+        drawLine(graphics2d, pageFormat, position, dateTime);
+        drawLine(graphics2d, pageFormat, position, " ");
 
         //TablePrice
         if (pageIndex != PREVIEW_NO_CATEGORY_INDEX) {
@@ -160,13 +160,13 @@ public class Card implements Printable {
             String space = "       ".substring(1 + (int) Math.log10(this.tableNumber));
 
             String tablePrice = tableNumber + space + price;
-            drawLine(graphics2d, position, tablePrice);
+            drawLine(graphics2d, pageFormat, position, tablePrice);
         }
 
         return Printable.PAGE_EXISTS;
     }
 
-    private void drawLine(Graphics2D graphics2d, Point2D.Double position, String text) {
+    private void drawLine(Graphics2D graphics2d, PageFormat format, Point2D.Double position, String text) throws PrinterException {
         AttributedString attrString = new AttributedString(text);
         attrString.addAttribute(TextAttribute.FONT, cardFont);
         attrString.addAttribute(TextAttribute.FOREGROUND, Color.black);
@@ -178,6 +178,11 @@ public class Card implements Printable {
 
         float xPos = (float) position.getX() - layout.getAdvance() / 2.0f;
         float yPos = (float) position.getY() + layout.getAscent();
+
+        if (xPos < format.getImageableX()
+                || xPos + layout.getAdvance() > format.getImageableX() + format.getImageableWidth()) {
+            throw new PrinterException(text);
+        }
 
         layout.draw(graphics2d, xPos, yPos);
 

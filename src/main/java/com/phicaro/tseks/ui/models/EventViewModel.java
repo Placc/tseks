@@ -68,6 +68,10 @@ public class EventViewModel implements IViewModel<Event> {
         return title.get();
     }
 
+    public void setTitle(String title) {
+        this.title.set(title);
+    }
+
     public void setName(String name) {
         this.name.set(name);
     }
