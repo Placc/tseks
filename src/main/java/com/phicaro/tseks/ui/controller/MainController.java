@@ -147,7 +147,7 @@ public class MainController implements Initializable {
 
     public void switchToStartup() {
         try {
-            BorderPane root = FXMLLoader.load(getClass().getResource("/fxml/pages/Startup.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/pages/Startup.fxml"));
             hideToolbar();
             content.getChildren().setAll(root);
         } catch (IOException e) {
