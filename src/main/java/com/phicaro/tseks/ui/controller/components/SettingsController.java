@@ -97,8 +97,6 @@ public class SettingsController extends Dialog implements Initializable {
         settingsSaveButton.setOnAction(evt -> onSaveClicked());
 
         settingsDiscardButton = (Button) this.getDialogPane().lookupButton(discardType);
-        settingsDiscardButton.setGraphic(new ImageView(Resources.getImage("clear.png", Resources.ImageSize.NORMAL)));
-        settingsDiscardButton.getStyleClass().add("danger");
 
         enableButtons(false);
 
@@ -172,6 +170,16 @@ public class SettingsController extends Dialog implements Initializable {
 
     private void enableButtons(boolean enable) {
         settingsSaveButton.setDisable(!enable);
+
+        if (enable) {
+            settingsDiscardButton.setGraphic(new ImageView(Resources.getImage("clear.png", Resources.ImageSize.NORMAL)));
+            settingsDiscardButton.getStyleClass().add("danger");
+            settingsDiscardButton.setText(Resources.getString("LAB_Discard"));
+        } else {
+            settingsDiscardButton.setGraphic(null);
+            settingsDiscardButton.getStyleClass().remove("danger");
+            settingsDiscardButton.setText(Resources.getString("LAB_Cancel"));
+        }
     }
 
 }

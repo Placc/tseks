@@ -30,6 +30,7 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -76,14 +77,33 @@ public class OverviewController implements INavigationController, Initializable 
         //Table columns
         eventTableNameColumn.setText(Resources.getString("LAB_Event"));
         eventTableNameColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getName(), true));
+        eventTableNameColumn.comparatorProperty().set((HBox o1, HBox o2) -> {
+            Label l1 = (Label) o1.getChildren().get(0);
+            Label l2 = (Label) o2.getChildren().get(0);
+
+            return l2.getText().compareTo(l1.getText());
+        });
 
         eventTableDateColumn.setText(Resources.getString("LAB_Date"));
         eventTableDateColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getDate(), false));
+        eventTableNameColumn.comparatorProperty().set((HBox o1, HBox o2) -> {
+            Label l1 = (Label) o1.getChildren().get(0);
+            Label l2 = (Label) o2.getChildren().get(0);
+
+            return UiHelper.parse(l2.getText()).compareTo(UiHelper.parse(l1.getText()));
+        });
 
         eventTableLocationColumn.setText(Resources.getString("LAB_Location"));
         eventTableLocationColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getLocation(), false));
+        eventTableNameColumn.comparatorProperty().set((HBox o1, HBox o2) -> {
+            Label l1 = (Label) o1.getChildren().get(0);
+            Label l2 = (Label) o2.getChildren().get(0);
+
+            return l2.getText().compareTo(l1.getText());
+        });
 
         eventTableOptionsColumn.setCellValueFactory(event -> createOptionsForEvent(event.getValue()));
+        eventTableOptionsColumn.setSortable(false);
 
         eventService = MainController.instance().getTseksApp().getEventService();
         events = FXCollections.observableArrayList();
@@ -92,6 +112,7 @@ public class OverviewController implements INavigationController, Initializable 
         eventTable.setPlaceholder(new Label(Resources.getString("LAB_NoEventsAvailable")));
         eventTable.setItems(events);
         eventTable.getSelectionModel().selectedItemProperty().addListener((obs, o, s) -> eventInfoController.setEvent(s));
+        eventTable.getSortOrder().setAll(eventTableNameColumn, eventTableDateColumn, eventTableLocationColumn);
 
         eventInfoController.setEvent(null);
 
@@ -166,6 +187,10 @@ public class OverviewController implements INavigationController, Initializable 
         copy.getStyleClass().add("back-btn");
         edit.getStyleClass().add("back-btn");
         delete.getStyleClass().add("back-btn");
+
+        copy.setTooltip(new Tooltip(Resources.getString("LAB_Copy")));
+        edit.setTooltip(new Tooltip(Resources.getString("LAB_Edit")));
+        delete.setTooltip(new Tooltip(Resources.getString("LAB_Delete")));
 
         eventTable.getSelectionModel().selectedItemProperty().addListener((obs, o, s) -> {
             copyView.setEffect(s.equals(eventViewModel) ? noOverlay : blueOverlay);

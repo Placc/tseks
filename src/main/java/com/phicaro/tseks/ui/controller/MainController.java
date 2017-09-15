@@ -26,6 +26,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -81,6 +82,7 @@ public class MainController implements Initializable {
         backView.setEffect(colorAdjust);
 
         backButton.setGraphic(backView);
+        backButton.setTooltip(new Tooltip(Resources.getString("LAB_Back")));
 
         switchToStartup();
 

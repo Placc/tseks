@@ -28,6 +28,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -323,6 +324,7 @@ public class EditEventTableCategoryController implements IEditEventController {
         Button delete = new Button("", deleteView);
         delete.getStyleClass().add("back-btn");
         delete.setFocusTraversable(false);
+        delete.setTooltip(new Tooltip(Resources.getString("LAB_Delete")));
 
         delete.setOnAction(e -> deleteTableGroupClicked(group));
 
