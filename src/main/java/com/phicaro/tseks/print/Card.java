@@ -5,7 +5,6 @@
  */
 package com.phicaro.tseks.print;
 
-import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.util.Resources;
 import java.awt.Color;
 import java.awt.Font;
@@ -29,10 +28,14 @@ import java.util.Date;
  */
 public class Card implements Printable {
 
-    private static final Font CARD_FONT = new Font("Times New Roman", Font.BOLD, 11);
+    public static final int PREVIEW_NO_CATEGORY_INDEX = -1;
+    public static final int DEFAULT_FONT_SIZE = 11;
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy");
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+
+    private Font cardFont;
+    private double scale;
 
     private int cardNumber;
     private int tableNumber;
@@ -44,16 +47,25 @@ public class Card implements Printable {
     private String location;
     private Date date;
 
-    public Card(int cardNumber, Event event, int tableNumber, double price, PageSize cardSize) {
+    public Card(int cardNumber, String title, String description, String location, Date date, int tableNumber, double price, PageSize cardSize) {
         this.cardNumber = cardNumber;
         this.tableNumber = tableNumber;
         this.price = price;
         this.cardSize = cardSize;
 
-        this.title = event.getTitle();
-        this.description = event.getDescription();
-        this.location = event.getLocation().getLocationDescription();
-        this.date = event.getDate();
+        this.title = title.isEmpty() ? " " : title;
+        this.description = description.isEmpty() ? " " : description;
+        this.location = location.isEmpty() ? " " : location;
+        this.date = date;
+
+        this.scale = 1.0;
+        this.cardFont = new Font("Times New Roman", Font.BOLD, DEFAULT_FONT_SIZE);
+    }
+
+    public void setScale(double scale) {
+        this.scale = scale;
+
+        this.cardFont = new Font("Times New Roman", Font.BOLD, (int) (scale * DEFAULT_FONT_SIZE));
     }
 
     public PageSize getCardSize() {
@@ -93,20 +105,22 @@ public class Card implements Printable {
         Graphics2D graphics2d = (Graphics2D) graphics;
 
         //Text begin: 2,8 cm from top = 1.10236 inches
+        double textBegin = 1.10236 * scale;
         //Text offset: 0,4 cm = 0.23622 inches
+        double textOffset = 0.23622 * scale;
         //Number right: 0,6 cm = 0.15748 inches
-       
+
         double xPos = pageFormat.getImageableX() + pageFormat.getImageableWidth() / 2.0;
-        double yPos = pageFormat.getImageableY() + 1.10236 * PrinterService.DEFAULT_DPI;
+        double yPos = pageFormat.getImageableY() + textBegin * PrinterService.DEFAULT_DPI;
 
         Point2D.Double position = new Point2D.Double(xPos, yPos);
-        
+
         //Title
         drawLine(graphics2d, position, title);
 
         //Cardnumber
         AttributedString attrString = new AttributedString("" + cardNumber);
-        attrString.addAttribute(TextAttribute.FONT, CARD_FONT);
+        attrString.addAttribute(TextAttribute.FONT, cardFont);
         attrString.addAttribute(TextAttribute.FOREGROUND, Color.black);
 
         AttributedCharacterIterator charIterator = attrString.getIterator();
@@ -115,10 +129,12 @@ public class Card implements Printable {
 
         Point2D.Float pen = new Point2D.Float();
         pen.y = (float) yPos + layout.getAscent();
-        pen.x = (float) (pageFormat.getImageableX() + pageFormat.getImageableWidth() - 0.23622 * PrinterService.DEFAULT_DPI) - layout.getAdvance();
+        pen.x = (float) (pageFormat.getImageableX() + pageFormat.getImageableWidth() - textOffset * PrinterService.DEFAULT_DPI) - layout.getAdvance();
 
-        layout.draw(graphics2d, pen.x, pen.y);
-        
+        if (pageIndex != PREVIEW_NO_CATEGORY_INDEX) {
+            layout.draw(graphics2d, pen.x, pen.y);
+        }
+
         drawLine(graphics2d, position, " ");
 
         //Location
@@ -136,22 +152,23 @@ public class Card implements Printable {
         String dateTime = (dateText + "    " + timeText);
         drawLine(graphics2d, position, dateTime);
         drawLine(graphics2d, position, " ");
-        
 
         //TablePrice
-        String tableNumber = Resources.getString("LAB_TableNumberCard", this.tableNumber);
-        String price = Resources.getString("LAB_PriceCard", this.price);
-        String space = "       ".substring(1 + (int) Math.log10(this.tableNumber));
+        if (pageIndex != PREVIEW_NO_CATEGORY_INDEX) {
+            String tableNumber = Resources.getString("LAB_TableNumberCard", this.tableNumber);
+            String price = Resources.getString("LAB_PriceCard", this.price);
+            String space = "       ".substring(1 + (int) Math.log10(this.tableNumber));
 
-        String tablePrice = tableNumber + space + price;
-        drawLine(graphics2d, position, tablePrice);
+            String tablePrice = tableNumber + space + price;
+            drawLine(graphics2d, position, tablePrice);
+        }
 
         return Printable.PAGE_EXISTS;
     }
-    
+
     private void drawLine(Graphics2D graphics2d, Point2D.Double position, String text) {
         AttributedString attrString = new AttributedString(text);
-        attrString.addAttribute(TextAttribute.FONT, CARD_FONT);
+        attrString.addAttribute(TextAttribute.FONT, cardFont);
         attrString.addAttribute(TextAttribute.FOREGROUND, Color.black);
 
         AttributedCharacterIterator charIterator = attrString.getIterator();
@@ -161,9 +178,9 @@ public class Card implements Printable {
 
         float xPos = (float) position.getX() - layout.getAdvance() / 2.0f;
         float yPos = (float) position.getY() + layout.getAscent();
-        
+
         layout.draw(graphics2d, xPos, yPos);
-        
+
         position.setLocation(position.getX(), yPos);
     }
 

@@ -32,7 +32,7 @@ import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 
 /**
  * FXML Controller class
@@ -46,16 +46,13 @@ public class EditEventController implements IEditEventController, INavigationCon
     @FXML
     private Button discardButton;
     @FXML
-    private BorderPane eventInfo;
-    @FXML
-    private BorderPane tableGroups;
-
-    @FXML
-    private PreviewController previewController;
+    private VBox previewContainer;
     @FXML
     private EditEventInfoController eventInfoController;
     @FXML
     private EditEventTableCategoryController tableGroupsController;
+
+    private PreviewController previewController;
 
     //Model
     private EventViewModel eventViewModel;
@@ -113,6 +110,8 @@ public class EditEventController implements IEditEventController, INavigationCon
         discardButton.setText(Resources.getString("LAB_Discard"));
         discardButton.setGraphic(new ImageView(Resources.getImage("clear.png", Resources.ImageSize.NORMAL)));
         discardButton.setOnAction(e -> onDiscardClicked());
+
+        previewController = new PreviewController(previewContainer);
 
         setEvent(new EventViewModel());
 

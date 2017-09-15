@@ -27,6 +27,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 
 /**
  * FXML Controller class
@@ -66,7 +67,8 @@ public class EditEventInfoController implements IEditEventController {
     public void initialize(URL url, ResourceBundle rb) {
         timeTextField = new TimeTextField();
         eventDateHBox.getChildren().add(timeTextField);
-        eventDateHBox.setMargin(timeTextField, new Insets(0, 10, 0, 10));
+        HBox.setHgrow(timeTextField, Priority.ALWAYS);
+        HBox.setMargin(timeTextField, new Insets(0, 10, 0, 10));
 
         eventNameLabel.setText(Resources.getString("LAB_EventName"));
         eventTitleLabel.setText(Resources.getString("LAB_EventTitle"));

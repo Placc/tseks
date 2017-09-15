@@ -5,170 +5,127 @@
  */
 package com.phicaro.tseks.ui.controller.components;
 
+import com.phicaro.tseks.print.Card;
+import com.phicaro.tseks.print.PrinterService;
 import com.phicaro.tseks.settings.PrintSettings;
-import com.phicaro.tseks.ui.util.views.ImageViewPane;
-import com.phicaro.tseks.ui.controller.IEventController;
 import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableCategoryViewModel;
-import com.phicaro.tseks.util.Resources;
 import com.phicaro.tseks.ui.util.UiHelper;
-import java.net.URL;
-import java.util.ResourceBundle;
+import com.phicaro.tseks.ui.util.views.ImageViewPane;
+import com.phicaro.tseks.util.Logger;
+import com.phicaro.tseks.util.Resources;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.awt.print.PageFormat;
+import java.awt.print.Paper;
 import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.geometry.Bounds;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 /**
  * FXML Controller class
  *
  * @author Placc
  */
-public class PreviewController implements IEventController {
+public class PreviewController {
 
-    @FXML
-    private StackPane previewRoot;
-    @FXML
-    private Label previewCardNumber;
-    @FXML
-    private Label previewTitle;
-    @FXML
-    private Label previewLocation;
-    @FXML
-    private Label previewDescription;
-    @FXML
-    private Label previewDate;
-    @FXML
-    private Label previewNumberPrice;
-    @FXML
-    private VBox previewVBox;
-    
     private ImageViewPane imageView;
-    
+
     private EventViewModel event;
-    
+    private BufferedImage background;
     private PrintSettings settings;
+    private PrinterService service;
+    private PageFormat format;
 
-    /**
-     * Initializes the controller class.
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        Image image = Resources.getPreviewBackground();
-        ImageView view = new ImageView(image);
+    public PreviewController(Pane root) {
+        Image backgroundImage = Resources.getPreviewBackground();
+        background = SwingFXUtils.fromFXImage(backgroundImage, background);
 
+        settings = MainController.instance().getTseksApp().getSettingsService().getPrintSettings();
+        service = MainController.instance().getTseksApp().getPrinterService();
+
+        Paper paper = new Paper();
+
+        paper.setSize(background.getWidth(), background.getHeight());
+        paper.setImageableArea(0, 0, background.getWidth(), background.getHeight());
+
+        format = new PageFormat();
+
+        format.setPaper(paper);
+        format.setOrientation(PageFormat.PORTRAIT);
+
+        ImageView view = new ImageView();
+        view.setSmooth(true);
         view.setPreserveRatio(true);
-
         InnerShadow shadow = new InnerShadow(2, Color.GRAY);
         view.setEffect(shadow);
-        
+
         imageView = new ImageViewPane(view);
-        imageView.boundsInParentProperty().addListener(this::onBoundsChanged);
-        
-        previewRoot.getChildren().add(0, imageView);
-        
-        settings = MainController.instance().getTseksApp().getSettingsService().getPrintSettings();
+
+        VBox.setMargin(imageView, new Insets(20));
+
+        root.getChildren().add(imageView);
     }
-    
-    @Override
+
     public void setEvent(EventViewModel event) {
         this.event = event;
-        
-        previewTitle.textProperty().bind(event.getTitleProperty());
-        previewDescription.textProperty().bind(event.getDescriptionProperty());
-        previewLocation.textProperty().bind(event.getLocationProperty());
-        
-        updateDateLabel(event);
-        event.getDateProperty().addListener(__ -> updateDateLabel(event));
-        
+
+        event.getTitleProperty().addListener((obj, oldVal, newVal) -> onChanged());
+        event.getDescriptionProperty().addListener((obj, oldVal, newVal) -> onChanged());
+        event.getLocationProperty().addListener((obj, oldVal, newVal) -> onChanged());
+        event.getDateProperty().addListener((obj, oldVal, newVal) -> onChanged());
+
         onChanged();
     }
-    
+
     public void onChanged() {
         Platform.runLater(() -> {
-            updateNumberPriceLabel(event);
-            updateCardNumberLabel(event);
-        });
-    }
-    
-    private void updateNumberPriceLabel(EventViewModel event) {
-        if(event.getTableGroups().size() > 0) {
-            TableCategoryViewModel viewModel = event.getTableGroups().get(event.getTableGroups().size() - 1);
-            
-            String tableNumber = Resources.getString("LAB_TableNumberCard", viewModel.getStartNumber());
-            String price = Resources.getString("LAB_PriceCard", viewModel.getPrice());
-            String space = "       ".substring(1 + (int) Math.log10(viewModel.getStartNumber()));
-            
-            previewNumberPrice.setText(tableNumber + space + price);
-        } else {
-            previewNumberPrice.setText("");
-        }
-    }
-    
-    private void updateCardNumberLabel(EventViewModel event) {
-        if(event.getTableGroups().size() > 0) {
-            TableCategoryViewModel viewModel = event.getTableGroups().get(event.getTableGroups().size() - 1);
-            int cardNumber = 1 + event.getTableGroups().stream()
-                .filter(group -> group.getEndNumber() < viewModel.getStartNumber())
-                .map(group -> (group.getEndNumber() - group.getStartNumber() + 1) * group.getSeats())
-                .reduce(0, (a, b) -> a + b);
-            
-            previewCardNumber.setText("" + cardNumber);
-        } else {
-            previewCardNumber.setText("");
-        }
-    }
-    
-    private void updateDateLabel(EventViewModel event) {
-        String date = UiHelper.format(UiHelper.parse(event.getDate()), "dd.MM.yy");
-        String dateText = Resources.getString("LAB_AtDateCard", date);
-        
-        String time = UiHelper.format(UiHelper.parse(event.getDate()), "HH:mm");
-        String timeText = Resources.getString("LAB_AtTimeCard", time);
-        
-        previewDate.setText(dateText + "    " + timeText);
-    }
-    
-    private void onBoundsChanged(Object args, Bounds oldVal, Bounds newVal) {
-        double size = Math.min(newVal.getHeight(), newVal.getWidth());
-        
-        setMargin(size);
-        setFontSize(size);
-        
-        previewVBox.translateYProperty().set(settings.getPositionScale() * size);
-        
-        previewCardNumber.translateYProperty().set(2.0 * settings.getPositionScale() * size);
-        previewCardNumber.translateXProperty().set(settings.getCardNumberScale() * size);
-    }
-    
-    private void setMargin(double size) {
-        Insets margin = new Insets(settings.getMarginScale() * size, 0, 0, 0);
+            int cardNumber = 1, tableNumber = 1;
+            double price = 0.0;
+            if (event.getTableGroups().size() > 0) {
+                TableCategoryViewModel viewModel = event.getTableGroups().get(event.getTableGroups().size() - 1);
 
-        VBox.setMargin(previewTitle, margin);
-        VBox.setMargin(previewLocation, margin);
-        VBox.setMargin(previewDescription, margin);
-        VBox.setMargin(previewDate, margin);
-        VBox.setMargin(previewNumberPrice, margin);
-    }
-    
-    private void setFontSize(double size) {
-        Font font = new Font("Times New Roman Bold", settings.getFontScale() * size);
-        
-        previewCardNumber.setFont(font);
-        previewTitle.setFont(font);
-        previewLocation.setFont(font);
-        previewDescription.setFont(font);
-        previewDate.setFont(font);
-        previewNumberPrice.setFont(font);
+                price = viewModel.getPrice();
+                tableNumber = viewModel.getStartNumber();
+                cardNumber = 1 + event.getTableGroups().stream()
+                        .filter(group -> group.getEndNumber() < viewModel.getStartNumber())
+                        .map(group -> (group.getEndNumber() - group.getStartNumber() + 1) * group.getSeats())
+                        .reduce(0, (a, b) -> a + b);
+
+            }
+
+            Card card = new Card(cardNumber, event.getTitle(), event.getDescription(), event.getLocation(), UiHelper.parse(event.getDate()), tableNumber, price, null);
+
+            double scale = format.getImageableHeight() / service.getPageFormat(settings.getCardSize()).getImageableWidth();
+            card.setScale(scale);
+
+            WritableImage image = new WritableImage((int) format.getImageableWidth(), (int) format.getImageableHeight());
+            BufferedImage buffered = new BufferedImage((int) format.getImageableWidth(), (int) format.getImageableHeight(), BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics = buffered.createGraphics();
+
+            graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+            try {
+                graphics.drawImage(background, 0, 0, null);
+                card.print(graphics, format, event.getTableGroups().size() > 0 ? 0 : Card.PREVIEW_NO_CATEGORY_INDEX);
+            } catch (Exception e) {
+                Logger.error("preview-controller on-changed", e);
+            }
+
+            imageView.imageViewProperty().get().setImage(SwingFXUtils.toFXImage(buffered, image));
+        }
+        );
     }
 }

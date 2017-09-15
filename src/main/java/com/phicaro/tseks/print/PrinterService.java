@@ -74,7 +74,7 @@ public class PrinterService {
     }
 
     public void print(Event event, int fromTableNumber, int toTableNumber) {
-        createPages(event, fromTableNumber, toTableNumber, getPageFormat())
+        createPages(event, fromTableNumber, toTableNumber, getPageFormat(settingsService.getPrintSettings().getPageSize()))
                 .subscribeOn(Schedulers.computation())
                 .observeOn(Schedulers.computation())
                 .toList()
@@ -121,7 +121,7 @@ public class PrinterService {
                 .flatMap(category -> {
                     int categoryStartCardNumber = count.get();
                     return Observable.range(categoryStartCardNumber, category.getSeatsNumber() * category.getNumberOfTables())
-                            .map(number -> new Card(number, event, category.getMinTableNumber() + (number - categoryStartCardNumber) / category.getSeatsNumber(), category.getPrice().getPrice(), cardSize))
+                            .map(number -> new Card(number, event.getTitle(), event.getDescription(), event.getLocation().getLocationDescription(), event.getDate(), category.getMinTableNumber() + (number - categoryStartCardNumber) / category.getSeatsNumber(), category.getPrice().getPrice(), cardSize))
                             .doOnNext(__ -> count.incrementAndGet());
                 })
                 .filter(card -> card.getTableNumber() >= fromTable && card.getTableNumber() <= toTable)
@@ -169,8 +169,8 @@ public class PrinterService {
         return result;
     }
 
-    private PageFormat getPageFormat() {
-        MediaSize size = settingsService.getPrintSettings().getPageSize().asMediaSize();
+    public PageFormat getPageFormat(PageSize pageSize) {
+        MediaSize size = pageSize.asMediaSize();
 
         double paperWidth = size.getX(MediaSize.INCH) * DEFAULT_DPI;
         double paperHeight = size.getY(MediaSize.INCH) * DEFAULT_DPI;

@@ -73,7 +73,7 @@ public class SettingsController extends Dialog implements Initializable {
 
             getDialogPane().setContent(loader.load());
         } catch (Exception e) {
-            Logger.error("print-from-to-dialog-controller constructor", e);
+            Logger.error("settings-controller constructor", e);
         }
     }
 
