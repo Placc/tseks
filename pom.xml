@@ -100,7 +100,7 @@
                             <jar>target/${project.artifactId}-${project.version}.jar</jar>
                             <!-- if <dontWrapJar>true</dontWrapJar> change to this conf <jar>${project.artifactId}-${project.version}.jar</jar> -->
                             <dontWrapJar>false</dontWrapJar>
-                            <errTitle>Error in launch4j plugin</errTitle>
+                            <errTitle>Fehler - Eintrittskartensystem</errTitle>
                             <classPath>
                                 <mainClass>com.phicaro.tseks.ui.MainApp</mainClass>
                             </classPath>
