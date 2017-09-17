@@ -6,7 +6,7 @@
 
 <StackPane fx:id="pane" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: white;" styleClass="root" stylesheets="@../styles/Styles.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.phicaro.tseks.ui.controller.StartupController">
    <children>
-      <Label fx:id="title" style="-fx-font-size: 42px;" text="asdf" textFill="STEELBLUE">
+      <Label fx:id="title" style="-fx-font-size: 42px; -fx-font-weight: bold;" text="asdf" textFill="STEELBLUE">
          <StackPane.margin>
             <Insets />
          </StackPane.margin></Label>
