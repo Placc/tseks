@@ -196,22 +196,7 @@ public class TimeTextField extends TextField {
 
     @Override
     public void replaceText(int begin, int end, String text) {
-        if (begin == end) {
-            this.insertText(begin, text);
-        } else {
-            // only handle this if text.length() is equal to the number of
-            // characters being replaced, and if the replacement results in
-            // a valid string:
-            if (text.length() == end - begin) {
-                StringBuilder builder = new StringBuilder(this.getText());
-                builder.replace(begin, end, text);
-                String testText = builder.toString();
-                if (validate(testText)) {
-                    this.setText(testText);
-                }
-                this.positionCaret(end);
-            }
-        }
+        this.insertText(begin, text);
     }
 
     private boolean validate(String time) {
