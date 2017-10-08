@@ -157,7 +157,7 @@ public class Card implements Printable {
     private void drawCardNumber(Graphics2D graphics2d, PageFormat pageFormat, Point2D.Double position) {
         //Text offset: 0,4 cm = 0.23622 inches
         //Mini text offset: 0,3 cm = 0,11811 inches
-        double textOffset = 0.11811 * scale;
+        double textOffset = 0.3 * scale;
 
         //Cardnumber
         AttributedString attrString = new AttributedString("" + cardNumber);
