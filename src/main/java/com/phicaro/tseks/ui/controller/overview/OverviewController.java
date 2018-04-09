@@ -77,29 +77,32 @@ public class OverviewController implements INavigationController, Initializable 
         //Table columns
         eventTableNameColumn.setText(Resources.getString("LAB_Event"));
         eventTableNameColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getName(), true));
+        eventTableNameColumn.setSortType(TableColumn.SortType.ASCENDING);
         eventTableNameColumn.comparatorProperty().set((HBox o1, HBox o2) -> {
             Label l1 = (Label) o1.getChildren().get(0);
             Label l2 = (Label) o2.getChildren().get(0);
 
-            return l2.getText().compareTo(l1.getText());
+            return l1.getText().compareTo(l2.getText());
         });
 
         eventTableDateColumn.setText(Resources.getString("LAB_Date"));
         eventTableDateColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getDate(), false));
-        eventTableNameColumn.comparatorProperty().set((HBox o1, HBox o2) -> {
+        eventTableDateColumn.setSortType(TableColumn.SortType.ASCENDING);
+        eventTableDateColumn.comparatorProperty().set((HBox o1, HBox o2) -> {
             Label l1 = (Label) o1.getChildren().get(0);
             Label l2 = (Label) o2.getChildren().get(0);
 
-            return UiHelper.parse(l2.getText()).compareTo(UiHelper.parse(l1.getText()));
+            return UiHelper.parse(l1.getText()).compareTo(UiHelper.parse(l2.getText()));
         });
 
         eventTableLocationColumn.setText(Resources.getString("LAB_Location"));
         eventTableLocationColumn.setCellValueFactory(event -> createLabelHBox(event.getValue().getLocation(), false));
-        eventTableNameColumn.comparatorProperty().set((HBox o1, HBox o2) -> {
+        eventTableLocationColumn.setSortType(TableColumn.SortType.ASCENDING);
+        eventTableLocationColumn.comparatorProperty().set((HBox o1, HBox o2) -> {
             Label l1 = (Label) o1.getChildren().get(0);
             Label l2 = (Label) o2.getChildren().get(0);
 
-            return l2.getText().compareTo(l1.getText());
+            return l1.getText().compareTo(l2.getText());
         });
 
         eventTableOptionsColumn.setCellValueFactory(event -> createOptionsForEvent(event.getValue()));
@@ -113,7 +116,7 @@ public class OverviewController implements INavigationController, Initializable 
         eventTable.setItems(events);
         eventTable.getSelectionModel().selectedItemProperty().addListener((obs, o, s) -> eventInfoController.setEvent(s));
         eventTable.getSortOrder().setAll(eventTableNameColumn, eventTableDateColumn, eventTableLocationColumn);
-
+        
         eventInfoController.setEvent(null);
 
         MainController.instance().toggleSpinner(true);
@@ -140,6 +143,7 @@ public class OverviewController implements INavigationController, Initializable 
 
                 if (!events.contains(viewModel)) {
                     events.add(viewModel);
+                    eventTable.sort();
                 }
             }
         });

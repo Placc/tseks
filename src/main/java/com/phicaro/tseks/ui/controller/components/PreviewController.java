@@ -99,11 +99,14 @@ public class PreviewController implements IEventController {
                 tableNumber = viewModel.getStartNumber();
                 cardNumber
                         = 1 + event.getTableGroups().stream()
-                                .filter(group -> group.getEndNumber() < viewModel.getStartNumber())
+                                .filter(group -> group.getEndNumber() > viewModel.getStartNumber())
                                 .map(group -> (group.getEndNumber() - group.getStartNumber() + 1) * group.getSeats())
                                 .reduce(0, (a, b) -> a + b);
 
-                if (cardNumber - 1 + (viewModel.getEndNumber() - viewModel.getStartNumber() + 1) * viewModel.getSeats() < 0) {
+                boolean validCategory = viewModel.getEndNumber() > viewModel.getStartNumber();
+                int categoryCount = validCategory ? (viewModel.getEndNumber() - viewModel.getStartNumber() + 1) * viewModel.getSeats() : 1;
+                
+                if (cardNumber - 1 + categoryCount < 0) {
                     UiHelper.showException(Resources.getString("LAB_ErrorOccured"), new Exception(Resources.getString("MSG_CardNumberTooBig")));
 
                     if (cardNumber < 0) {
