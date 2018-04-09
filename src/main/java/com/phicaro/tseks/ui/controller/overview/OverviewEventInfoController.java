@@ -12,6 +12,7 @@ import com.phicaro.tseks.ui.controller.MainController;
 import com.phicaro.tseks.ui.controller.components.PrintFromToDialogController;
 import com.phicaro.tseks.ui.models.EventViewModel;
 import com.phicaro.tseks.ui.models.TableCategoryViewModel;
+import com.phicaro.tseks.ui.util.UiHelper;
 import com.phicaro.tseks.util.Resources;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
@@ -211,7 +212,8 @@ public class OverviewEventInfoController implements IEventController, INavigatio
     }
 
     private void onPrintClicked() {
-        MainController.instance().getTseksApp().getPrinterService().print(eventViewModel.getModel());
+        MainController.instance().getTseksApp().getPrinterService().print(eventViewModel.getModel(),
+                UiHelper::showResumePrintDialog);
     }
 
     private void onPrintFromToClicked() {
@@ -229,7 +231,8 @@ public class OverviewEventInfoController implements IEventController, INavigatio
             Pair<Integer, Integer> result = resultOpt.get();
 
             MainController.instance().getTseksApp().getPrinterService()
-                    .print(eventViewModel.getModel(), result.getKey(), result.getValue());
+                    .print(eventViewModel.getModel(), result.getKey(), result.getValue(),
+                            UiHelper::showResumePrintDialog);
         }
     }
 }

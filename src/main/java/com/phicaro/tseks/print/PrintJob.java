@@ -10,6 +10,7 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import java.awt.print.PrinterAbortException;
+import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.util.Comparator;
 
@@ -23,34 +24,47 @@ public class PrintJob {
     private int startCard;
     private int from;
     private int to;
+    private Pages pages;
     private Page current;
     private PublishSubject<String> progressDesc;
 
-    public PrintJob(PrinterJob printerJob, int from, int to) {
+    public PrintJob(PrinterJob printerJob, Pages pages, int from, int to) {
         this.printerJob = printerJob;
         this.startCard = 1;
         this.from = from;
         this.to = to;
+        this.pages = pages;
         progressDesc = PublishSubject.create();
     }
 
-    public Completable start() throws Exception {
-        return Completable.create(s -> {
-            printerJob.print();
-            progressDesc.onComplete();
-            
-            s.onComplete();
-        })
-        .doOnError(e -> {
-            if (!(e instanceof PrinterAbortException))  {
-                progressDesc.onError(e);
-            }
-        });
+    public Completable start() {
+        return Completable.create(
+                s -> {
+                    try {
+                        printerJob.print();
+                        progressDesc.onComplete();
+
+                        s.onComplete();
+                    } catch (PrinterAbortException e) {
+                        s.onComplete();
+                    } catch (PrinterException e) {
+                        s.onError(e);
+                        progressDesc.onComplete();
+                    }
+                });
     }
 
     public void cancel() {
         printerJob.cancel();
         progressDesc.onComplete();
+    }
+
+    public Pages getPages() {
+        return pages;
+    }
+
+    public Page getCurrentPage() {
+        return current;
     }
 
     public void setCurrentPage(Page page) {

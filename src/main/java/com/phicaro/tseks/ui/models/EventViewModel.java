@@ -32,10 +32,6 @@ public class EventViewModel implements IViewModel<Event> {
     //Edit
     private final SimpleStringProperty description;
 
-    private static final Comparator<TableCategoryViewModel> CATEGORY_COMPARATOR = (TableCategoryViewModel c1, TableCategoryViewModel c2) -> {
-        return c1.getStartNumber() - c2.getStartNumber();
-    };
-
     public EventViewModel() {
         this.title = new SimpleStringProperty("");
         this.name = new SimpleStringProperty("");

@@ -68,12 +68,18 @@ public class EditEventTableCategoryController implements IEditEventController {
         eventTableView.setSelectionModel(new NullTableViewSelectionModel(eventTableView));
         eventTableView.getSortOrder().setAll(tableNumberColumn);
 
+        tableNumberColumn.setCellValueFactory(group -> createTableNumbersHbox(group.getValue()));
+        seatsColumn.setCellValueFactory(group -> createSeatsHbox(group.getValue()));
+        categoryColumn.setCellValueFactory(group -> createCategoryHBox(group.getValue()));
+        optionsColumn.setCellValueFactory(group -> createOptionsHbox(group.getValue()));
+
         tableNumberColumn.setText(Resources.getString("LAB_TableNumbers"));
+        tableNumberColumn.setSortType(TableColumn.SortType.ASCENDING);
         tableNumberColumn.comparatorProperty().set((HBox h1, HBox h2) -> {
             TextField t1 = (TextField) h1.getChildren().get(0);
             TextField t2 = (TextField) h2.getChildren().get(0);
 
-            return Integer.parseInt(t2.getText()) - Integer.parseInt(t1.getText());
+            return Integer.parseInt(t1.getText()) - Integer.parseInt(t2.getText());
         });
 
         seatsColumn.setText(Resources.getString("LAB_Seats"));
@@ -87,11 +93,6 @@ public class EditEventTableCategoryController implements IEditEventController {
         eventViewModel = event;
 
         eventTableView.setItems(event.getTableGroups());
-
-        tableNumberColumn.setCellValueFactory(group -> createTableNumbersHbox(group.getValue()));
-        seatsColumn.setCellValueFactory(group -> createSeatsHbox(group.getValue()));
-        categoryColumn.setCellValueFactory(group -> createCategoryHBox(group.getValue()));
-        optionsColumn.setCellValueFactory(group -> createOptionsHbox(group.getValue()));
     }
 
     public List<String> errors() {

@@ -149,6 +149,13 @@ public class UiHelper {
                 .map(result -> result.equals(ButtonType.YES));
     }
 
+    public static Observable<Boolean> showResumePrintDialog(Throwable error) {
+        return createAlert(AlertType.ERROR, Resources.getString("LAB_ResumePrint"), String.format(Resources.getString("MSG_ResumePrint"), error.getMessage()), ButtonType.NO, ButtonType.YES)
+                .subscribeOn(JavaFxScheduler.platform())
+                .flatMapObservable(alert -> JavaFxObservable.fromDialog((Alert) alert))
+                .map(result -> result.equals(ButtonType.YES));
+    }
+
     public static String combine(List<String> list) {
         if (list.isEmpty()) {
             return "";

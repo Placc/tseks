@@ -9,7 +9,9 @@ import com.phicaro.tseks.model.entities.Event;
 import com.phicaro.tseks.settings.SettingsService;
 import com.phicaro.tseks.util.Logger;
 import com.phicaro.tseks.util.Resources;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import java.awt.print.PageFormat;
@@ -73,30 +75,19 @@ public class PrinterService {
         }
     }
 
-    public void print(Event event, int fromTableNumber, int toTableNumber) {
-        createPages(event, fromTableNumber, toTableNumber, getPageFormat(settingsService.getPrintSettings().getPageSize()))
-                .subscribeOn(Schedulers.computation())
-                .observeOn(Schedulers.computation())
-                .toList()
-                .map(list -> createPrintJob(new Pages(list)))
-                .subscribe(job -> {
+    public void print(Event event, int fromTableNumber, int toTableNumber, IErrorHandler errorHandler) {
+        createPrintJob(event, fromTableNumber, toTableNumber)
+                .flatMapCompletable(job -> runJob(job, event, errorHandler))
+                .subscribe(() -> {
                     synchronized (runningJobs) {
-                        runningJobs.put(event.getId(), job);
+                        runningJobs.remove(event.getId());
                         printJobChanged.onNext(event.getId());
                     }
-                    job.start()
-                            .onErrorComplete()
-                            .subscribe(() -> {
-                                synchronized (runningJobs) {
-                                    runningJobs.remove(event.getId());
-                                    printJobChanged.onNext(event.getId());
-                                }
-                            });
-                });
+                }, e -> Logger.error("printer-service print", e));
     }
 
-    public void print(Event event) {
-        print(event, Integer.MIN_VALUE, Integer.MAX_VALUE);
+    public void print(Event event, IErrorHandler errorHandler) {
+        print(event, Integer.MIN_VALUE, Integer.MAX_VALUE, errorHandler);
     }
 
     public PrintJob getRunningJobByEvent(Event event) {
@@ -107,6 +98,40 @@ public class PrinterService {
 
     public Observable<String> runningJobChanged() {
         return printJobChanged;
+    }
+
+    private Completable resumeJobForEvent(Event event, IErrorHandler errorHandler) throws Exception {
+        PrintJob job = getRunningJobByEvent(event);
+        List<Page> allPages = job.getPages().getPages();
+        int currentIndex = allPages.indexOf(job.getCurrentPage());
+        List<Page> remaining = allPages.subList(currentIndex, allPages.size());
+        PrintJob resumedJob = initializePrintJob(new Pages(remaining));
+
+        return runJob(resumedJob, event, errorHandler);
+    }
+
+    private Completable runJob(PrintJob job, Event event, IErrorHandler errorHandler) {
+        synchronized (runningJobs) {
+            runningJobs.put(event.getId(), job);
+            printJobChanged.onNext(event.getId());
+        }
+
+        return job.start()
+                .onErrorResumeNext(error -> {
+                    if (errorHandler.resumeOnError(error).blockingFirst()) {
+                        return resumeJobForEvent(event, errorHandler);
+                    }
+                    return Completable.complete();
+                })
+                .onErrorComplete();
+    }
+
+    private Single<PrintJob> createPrintJob(Event event, int fromTableNumber, int toTableNumber) {
+        return createPages(event, fromTableNumber, toTableNumber, getPageFormat(settingsService.getPrintSettings().getPageSize()))
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.computation())
+                .toList()
+                .map(list -> initializePrintJob(new Pages(list)));
     }
 
     private Observable<Page> createPages(Event event, int fromTable, int toTable, PageFormat format) {
@@ -136,7 +161,7 @@ public class PrinterService {
         return horizontal * vertical;
     }
 
-    private PrintJob createPrintJob(Pages pages) throws PrinterException {
+    private PrintJob initializePrintJob(Pages pages) throws PrinterException {
         PrinterJob job = PrinterJob.getPrinterJob();
 
         job.setPageable(pages);
@@ -162,7 +187,7 @@ public class PrinterService {
             toCard = lastCard.getCardNumber();
         }
 
-        PrintJob result = new PrintJob(job, fromCard, toCard);
+        PrintJob result = new PrintJob(job, pages, fromCard, toCard);
 
         pages.setPrintJob(result);
 
